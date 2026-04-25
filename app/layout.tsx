@@ -15,6 +15,7 @@ const spaceMono = Space_Mono({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://taya.ph'),
   title: 'Tayâ — Predict anything. From PBA to M-Series.',
   description: "The Philippines' first prediction market. Stake your call on the moments that matter — local hoops, esports, pageants, the World Cup.",
   icons: {
