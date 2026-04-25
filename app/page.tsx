@@ -71,8 +71,45 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-brand-bg text-brand-text-primary">
+      {/* Header with Logo */}
+      <header className="fixed top-0 left-0 right-0 z-40 px-4 py-4 md:px-6 border-b border-brand-border/50 bg-brand-bg/95 backdrop-blur-sm">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <svg
+              viewBox="0 0 40 40"
+              className="w-8 h-8"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle cx="20" cy="20" r="20" fill="#0A0A0B" />
+              <text
+                x="20"
+                y="28"
+                fontFamily="Fraunces, Georgia, serif"
+                fontSize="28"
+                fontWeight="600"
+                textAnchor="middle"
+                fill="#F4B942"
+              >
+                â
+              </text>
+            </svg>
+            <span className="text-xl font-serif font-medium hidden sm:inline">
+              Tay<span className="text-brand-accent">â</span>
+            </span>
+          </div>
+          <nav className="flex gap-6 text-sm">
+            <a href="#categories" className="text-brand-text-secondary hover:text-brand-text-primary transition-colors">
+              Markets
+            </a>
+            <a href="#how-it-works" className="text-brand-text-secondary hover:text-brand-text-primary transition-colors">
+              How it works
+            </a>
+          </nav>
+        </div>
+      </header>
+
       {/* Hero Section */}
-      <section className="relative px-4 pt-16 pb-20 md:px-6 md:pt-32 md:pb-32">
+      <section className="relative px-4 pt-32 pb-20 md:px-6 md:pt-40 md:pb-32">
         {/* Subtle background chart line */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-5">
           <svg className="w-full h-full" viewBox="0 0 1000 300" preserveAspectRatio="none">
@@ -207,7 +244,7 @@ export default function Home() {
       </section>
 
       {/* Categories Section */}
-      <section className="px-4 py-20 md:px-6 md:py-32 border-t border-brand-border">
+      <section id="categories" className="px-4 py-20 md:px-6 md:py-32 border-t border-brand-border">
         <div className="max-w-6xl mx-auto">
           <motion.div
             initial="hidden"
@@ -253,7 +290,7 @@ export default function Home() {
       </section>
 
       {/* How It Works Section */}
-      <section className="px-4 py-20 md:px-6 md:py-32 border-t border-brand-border">
+      <section id="how-it-works" className="px-4 py-20 md:px-6 md:py-32 border-t border-brand-border">
         <div className="max-w-6xl mx-auto">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}

@@ -1,0 +1,33 @@
+<svg viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0A0A0B;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#141417;stop-opacity:1" />
+    </linearGradient>
+    <radialGradient id="accentGlow" cx="50%" cy="30%">
+      <stop offset="0%" style="stop-color:#F4B942;stop-opacity:0.15" />
+      <stop offset="100%" style="stop-color:#F4B942;stop-opacity:0" />
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGradient)"/>
+
+  <!-- Subtle accent glow -->
+  <circle cx="600" cy="150" r="400" fill="url(#accentGlow)"/>
+
+  <!-- Tayâ wordmark (large) -->
+  <text x="600" y="340" font-family="Fraunces, Georgia, serif" font-size="140" font-weight="500" text-anchor="middle" fill="#FAFAFA" letter-spacing="-2">
+    Tay
+  </text>
+
+  <!-- â in gold -->
+  <text x="730" y="340" font-family="Fraunces, Georgia, serif" font-size="140" font-weight="500" fill="#F4B942" letter-spacing="-2">
+    â
+  </text>
+
+  <!-- Tagline -->
+  <text x="600" y="430" font-family="Inter, Arial, sans-serif" font-size="28" text-anchor="middle" fill="#8A8A92" letter-spacing="0.5">
+    Predict anything. From PBA to M-Series.
+  </text>
+</svg>
