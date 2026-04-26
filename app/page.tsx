@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 
@@ -9,6 +9,24 @@ export default function Home() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const emailInputRef = useRef<HTMLInputElement>(null)
   const heroEmailRef = useRef<HTMLFormElement>(null)
+  const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
+
+  useEffect(() => {
+    const target = new Date('2026-06-11T00:00:00+08:00').getTime()
+    const tick = () => {
+      const diff = target - Date.now()
+      if (diff <= 0) { setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 }); return }
+      setCountdown({
+        days: Math.floor(diff / 86400000),
+        hours: Math.floor((diff % 86400000) / 3600000),
+        minutes: Math.floor((diff % 3600000) / 60000),
+        seconds: Math.floor((diff % 60000) / 1000),
+      })
+    }
+    tick()
+    const id = setInterval(tick, 1000)
+    return () => clearInterval(id)
+  }, [])
 
   const handleEmailSubmit = async (e: React.FormEvent, scrollTo?: React.RefObject<HTMLFormElement>) => {
     e.preventDefault()
@@ -369,12 +387,48 @@ export default function Home() {
             <p className="text-xs font-mono font-semibold text-brand-accent uppercase tracking-widest mb-4">
               First Event
             </p>
-            <h2 className="text-4xl md:text-5xl font-serif font-medium mb-6">
+            <h2 className="text-4xl md:text-5xl font-serif font-medium mb-8">
               FIFA World Cup 2026
             </h2>
-            <p className="text-lg text-brand-text-secondary mb-10 leading-relaxed">
-              48 teams. 104 matches. One champion. Tayâ goes live with full World Cup markets — winner, group stage, top scorer, daily props. Be there from the opening whistle.
-            </p>
+
+            {/* Countdown */}
+            <div className="flex items-end gap-4 md:gap-6 mb-3">
+              {[
+                { value: countdown.days, label: 'days' },
+                { value: countdown.hours, label: 'hrs' },
+                { value: countdown.minutes, label: 'min' },
+                { value: countdown.seconds, label: 'sec' },
+              ].map(({ value, label }) => (
+                <div key={label} className="text-center">
+                  <div className="font-mono text-4xl md:text-5xl font-bold text-brand-accent tabular-nums">
+                    {String(value).padStart(2, '0')}
+                  </div>
+                  <div className="text-xs text-brand-text-secondary mt-1 font-mono uppercase tracking-widest">{label}</div>
+                </div>
+              ))}
+            </div>
+            <p className="text-sm text-brand-text-secondary mb-10 font-mono">until kick-off · Jun 11, 2026</p>
+
+            {/* Sample WM markets */}
+            <div className="grid gap-3 mb-10">
+              {[
+                { q: 'Will Argentina defend their title?', yes: 38, no: 62 },
+                { q: 'Will Brazil win it all?', yes: 22, no: 78 },
+                { q: 'Will a host nation reach the semifinals?', yes: 44, no: 56 },
+              ].map(({ q, yes, no }) => (
+                <div key={q} className="bg-brand-surface border border-brand-border rounded-card p-4 flex flex-col md:flex-row md:items-center gap-4">
+                  <p className="flex-1 text-sm font-medium">{q}</p>
+                  <div className="flex gap-2 shrink-0">
+                    <button className="px-4 py-2 bg-brand-success/10 border border-brand-success text-brand-success font-mono text-sm rounded-btn hover:bg-brand-success/20 transition-colors">
+                      Yes {yes}¢
+                    </button>
+                    <button className="px-4 py-2 bg-brand-danger/10 border border-brand-danger text-brand-danger font-mono text-sm rounded-btn hover:bg-brand-danger/20 transition-colors">
+                      No {no}¢
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
 
             <motion.button
               whileHover={{ scale: 1.02 }}
