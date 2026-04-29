@@ -375,6 +375,66 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Trust Frame Section */}
+      <section id="trust" className="px-4 py-20 md:px-6 md:py-32 border-t border-brand-border">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-100px' }}
+            transition={{ duration: 0.5 }}
+            className="mb-12 md:mb-16"
+          >
+            <p className="text-xs font-mono font-semibold text-brand-accent uppercase tracking-widest mb-4">
+              Why Tayâ
+            </p>
+            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight">
+              Built right for Filipino bettors.
+            </h2>
+            <p className="text-brand-text-secondary mt-4 max-w-2xl">
+              No offshore. No vanishing acts. Built with regulators, not around them.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-100px' }}
+            variants={containerVariants}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+              {[
+                {
+                  title: 'Regulated peso on-ramp',
+                  desc: 'Your pesos move through PDAX, a BSP-licensed Philippine crypto exchange. Not an offshore wallet that disappears.',
+                },
+                {
+                  title: 'Philippine lawyer in-house',
+                  desc: 'Our legal co-founder leads the regulatory work. We are building Tayâ with PAGCOR, not around them.',
+                },
+                {
+                  title: 'On-chain settlement',
+                  desc: 'Every trade and payout is recorded on a public ledger — verifiable by anyone, controlled by no one.',
+                },
+              ].map((item, idx) => (
+                <motion.div
+                  key={idx}
+                  custom={idx}
+                  variants={cardVariants}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, margin: '-50px' }}
+                  className="bg-brand-surface border border-brand-border rounded-card p-6"
+                >
+                  <h3 className="text-xl font-semibold mb-3">{item.title}</h3>
+                  <p className="text-brand-text-secondary">{item.desc}</p>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Launch Hook Section */}
       <section className="px-4 py-20 md:px-6 md:py-32 border-t border-brand-border">
         <div className="max-w-4xl mx-auto">
