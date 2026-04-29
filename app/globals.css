@@ -2,12 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
 
 :root {
   --font-fraunces: 'Fraunces', serif;
   --font-geist-sans: 'Inter', sans-serif;
   --font-geist-mono: 'Space Mono', monospace;
+
+  /* Tayâ app — design tokens (used by /app prototype) */
+  --t-bg: #0A0A0B;
+  --t-surface: #141417;
+  --t-surface-2: #1C1C20;
+  --t-border: #222226;
+  --t-text: #FAFAFA;
+  --t-text-2: #8A8A92;
+  --t-text-3: #5A5A62;
+  --t-gold: #F4B942;
+  --t-success: #10B981;
+  --t-danger: #EF4444;
+  --t-yes-bg: rgba(16, 185, 129, 0.10);
+  --t-no-bg: rgba(239, 68, 68, 0.10);
+
+  --serif: 'Fraunces', Georgia, serif;
+  --sans: 'Inter', -apple-system, system-ui, sans-serif;
+  --mono: 'Space Mono', ui-monospace, monospace;
 
   scroll-behavior: smooth;
 }
@@ -34,6 +52,62 @@ body {
 
 html {
   scroll-behavior: smooth;
+}
+
+/* Mono utility — all numbers, prices, percentages */
+.mono {
+  font-family: var(--mono);
+  font-feature-settings: 'tnum' 1;
+}
+
+/* Tayâ wordmark */
+.taya-wordmark {
+  font-family: var(--serif);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.taya-wordmark .accent { color: var(--t-gold); }
+
+/* Hide scrollbars inside the phone screen */
+.taya-screen,
+.taya-screen * {
+  scrollbar-width: none;
+}
+.taya-screen::-webkit-scrollbar,
+.taya-screen *::-webkit-scrollbar {
+  display: none;
+}
+
+/* Subtle button press */
+.tap {
+  transition: transform 0.08s ease, opacity 0.12s ease, background 0.12s ease;
+  cursor: pointer;
+}
+.tap:active { transform: scale(0.97); }
+
+/* Animations used by the /app prototype */
+@keyframes pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(1.04); }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes skel {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* Ensure focus is visible for accessibility */
