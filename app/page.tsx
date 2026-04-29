@@ -435,6 +435,97 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Preview / Demo Section */}
+      <section id="preview" className="px-4 py-20 md:px-6 md:py-32 border-t border-brand-border">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-100px' }}
+            transition={{ duration: 0.5 }}
+            className="mb-12 md:mb-16"
+          >
+            <p className="text-xs font-mono font-semibold text-brand-accent uppercase tracking-widest mb-4">
+              Preview
+            </p>
+            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight">
+              The app, six weeks before launch.
+            </h2>
+            <p className="text-brand-text-secondary mt-4 max-w-2xl">
+              Mobile-first prediction market. Tap around — it&apos;s the real product flow with mock data: passkey signup, markets feed with the WC 2026 launch market, live price ticking, order ticket, on-chain receipt, portfolio, PDAX deposit and withdraw.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-100px' }}
+            transition={{ duration: 0.6 }}
+            className="taya-preview-wrap"
+          >
+            <div className="taya-preview-bezel">
+              <iframe
+                src="/app"
+                title="Tayâ app preview"
+                className="taya-preview-iframe"
+                loading="lazy"
+              />
+            </div>
+          </motion.div>
+
+          <div className="text-center mt-10">
+            <a
+              href="/app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-brand-accent text-brand-bg font-medium rounded-btn hover:brightness-110 active:scale-98 transition-all text-sm"
+            >
+              Open in fullscreen →
+            </a>
+            <p className="text-xs text-brand-text-secondary mt-4 max-w-md mx-auto">
+              Demo only — settlements, balances and trades are simulated.
+              Real product launches with WC 2026.
+            </p>
+          </div>
+        </div>
+
+        <style jsx>{`
+          .taya-preview-wrap {
+            display: flex;
+            justify-content: center;
+          }
+          .taya-preview-bezel {
+            width: 393px;
+            max-width: 100%;
+            height: 720px;
+            border-radius: 36px;
+            overflow: hidden;
+            background: #0A0A0B;
+            box-shadow:
+              0 30px 60px rgba(0, 0, 0, 0.5),
+              0 0 0 1px rgba(255, 255, 255, 0.06),
+              inset 0 0 0 6px #000;
+            position: relative;
+          }
+          .taya-preview-iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+            display: block;
+          }
+          @media (max-width: 480px) {
+            .taya-preview-bezel {
+              height: 640px;
+              border-radius: 28px;
+              box-shadow:
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                inset 0 0 0 4px #000;
+            }
+          }
+        `}</style>
+      </section>
+
       {/* Launch Hook Section */}
       <section className="px-4 py-20 md:px-6 md:py-32 border-t border-brand-border">
         <div className="max-w-4xl mx-auto">
