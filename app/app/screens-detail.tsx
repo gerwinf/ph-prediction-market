@@ -108,7 +108,7 @@ export function Receipt({ trade, onClose, onView }: { trade: Trade; onClose: () 
           <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M6 14l5 5 11-11" stroke="var(--t-success)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </div>
         <h2 style={{ fontSize: 24, fontWeight: 600, fontFamily: 'var(--serif)', letterSpacing: '-0.01em' }}>Order filled</h2>
-        <p className="mono" style={{ fontSize: 11, color: 'var(--t-text-2)', marginTop: 6 }}>Settled on Base · 12 sec</p>
+        <p className="mono" style={{ fontSize: 11, color: 'var(--t-text-2)', marginTop: 6 }}>Confirmed · 12 sec</p>
 
         <div style={{ margin: '28px auto 0', maxWidth: 320, background: 'var(--t-surface)', border: '1px solid var(--t-border)', borderRadius: 14, padding: 18, textAlign: 'left' }}>
           <p className="mono" style={{ fontSize: 9, color: 'var(--t-text-3)', letterSpacing: 0.6 }}>{trade.market.id}</p>
@@ -131,8 +131,8 @@ export function Receipt({ trade, onClose, onView }: { trade: Trade; onClose: () 
             ))}
           </div>
           <button className="tap" style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid var(--t-border)', width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'none', border: 'none', borderTopStyle: 'solid', borderTopWidth: 1, borderTopColor: 'var(--t-border)' }}>
-            <span className="mono" style={{ fontSize: 11, color: 'var(--t-text-2)' }}>Tx 0x4f2a…91c3</span>
-            <span style={{ fontSize: 11, color: 'var(--t-gold)', display: 'flex', alignItems: 'center', gap: 4 }}>Basescan <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M2 7L7 2M7 2H3M7 2v4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" /></svg></span>
+            <span className="mono" style={{ fontSize: 11, color: 'var(--t-text-2)' }}>Receipt #4F2A-91C3</span>
+            <span style={{ fontSize: 11, color: 'var(--t-gold)', display: 'flex', alignItems: 'center', gap: 4 }}>Audit trail <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M2 7L7 2M7 2H3M7 2v4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" /></svg></span>
           </button>
         </div>
 

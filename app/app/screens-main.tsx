@@ -325,7 +325,7 @@ function ResolvedPositionCard({ p }: { p: ResolvedPosition }) {
         </div>
       </div>
       <button className="tap" style={{ marginTop: 10, fontSize: 11, color: 'var(--t-gold)', display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none' }}>
-        Verify on-chain
+        View receipt
         <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M2 7L7 2M7 2H3M7 2v4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" /></svg>
       </button>
     </div>
