@@ -176,7 +176,7 @@ export default function Home() {
             className="mb-8 md:mb-10"
           >
             <p className="text-lg md:text-xl text-brand-text-secondary leading-relaxed max-w-2xl">
-              The Philippines' first prediction market. Stake your call on the moments that matter — local hoops, esports, pageants, the World Cup. Pay with GCash, Maya, or bank transfer.
+              The Philippines' first prediction market. Stake your call on the moments that matter — local hoops, esports, pageants, the World Cup. Sell anytime before the result. Pesos in, pesos out.
             </p>
           </motion.div>
 
@@ -340,8 +340,8 @@ export default function Home() {
                 },
                 {
                   num: '03',
-                  title: 'Cash out anytime.',
-                  desc: 'Your call was right? You win. Markets settle automatically.',
+                  title: 'Sell anytime.',
+                  desc: 'Lock in profit before the final whistle. Cut losses. Or hold to resolution and let the crowd be right or wrong with you.',
                 },
               ].map((step, idx) => (
                 <motion.div
