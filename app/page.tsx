@@ -413,8 +413,8 @@ export default function Home() {
                   desc: 'Our legal co-founder leads the regulatory work. We are building Tayâ with PAGCOR, not around them.',
                 },
                 {
-                  title: 'On-chain settlement',
-                  desc: 'Every trade and payout is recorded on a public ledger — verifiable by anyone, controlled by no one.',
+                  title: 'Funds held in segregated client accounts',
+                  desc: 'Your pesos sit in a separate, named client account — not commingled with operator funds. Reconciled daily; independent attestation.',
                 },
               ].map((item, idx) => (
                 <motion.div
