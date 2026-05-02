@@ -31,7 +31,7 @@ function Onb_Welcome({ onNext }: { onNext: () => void }) {
           {[
             ['🇵🇭', 'Built for Philippines markets'],
             ['💸', 'Deposit pesos in 30 seconds'],
-            ['⛓', 'Settled on-chain, verifiable'],
+            ['🛡', 'Regulated peso rails. Daily reconciled.'],
           ].map(([e, t]) => (
             <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--t-surface)', border: '1px solid var(--t-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>{e}</div>
@@ -234,7 +234,7 @@ export function DepositSheet({ onClose, onComplete }: { onClose: () => void; onC
         <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(244,185,66,0.10)', border: '2px solid var(--t-gold)', margin: '0 auto 18px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M14 6v8l5 3" stroke="var(--t-gold)" strokeWidth="2.5" strokeLinecap="round" /><circle cx="14" cy="14" r="11" stroke="var(--t-gold)" strokeWidth="2" /></svg>
         </div>
-        <p style={{ fontSize: 16, fontWeight: 600 }}>Settling on-chain…</p>
+        <p style={{ fontSize: 16, fontWeight: 600 }}>Crediting your wallet…</p>
         <p style={{ fontSize: 12, color: 'var(--t-text-2)', marginTop: 6 }}>Usually 1–2 minutes.</p>
         <p className="mono" style={{ fontSize: 10, color: 'var(--t-text-3)', marginTop: 14 }}>tx 0x91ab…7c2f</p>
       </div>

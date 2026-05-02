@@ -257,7 +257,7 @@ export function MarketDetail_Trader({ market, onBack, onTrade, showVolume = true
             </div>
             <div style={{ flex: 1 }}>
               <p style={{ fontSize: 12, fontWeight: 500, color: 'var(--t-text)' }}>{market.resolution}</p>
-              <p style={{ fontSize: 11, color: 'var(--t-text-2)', marginTop: 4 }}>This market settles automatically on-chain when the result is reported. Funds in your wallet within minutes.</p>
+              <p style={{ fontSize: 11, color: 'var(--t-text-2)', marginTop: 4 }}>This market settles automatically when the result is reported. Funds appear in your wallet within minutes.</p>
               <button className="tap" style={{ marginTop: 8, fontSize: 11, color: 'var(--t-gold)', display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none' }}>
                 Read full rules <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M2 7L7 2M7 2H3M7 2v4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" /></svg>
               </button>

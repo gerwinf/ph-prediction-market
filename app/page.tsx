@@ -452,7 +452,7 @@ export default function Home() {
               The app, six weeks before launch.
             </h2>
             <p className="text-brand-text-secondary mt-4 max-w-2xl">
-              Mobile-first prediction market. Tap around — it&apos;s the real product flow with mock data: passkey signup, markets feed with the WC 2026 launch market, live price ticking, order ticket, on-chain receipt, portfolio, PDAX deposit and withdraw.
+              Mobile-first prediction market. Tap around — it&apos;s the real product flow with mock data: passkey signup, markets feed with the WC 2026 launch market, live price ticking, order ticket, audit-trail receipt, portfolio, PDAX deposit and withdraw.
             </p>
           </motion.div>
 

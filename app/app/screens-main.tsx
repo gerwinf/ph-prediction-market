@@ -421,7 +421,7 @@ export function WalletScreen({ onDeposit, onWithdraw }: { onDeposit: () => void;
       </div>
 
       <div style={{ padding: '24px 16px 0', textAlign: 'center' }}>
-        <TrustLine>Settlement via PDAX (BSP-licensed) · Funds verifiable on-chain</TrustLine>
+        <TrustLine>Settlement via PDAX (BSP-licensed) · Segregated client custody, daily reconciled</TrustLine>
       </div>
     </div>
   )
@@ -474,7 +474,7 @@ export function AccountScreen() {
       <ListGroup>
         <ListRow icon="🛡" title="BSP-licensed PDAX" detail="See license" />
         <ListRow icon="⚖" title="Philippine legal counsel" detail="Domingo Dimayuga & Co." />
-        <ListRow icon="⛓" title="On-chain verification" detail="Sample tx · Basescan ↗" />
+        <ListRow icon="🔒" title="Audit trail" detail="Reconciled daily · attested monthly" />
       </ListGroup>
 
       <SectionHeader title="Help" />
