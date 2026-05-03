@@ -413,8 +413,8 @@ export default function Home() {
                   desc: 'Our legal co-founder leads the regulatory work. We are building Tayâ with PAGCOR, not around them.',
                 },
                 {
-                  title: 'Funds held in segregated client accounts',
-                  desc: 'Your pesos sit in a separate, named client account — not commingled with operator funds. Reconciled daily; independent attestation.',
+                  title: 'Funds held in segregated custody',
+                  desc: 'Your pesos sit in a segregated account, not commingled with operator funds. Reconciled daily.',
                 },
               ].map((item, idx) => (
                 <motion.div
