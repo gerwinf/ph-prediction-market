@@ -9,7 +9,7 @@
   --font-geist-sans: 'Inter', sans-serif;
   --font-geist-mono: 'Space Mono', monospace;
 
-  /* Tayâ app — design tokens (used by /app prototype) */
+  /* Hula app — design tokens (used by /app prototype) */
   --t-bg: #0A0A0B;
   --t-surface: #141417;
   --t-surface-2: #1C1C20;
@@ -60,7 +60,7 @@ html {
   font-feature-settings: 'tnum' 1;
 }
 
-/* Tayâ wordmark */
+/* Hula wordmark */
 .taya-wordmark {
   font-family: var(--serif);
   font-weight: 500;

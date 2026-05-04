@@ -16,14 +16,14 @@
   <!-- Subtle accent glow -->
   <circle cx="600" cy="150" r="400" fill="url(#accentGlow)"/>
 
-  <!-- Tayâ wordmark (large) -->
+  <!-- Hula wordmark (large) -->
   <text x="600" y="340" font-family="Fraunces, Georgia, serif" font-size="140" font-weight="500" text-anchor="middle" fill="#FAFAFA" letter-spacing="-2">
-    Tay
+    Hul
   </text>
 
-  <!-- â in gold -->
+  <!-- final "a" in gold -->
   <text x="730" y="340" font-family="Fraunces, Georgia, serif" font-size="140" font-weight="500" fill="#F4B942" letter-spacing="-2">
-    â
+    a
   </text>
 
   <!-- Tagline -->

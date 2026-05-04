@@ -1,4 +1,4 @@
-/* Tayâ app — mock data + helpers
+/* Hula app — mock data + helpers
  * Ported from design prototype (data-v2.js). All values are demo-only.
  */
 
@@ -38,7 +38,7 @@ export type Market3way = {
 
 export type Market = MarketBinary | Market3way
 
-export const TAYA_MARKETS: Market[] = [
+export const HULA_MARKETS: Market[] = [
   {
     id: 'WC26-ARG-MEX',
     cat: 'Football',
@@ -147,7 +147,7 @@ export const TAYA_MARKETS: Market[] = [
   },
 ]
 
-export const TAYA_CATEGORIES = [
+export const HULA_CATEGORIES = [
   { id: 'all', label: 'All' },
   { id: 'Football', label: 'Football' },
   { id: 'PBA', label: 'PBA' },
@@ -170,7 +170,7 @@ export type OpenPosition = {
   status: 'open'
 }
 
-export const TAYA_POSITIONS_OPEN: OpenPosition[] = [
+export const HULA_POSITIONS_OPEN: OpenPosition[] = [
   {
     id: 'p1', marketId: 'PBA-25-FIN-GIN',
     market: 'Ginebra wins PBA Finals',
@@ -197,7 +197,7 @@ export type PendingPosition = {
   note: string
 }
 
-export const TAYA_POSITIONS_PENDING: PendingPosition[] = [
+export const HULA_POSITIONS_PENDING: PendingPosition[] = [
   {
     id: 'p3', marketId: 'PVL-CHI',
     market: 'Chery Tiggo tops PVL',
@@ -222,7 +222,7 @@ export type ResolvedPosition = {
   settledAt: string
 }
 
-export const TAYA_POSITIONS_RESOLVED: ResolvedPosition[] = [
+export const HULA_POSITIONS_RESOLVED: ResolvedPosition[] = [
   {
     id: 'p4', marketId: 'NBA-G7',
     market: 'Lakers win Game 7',

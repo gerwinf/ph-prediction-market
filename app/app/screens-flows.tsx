@@ -43,7 +43,7 @@ function Onb_Welcome({ onNext }: { onNext: () => void }) {
       <div style={{ paddingBottom: 32 }}>
         <button onClick={onNext} className="tap" style={{ width: '100%', padding: 16, borderRadius: 12, background: 'var(--t-gold)', color: '#0A0A0B', fontWeight: 600, fontSize: 15, border: 'none' }}>Get started</button>
         <button className="tap" style={{ width: '100%', marginTop: 10, padding: 12, fontSize: 13, color: 'var(--t-text-2)', background: 'none', border: 'none' }}>I already have an account</button>
-        <p style={{ fontSize: 10, color: 'var(--t-text-3)', textAlign: 'center', marginTop: 14 }}>Tayâ Pilipinas, Inc. · BSP-licensed via PDAX rails</p>
+        <p style={{ fontSize: 10, color: 'var(--t-text-3)', textAlign: 'center', marginTop: 14 }}>Hula Pilipinas, Inc. · BSP-licensed via PDAX rails</p>
       </div>
     </div>
   )
@@ -190,9 +190,9 @@ export function DepositSheet({ onClose, onComplete }: { onClose: () => void; onC
 
   if (step === 'route') return (
     <Sheet onClose={onClose} title="How are you funding this?">
-      <p style={{ fontSize: 12, color: 'var(--t-text-2)', padding: '0 16px' }}>Tayâ moves your money via licensed partners. Pick a route.</p>
+      <p style={{ fontSize: 12, color: 'var(--t-text-2)', padding: '0 16px' }}>Hula moves your money via licensed partners. Pick a route.</p>
       <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <RouteOption id="pdax" sel={route} onSelect={setRoute} title="PDAX" badge="Recommended" sub="GCash, Maya, BPI, UnionBank → PDAX → Tayâ" meta="Fee: 0% · Settles in 1–2 min · BSP-licensed" />
+        <RouteOption id="pdax" sel={route} onSelect={setRoute} title="PDAX" badge="Recommended" sub="GCash, Maya, BPI, UnionBank → PDAX → Hula" meta="Fee: 0% · Settles in 1–2 min · BSP-licensed" />
         <RouteOption id="card" sel={route} onSelect={setRoute} title="Credit / debit card" sub="Visa, Mastercard via licensed processor" meta="Fee: 2.9% · Settles instantly" />
       </div>
       <div style={{ margin: '0 16px 16px', padding: 12, background: 'var(--t-bg)', border: '1px solid var(--t-border)', borderRadius: 10 }}>

@@ -101,18 +101,18 @@ export default function Home() {
               <circle cx="20" cy="20" r="20" fill="#0A0A0B" />
               <text
                 x="20"
-                y="28"
+                y="29"
                 fontFamily="Fraunces, Georgia, serif"
-                fontSize="28"
+                fontSize="26"
                 fontWeight="600"
                 textAnchor="middle"
                 fill="#F4B942"
               >
-                â
+                a
               </text>
             </svg>
             <span className="text-xl font-serif font-medium hidden sm:inline">
-              Tay<span className="text-brand-accent">â</span>
+              Hul<span className="text-brand-accent">a</span>
             </span>
           </div>
           <nav className="flex gap-6 text-sm">
@@ -154,7 +154,7 @@ export default function Home() {
             className="mb-8 md:mb-12"
           >
             <h1 className="font-serif text-5xl md:text-7xl font-medium tracking-tight leading-tight">
-              Tay<span className="text-brand-accent">â</span>
+              Hul<span className="text-brand-accent">a</span>
             </h1>
           </motion.div>
 
@@ -386,7 +386,7 @@ export default function Home() {
             className="mb-12 md:mb-16"
           >
             <p className="text-xs font-mono font-semibold text-brand-accent uppercase tracking-widest mb-4">
-              Why Tayâ
+              Why Hula
             </p>
             <h2 className="text-3xl md:text-4xl font-semibold tracking-tight">
               Built right for Filipino bettors.
@@ -410,7 +410,7 @@ export default function Home() {
                 },
                 {
                   title: 'Philippine lawyer in-house',
-                  desc: 'Our legal co-founder leads the regulatory work. We are building Tayâ with PAGCOR, not around them.',
+                  desc: 'Our legal co-founder leads the regulatory work. We are building Hula with PAGCOR, not around them.',
                 },
                 {
                   title: 'Funds held in segregated custody',
@@ -466,7 +466,7 @@ export default function Home() {
             <div className="taya-preview-bezel">
               <iframe
                 src="/app"
-                title="Tayâ app preview"
+                title="Hula app preview"
                 className="taya-preview-iframe"
                 loading="lazy"
               />
@@ -617,7 +617,7 @@ export default function Home() {
               Instagram
             </a>
             <a
-              href="mailto:hello@taya.ph"
+              href="mailto:hello@hulaan.ph"
               className="text-sm text-brand-accent hover:text-brand-text-primary transition-colors"
             >
               Email

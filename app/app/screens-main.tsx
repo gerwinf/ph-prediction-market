@@ -2,8 +2,8 @@
 
 import { useEffect, useState, ReactNode, CSSProperties } from 'react'
 import {
-  TAYA_MARKETS, TAYA_CATEGORIES,
-  TAYA_POSITIONS_OPEN, TAYA_POSITIONS_PENDING, TAYA_POSITIONS_RESOLVED,
+  HULA_MARKETS, HULA_CATEGORIES,
+  HULA_POSITIONS_OPEN, HULA_POSITIONS_PENDING, HULA_POSITIONS_RESOLVED,
   peso, pesoCents,
   Market, Market3way, OpenPosition, PendingPosition, ResolvedPosition,
 } from './data'
@@ -13,7 +13,7 @@ import {
 export function Wordmark({ size = 22, style = {} }: { size?: number; style?: CSSProperties }) {
   return (
     <span className="taya-wordmark" style={{ fontSize: size, ...style }}>
-      Tay<span className="accent">â</span>
+      Hul<span className="accent">a</span>
     </span>
   )
 }
@@ -198,8 +198,8 @@ function FeaturedFootball({ m, onTap }: { m: Market3way; onTap: () => void }) {
 
 export function MarketsScreen({ onMarketTap, density = 'comfortable', state = 'ok' }: { onMarketTap: (m: Market) => void; density?: 'comfortable' | 'compact'; state?: 'ok' | 'loading' | 'empty' }) {
   const [cat, setCat] = useState('all')
-  const filtered = cat === 'all' ? TAYA_MARKETS : TAYA_MARKETS.filter(m => m.cat === cat)
-  const featured = TAYA_MARKETS[0] as Market3way
+  const filtered = cat === 'all' ? HULA_MARKETS : HULA_MARKETS.filter(m => m.cat === cat)
+  const featured = HULA_MARKETS[0] as Market3way
 
   return (
     <div style={{ paddingBottom: 96 }}>
@@ -216,7 +216,7 @@ export function MarketsScreen({ onMarketTap, density = 'comfortable', state = 'o
       </div>
 
       <div style={{ display: 'flex', gap: 8, padding: '0 16px 12px', overflowX: 'auto' }}>
-        {TAYA_CATEGORIES.map(c => (
+        {HULA_CATEGORIES.map(c => (
           <button key={c.id} onClick={() => setCat(c.id)} className="tap" style={{ padding: '7px 14px', borderRadius: 999, fontSize: 13, fontWeight: 500, whiteSpace: 'nowrap', background: cat === c.id ? 'var(--t-gold)' : 'var(--t-surface)', color: cat === c.id ? '#0A0A0B' : 'var(--t-text)', border: cat === c.id ? '1px solid var(--t-gold)' : '1px solid var(--t-border)' }}>{c.label}</button>
         ))}
       </div>
@@ -342,8 +342,8 @@ export function PortfolioScreen({ state = 'ok' }: { state?: 'ok' | 'empty' }) {
       </div>
     )
   }
-  const totalCost = TAYA_POSITIONS_OPEN.reduce((s, p) => s + p.cost, 0)
-  const totalValue = TAYA_POSITIONS_OPEN.reduce((s, p) => s + p.value, 0)
+  const totalCost = HULA_POSITIONS_OPEN.reduce((s, p) => s + p.cost, 0)
+  const totalValue = HULA_POSITIONS_OPEN.reduce((s, p) => s + p.value, 0)
   const pl = totalValue - totalCost
   const plPct = ((pl / totalCost) * 100).toFixed(1)
 
@@ -361,8 +361,8 @@ export function PortfolioScreen({ state = 'ok' }: { state?: 'ok' | 'empty' }) {
           <span className="mono" style={{ color: 'var(--t-text-2)', marginLeft: 12 }}>since open</span>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginTop: 14, paddingTop: 12, borderTop: '1px solid var(--t-border)' }}>
-          <Stat label="Open" val={TAYA_POSITIONS_OPEN.length} />
-          <Stat label="Pending" val={TAYA_POSITIONS_PENDING.length} />
+          <Stat label="Open" val={HULA_POSITIONS_OPEN.length} />
+          <Stat label="Pending" val={HULA_POSITIONS_PENDING.length} />
           <Stat label="Cost basis" val={peso(totalCost)} mono />
         </div>
       </div>
@@ -374,9 +374,9 @@ export function PortfolioScreen({ state = 'ok' }: { state?: 'ok' | 'empty' }) {
       </div>
 
       <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {tab === 'open' && TAYA_POSITIONS_OPEN.map(p => <PositionCard key={p.id} p={p} />)}
-        {tab === 'pending' && TAYA_POSITIONS_PENDING.map(p => <PendingPositionCard key={p.id} p={p} />)}
-        {tab === 'resolved' && TAYA_POSITIONS_RESOLVED.map(p => <ResolvedPositionCard key={p.id} p={p} />)}
+        {tab === 'open' && HULA_POSITIONS_OPEN.map(p => <PositionCard key={p.id} p={p} />)}
+        {tab === 'pending' && HULA_POSITIONS_PENDING.map(p => <PendingPositionCard key={p.id} p={p} />)}
+        {tab === 'resolved' && HULA_POSITIONS_RESOLVED.map(p => <ResolvedPositionCard key={p.id} p={p} />)}
       </div>
     </div>
   )
@@ -386,10 +386,10 @@ export function PortfolioScreen({ state = 'ok' }: { state?: 'ok' | 'empty' }) {
 
 export function WalletScreen({ onDeposit, onWithdraw }: { onDeposit: () => void; onWithdraw: () => void }) {
   const activity = [
-    { t: 'Deposit', d: 'PDAX → Tayâ', a: '+₱2,000.00', when: 'Today 8:42 AM', pos: true, hash: '0x4f2a…91c3' },
+    { t: 'Deposit', d: 'PDAX → Hula', a: '+₱2,000.00', when: 'Today 8:42 AM', pos: true, hash: '0x4f2a…91c3' },
     { t: 'Buy', d: 'Ginebra YES @ 58¢', a: '−₱1,160.00', when: 'Yesterday', pos: false, hash: '0x8b3e…5a40' },
     { t: 'Settled', d: 'Lakers Game 7 NO · won', a: '+₱6,000.00', when: '3 days ago', pos: true, hash: '0x12bc…77d0' },
-    { t: 'Withdraw', d: 'Tayâ → PDAX → BPI', a: '−₱5,000.00', when: '5 days ago', pos: false, hash: '0xa19f…0ee2' },
+    { t: 'Withdraw', d: 'Hula → PDAX → BPI', a: '−₱5,000.00', when: '5 days ago', pos: false, hash: '0xa19f…0ee2' },
   ]
   return (
     <div style={{ paddingBottom: 96 }}>
@@ -479,13 +479,13 @@ export function AccountScreen() {
 
       <SectionHeader title="Help" />
       <ListGroup>
-        <ListRow icon="❓" title="How Tayâ works" detail="3-min read" />
-        <ListRow icon="💬" title="Contact support" detail="hello@taya.ph" />
+        <ListRow icon="❓" title="How Hula works" detail="3-min read" />
+        <ListRow icon="💬" title="Contact support" detail="hello@hulaan.ph" />
         <ListRow icon="📜" title="Terms · Privacy" />
       </ListGroup>
 
       <div style={{ padding: '24px 16px 0', textAlign: 'center' }}>
-        <p style={{ fontSize: 10, color: 'var(--t-text-3)' }}>Tayâ v0.9.2 · Built in Manila</p>
+        <p style={{ fontSize: 10, color: 'var(--t-text-3)' }}>Hula v0.9.2 · Built in Manila</p>
       </div>
     </div>
   )

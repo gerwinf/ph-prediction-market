@@ -2,8 +2,8 @@
   <!-- Circular background -->
   <circle cx="32" cy="32" r="32" fill="#0A0A0B"/>
 
-  <!-- Gold accent mark (â diacritic) as the mark -->
-  <text x="32" y="44" font-family="Fraunces, Georgia, serif" font-size="48" font-weight="600" text-anchor="middle" fill="#F4B942">
-    â
+  <!-- Gold accent mark (final "a" of Hula) as the brand mark -->
+  <text x="32" y="46" font-family="Fraunces, Georgia, serif" font-size="44" font-weight="600" text-anchor="middle" fill="#F4B942">
+    a
   </text>
 </svg>
