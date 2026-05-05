@@ -13,7 +13,7 @@ import {
 export function Wordmark({ size = 22, style = {} }: { size?: number; style?: CSSProperties }) {
   return (
     <span className="taya-wordmark" style={{ fontSize: size, ...style }}>
-      Hul<span className="accent">a</span>
+      Hula
     </span>
   )
 }

@@ -16,18 +16,19 @@
   <!-- Subtle accent glow -->
   <circle cx="600" cy="150" r="400" fill="url(#accentGlow)"/>
 
-  <!-- Hula wordmark (large) -->
-  <text x="600" y="340" font-family="Fraunces, Georgia, serif" font-size="140" font-weight="500" text-anchor="middle" fill="#FAFAFA" letter-spacing="-2">
-    Hul
+  <!-- H mark badge -->
+  <circle cx="600" cy="240" r="58" fill="#0A0A0B" stroke="#222226" stroke-width="1.5"/>
+  <text x="600" y="266" font-family="Fraunces, Georgia, serif" font-size="76" font-weight="600" text-anchor="middle" fill="#F4B942">
+    H
   </text>
 
-  <!-- final "a" in gold -->
-  <text x="730" y="340" font-family="Fraunces, Georgia, serif" font-size="140" font-weight="500" fill="#F4B942" letter-spacing="-2">
-    a
+  <!-- Hula wordmark (large) -->
+  <text x="600" y="400" font-family="Fraunces, Georgia, serif" font-size="120" font-weight="500" text-anchor="middle" fill="#FAFAFA" letter-spacing="-2">
+    Hula
   </text>
 
   <!-- Tagline -->
-  <text x="600" y="430" font-family="Inter, Arial, sans-serif" font-size="28" text-anchor="middle" fill="#8A8A92" letter-spacing="0.5">
+  <text x="600" y="470" font-family="Inter, Arial, sans-serif" font-size="28" text-anchor="middle" fill="#8A8A92" letter-spacing="0.5">
     Predict anything. From PBA to M-Series.
   </text>
 </svg>

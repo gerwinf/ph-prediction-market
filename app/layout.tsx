@@ -44,7 +44,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${fraunces.variable} ${spaceMono.variable}`}>
-      <body className="bg-brand-bg text-brand-text-primary font-sans antialiased">
+      <body className="antialiased">
         {children}
       </body>
     </html>

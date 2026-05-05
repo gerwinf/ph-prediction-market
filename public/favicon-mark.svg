@@ -1,9 +1,5 @@
-<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-  <!-- Circular background -->
-  <circle cx="32" cy="32" r="32" fill="#0A0A0B"/>
-
-  <!-- Gold accent mark (final "a" of Hula) as the brand mark -->
-  <text x="32" y="46" font-family="Fraunces, Georgia, serif" font-size="44" font-weight="600" text-anchor="middle" fill="#F4B942">
-    a
-  </text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="14" fill="#15161a"/>
+  <text x="32" y="44" text-anchor="middle" font-family="'Instrument Serif', Georgia, serif" font-size="40" fill="#faf7f0">H</text>
+  <circle cx="49" cy="46" r="3.5" fill="#d63a2f"/>
 </svg>

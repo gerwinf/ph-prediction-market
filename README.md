@@ -173,7 +173,7 @@ package.json            # Dependencies
 ## Important Notes
 
 ### Brand
-- Always render the wordmark as "Hul" + "a" with the final "a" in gold (`#F4B942`)
+- Render the wordmark as plain "Hula"; pair with the circular "H" mark in gold (`#F4B942`) when a logo treatment is needed
 - Brand name in copy is "Hula" (Tagalog for "predict / guess")
 - Domain is `hulaan.ph` (Tagalog imperative form: "predict it / guess it")
 - Use Tagalog accent words sparingly (max 3 on page)
