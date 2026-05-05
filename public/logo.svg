@@ -1,14 +1,16 @@
-<svg viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
-  <rect width="200" height="60" fill="#0A0A0B" rx="8"/>
+<svg viewBox="0 0 220 64" xmlns="http://www.w3.org/2000/svg">
+  <rect width="220" height="64" rx="10" fill="#f5f1e3"/>
 
-  <!-- H mark -->
-  <circle cx="32" cy="30" r="18" fill="#0A0A0B" stroke="#222226" stroke-width="1"/>
-  <text x="32" y="39" font-family="Fraunces, Georgia, serif" font-size="24" font-weight="600" text-anchor="middle" fill="#F4B942">
-    H
-  </text>
+  <!-- H monogram badge (forest green) -->
+  <circle cx="32" cy="32" r="20" fill="#0f2419"/>
+  <text x="30" y="40" text-anchor="middle"
+        font-family="'Inter Tight', system-ui, sans-serif"
+        font-size="22" font-weight="700" letter-spacing="-1"
+        fill="#f5f1e3">H</text>
 
-  <!-- Hula wordmark -->
-  <text x="60" y="40" font-family="Fraunces, Georgia, serif" font-size="32" font-weight="500" fill="#FAFAFA" letter-spacing="-0.5">
-    Hula
-  </text>
+  <!-- Hula. wordmark (sans, forest ink + mango period) -->
+  <text x="62" y="42"
+        font-family="'Inter Tight', system-ui, sans-serif"
+        font-size="32" font-weight="600" letter-spacing="-1.2"
+        fill="#0f2419">Hula<tspan fill="#e87a1e">.</tspan></text>
 </svg>

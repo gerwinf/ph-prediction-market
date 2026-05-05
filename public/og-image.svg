@@ -1,34 +1,33 @@
 <svg viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#0A0A0B;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#141417;stop-opacity:1" />
-    </linearGradient>
-    <radialGradient id="accentGlow" cx="50%" cy="30%">
-      <stop offset="0%" style="stop-color:#F4B942;stop-opacity:0.15" />
-      <stop offset="100%" style="stop-color:#F4B942;stop-opacity:0" />
+    <radialGradient id="mangoGlow" cx="50%" cy="32%">
+      <stop offset="0%" style="stop-color:#e87a1e;stop-opacity:0.18" />
+      <stop offset="100%" style="stop-color:#e87a1e;stop-opacity:0" />
     </radialGradient>
   </defs>
 
-  <!-- Background -->
-  <rect width="1200" height="630" fill="url(#bgGradient)"/>
+  <!-- Cream background -->
+  <rect width="1200" height="630" fill="#f5f1e3"/>
 
-  <!-- Subtle accent glow -->
-  <circle cx="600" cy="150" r="400" fill="url(#accentGlow)"/>
+  <!-- Subtle mango glow -->
+  <circle cx="600" cy="170" r="380" fill="url(#mangoGlow)"/>
 
-  <!-- H mark badge -->
-  <circle cx="600" cy="240" r="58" fill="#0A0A0B" stroke="#222226" stroke-width="1.5"/>
-  <text x="600" y="266" font-family="Fraunces, Georgia, serif" font-size="76" font-weight="600" text-anchor="middle" fill="#F4B942">
-    H
-  </text>
+  <!-- H monogram badge (forest green) -->
+  <circle cx="600" cy="220" r="56" fill="#0f2419"/>
+  <text x="595" y="241" text-anchor="middle"
+        font-family="'Inter Tight', system-ui, -apple-system, sans-serif"
+        font-size="62" font-weight="700" letter-spacing="-2.5"
+        fill="#f5f1e3">H</text>
 
-  <!-- Hula wordmark (large) -->
-  <text x="600" y="400" font-family="Fraunces, Georgia, serif" font-size="120" font-weight="500" text-anchor="middle" fill="#FAFAFA" letter-spacing="-2">
-    Hula
-  </text>
+  <!-- Hula. wordmark (sans, forest ink + mango period) -->
+  <text x="600" y="400" text-anchor="middle"
+        font-family="'Inter Tight', system-ui, -apple-system, sans-serif"
+        font-size="128" font-weight="600" letter-spacing="-5"
+        fill="#0f2419">Hula<tspan fill="#e87a1e">.</tspan></text>
 
   <!-- Tagline -->
-  <text x="600" y="470" font-family="Inter, Arial, sans-serif" font-size="28" text-anchor="middle" fill="#8A8A92" letter-spacing="0.5">
-    Predict anything. From PBA to M-Series.
-  </text>
+  <text x="600" y="468" text-anchor="middle"
+        font-family="'Inter Tight', Inter, -apple-system, sans-serif"
+        font-size="28" font-weight="500" letter-spacing="-0.3"
+        fill="#5a6a60">The market for what happens next.</text>
 </svg>
