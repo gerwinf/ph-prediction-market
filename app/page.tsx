@@ -200,8 +200,8 @@ function FeaturedCard() {
         <i className="no" style={{ width: no + '%' }} />
       </div>
       <div className="featured-legend">
-        <span className="yes"><strong>YES</strong> {yes}¢ · {yes}%</span>
-        <span className="no"><strong>NO</strong> {no}¢ · {no}%</span>
+        <span className="yes"><strong>YES</strong> ₱{yes} · {yes}%</span>
+        <span className="no"><strong>NO</strong> ₱{no} · {no}%</span>
       </div>
       <div className="featured-bet">
         <button className="bet-btn yes" type="button">
