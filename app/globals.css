@@ -154,13 +154,17 @@ button:focus {
 .hula-v2 button { font-family: inherit; }
 
 .hula-v2 .shell { max-width: 1320px; margin: 0 auto; padding: 0 32px; }
-@media (max-width: 720px) { .hula-v2 .shell { padding: 0 20px; } }
+@media (max-width: 720px) { .hula-v2 .shell { padding: 0 24px; } }
 
 /* nav */
 .hula-v2 .nav {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 22px 0;
+  padding-top: 18px; padding-bottom: 18px;
   border-bottom: 1px solid var(--line);
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(245, 241, 227, 0.9);
+  backdrop-filter: saturate(140%) blur(8px);
+  -webkit-backdrop-filter: saturate(140%) blur(8px);
 }
 .hula-v2 .nav-l, .hula-v2 .nav-r { display: flex; align-items: center; gap: 28px; }
 .hula-v2 .nav-links { display: flex; gap: 22px; }
@@ -186,7 +190,7 @@ button:focus {
 .hula-v2 .btn-ghost:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
 .hula-v2 .btn-accent { background: var(--accent); color: #fff; }
 .hula-v2 .btn-accent:hover { filter: brightness(0.93); }
-.hula-v2 .btn-lg { height: 52px; padding: 0 26px; font-size: 15px; }
+.hula-v2 .btn-lg { height: 56px; padding: 0 28px; font-size: 15px; }
 .hula-v2 .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
 /* ticker */
@@ -213,7 +217,7 @@ button:focus {
 @keyframes hula-ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
 /* hero */
-.hula-v2 .hero { padding: 72px 0 56px; position: relative; }
+.hula-v2 .hero { padding-top: 72px; padding-bottom: 56px; position: relative; }
 .hula-v2 .hero-grid {
   display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 64px; align-items: end;
 }
@@ -312,7 +316,7 @@ button:focus {
 .hula-v2 .bet-btn.no:hover .lbl  { color: rgba(255,255,255,.75); }
 
 /* sections */
-.hula-v2 .section { padding: 72px 0; border-top: 1px solid var(--line); }
+.hula-v2 .section { padding-top: 72px; padding-bottom: 72px; border-top: 1px solid var(--line); }
 .hula-v2 .section-head {
   display: flex; align-items: flex-end; justify-content: space-between;
   margin-bottom: 32px; gap: 24px; flex-wrap: wrap;
@@ -437,7 +441,7 @@ button:focus {
 
 /* pull quote */
 .hula-v2 .pull {
-  padding: 96px 0;
+  padding-top: 96px; padding-bottom: 96px;
   border-top: 1px solid var(--line);
   background: var(--ink);
   color: #f5f1e6;
@@ -478,7 +482,7 @@ button:focus {
 
 /* CTA strip */
 .hula-v2 .cta-strip {
-  padding: 96px 0; border-top: 1px solid var(--line);
+  padding-top: 96px; padding-bottom: 96px; border-top: 1px solid var(--line);
   text-align: center;
 }
 .hula-v2 .cta-strip h2 {
@@ -491,7 +495,7 @@ button:focus {
 
 /* footer */
 .hula-v2 .foot {
-  padding: 56px 0 32px;
+  padding-top: 56px; padding-bottom: 32px;
   border-top: 1px solid var(--line);
   background: var(--bg-2);
 }
@@ -558,20 +562,24 @@ button:focus {
 
 /* hero email form (replaces "Hulaan na" CTA at pre-launch) */
 .hula-v2 .email-form {
-  display: flex; gap: 8px; align-items: stretch; flex-wrap: wrap;
-  max-width: 480px;
+  display: flex; gap: 10px; align-items: stretch; flex-wrap: wrap;
+  max-width: 520px;
 }
 .hula-v2 .email-form input {
   flex: 1; min-width: 220px;
-  height: 52px; padding: 0 18px;
+  height: 56px; padding: 0 22px;
   border-radius: 999px;
-  border: 1px solid var(--line-2);
+  border: 1.5px solid var(--ink);
   background: var(--paper);
-  font-family: var(--ff-mono); font-size: 13px;
+  font-family: var(--ff-sans); font-size: 15px; font-weight: 500;
   color: var(--ink);
-  outline: none; transition: border-color .12s;
+  outline: none; transition: border-color .12s, box-shadow .12s;
 }
-.hula-v2 .email-form input:focus { border-color: var(--ink); }
+.hula-v2 .email-form input::placeholder { color: var(--ink-3); font-weight: 400; }
+.hula-v2 .email-form input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(232,122,30,.18);
+}
 .hula-v2 .email-form .msg {
   width: 100%;
   font-family: var(--ff-mono); font-size: 11px;
@@ -632,24 +640,24 @@ button:focus {
   .hula-v2 .nav-links { display: none; }
   .hula-v2 .nav-r .btn-ghost { display: none; }
   .hula-v2 .nav-burger { display: inline-flex; }
-  .hula-v2 .nav { padding: 16px 0; }
+  .hula-v2 .nav { padding-top: 14px; padding-bottom: 14px; }
   .hula-v2 .nav-l, .hula-v2 .nav-r { gap: 12px; }
 }
 
 @media (max-width: 720px) {
-  .hula-v2 .hero { padding: 40px 0 32px; }
+  .hula-v2 .hero { padding-top: 40px; padding-bottom: 32px; }
   .hula-v2 .h1 { font-size: clamp(40px, 11vw, 64px); margin-bottom: 18px; }
   .hula-v2 .lede { font-size: 16px; margin-bottom: 22px; }
   .hula-v2 .eyebrow { font-size: 10px; padding-bottom: 14px; }
   .hula-v2 .cta-meta { display: none; }
-  .hula-v2 .btn-lg { height: 48px; font-size: 14px; padding: 0 18px; }
+  .hula-v2 .btn-lg { height: 54px; font-size: 15px; padding: 0 22px; }
 
   .hula-v2 .featured { padding: 20px; border-radius: 14px; gap: 14px; }
   .hula-v2 .featured-q { font-size: 20px; }
   .hula-v2 .bet-btn { height: 48px; padding: 0 14px; }
   .hula-v2 .bet-btn .val { font-size: 15px; }
 
-  .hula-v2 .section { padding: 48px 0; }
+  .hula-v2 .section { padding-top: 48px; padding-bottom: 48px; }
   .hula-v2 .section-head { margin-bottom: 22px; gap: 12px; }
   .hula-v2 .section-title { font-size: 30px; }
   .hula-v2 .section-kicker { font-size: 10px; margin-bottom: 8px; }
@@ -659,8 +667,8 @@ button:focus {
     flex-wrap: nowrap;
     overflow-x: auto;
     margin-bottom: 20px;
-    margin-left: -20px; margin-right: -20px;
-    padding: 0 20px;
+    margin-left: -24px; margin-right: -24px;
+    padding: 0 24px;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
   }
@@ -677,7 +685,7 @@ button:focus {
   .hula-v2 .step-t { font-size: 20px; }
   .hula-v2 .step-d { font-size: 13px; }
 
-  .hula-v2 .pull { padding: 56px 0; }
+  .hula-v2 .pull { padding-top: 56px; padding-bottom: 56px; }
   .hula-v2 .pull-q { font-size: clamp(26px, 7vw, 38px); margin-bottom: 18px; }
 
   .hula-v2 .stat { padding: 22px; }
@@ -690,11 +698,11 @@ button:focus {
   }
   .hula-v2 .compliance .badge { width: 48px; height: 48px; font-size: 18px; }
 
-  .hula-v2 .cta-strip { padding: 56px 0; }
+  .hula-v2 .cta-strip { padding-top: 56px; padding-bottom: 56px; }
   .hula-v2 .cta-strip h2 { font-size: clamp(40px, 12vw, 64px); margin-bottom: 20px; }
   .hula-v2 .cta-strip p { font-size: 14px; margin-bottom: 24px; }
 
-  .hula-v2 .foot { padding: 40px 0 24px; }
+  .hula-v2 .foot { padding-top: 40px; padding-bottom: 24px; }
   .hula-v2 .foot-grid { grid-template-columns: 1fr 1fr; gap: 28px 20px; }
   .hula-v2 .foot-col h5 { font-size: 10px; margin-bottom: 10px; }
   .hula-v2 .foot-col a { font-size: 13px; }
@@ -710,7 +718,8 @@ button:focus {
 
   .hula-v2 .ticker-track { gap: 24px; padding: 8px 0; font-size: 11px; }
 
-  .hula-v2 .email-form input { min-width: 0; height: 48px; }
+  .hula-v2 .email-form { gap: 10px; }
+  .hula-v2 .email-form input { min-width: 0; height: 54px; font-size: 15px; padding: 0 20px; }
 }
 
 @media (max-width: 480px) {
@@ -718,5 +727,6 @@ button:focus {
   .hula-v2 .featured-bet { gap: 6px; }
   .hula-v2 .featured-legend { font-size: 11px; }
   .hula-v2 .email-form { flex-direction: column; }
-  .hula-v2 .email-form .btn { width: 100%; }
+  .hula-v2 .email-form input { flex: 0 0 auto; width: 100%; }
+  .hula-v2 .email-form .btn { width: 100%; flex: 0 0 auto; }
 }
