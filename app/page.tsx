@@ -278,7 +278,7 @@ function Hero() {
             The market for <em>what happens next.</em>
           </h1>
           <p className="lede">
-            Hula is the Philippines&apos; prediction market — trade the outcome of basketball, ballots, billboards, and the biggest stories of the day. Real money, real probabilities, regulated locally.
+            Hula is the Philippines&apos; prediction market — trade the outcome of basketball, boxing, billboards, and the biggest stories of the day. Real money, real probabilities, regulated locally.
           </p>
           <EmailForm id="waitlist" variant="hero" />
           <div style={{ marginTop: 14 }}>
