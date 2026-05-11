@@ -800,12 +800,15 @@ button:focus {
   border: 1px solid var(--line);
   border-radius: 16px;
   padding: 16px;
-  display: flex; flex-direction: column; gap: 8px;
+  display: flex; flex-direction: column; gap: 10px;
   transition: border-color .12s, box-shadow .12s;
 }
 .hula-v2 .picks-card.is-selected {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(232,122,30,.15);
+}
+.hula-v2 .picks-card-team {
+  background: linear-gradient(180deg, #fffaf0 0%, var(--paper) 60%);
 }
 .hula-v2 .picks-card-meta {
   display: flex; justify-content: space-between; gap: 12px;
@@ -813,17 +816,54 @@ button:focus {
   text-transform: uppercase; letter-spacing: 0.1em;
   color: var(--ink-3);
 }
-.hula-v2 .picks-card-game { font-weight: 500; }
+.hula-v2 .picks-card-game {
+  font-weight: 500;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
 .hula-v2 .picks-card-when { white-space: nowrap; }
+.hula-v2 .picks-card-body {
+  display: flex; align-items: center; gap: 12px;
+}
+.hula-v2 .picks-card-text {
+  display: flex; flex-direction: column; gap: 2px;
+  min-width: 0; flex: 1;
+}
 .hula-v2 .picks-card-player {
   font-family: var(--ff-sans); font-weight: 600;
   font-size: 17px; letter-spacing: -0.015em;
-  color: var(--ink); margin-top: 2px;
+  color: var(--ink);
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.hula-v2 .picks-card-kind {
+  font-family: var(--ff-mono); font-size: 9px;
+  font-weight: 600; letter-spacing: 0.14em;
+  background: var(--accent); color: #fff;
+  padding: 2px 6px; border-radius: 4px;
 }
 .hula-v2 .picks-card-stat {
   font-family: var(--ff-mono); font-size: 13px; color: var(--ink-2);
 }
 .hula-v2 .picks-card-line { color: var(--ink); font-weight: 600; }
+
+/* Avatar: photo for players, badge for team-kind props, initials fallback */
+.hula-v2 .picks-avatar {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--ff-sans); font-weight: 700;
+  font-size: 16px; letter-spacing: -0.04em;
+  color: var(--ink);
+}
+.hula-v2 .picks-avatar-photo { background: var(--ink-2); border-color: var(--ink-2); }
+.hula-v2 .picks-avatar-photo img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.hula-v2 .picks-avatar-team { border: none; }
+.hula-v2 .picks-avatar-initials { color: var(--ink-2); }
 .hula-v2 .picks-card-actions {
   display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
   margin-top: 8px;

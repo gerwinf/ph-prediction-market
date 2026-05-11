@@ -16,12 +16,18 @@ type Sport = 'wc' | 'pba' | 'nba' | 'mlbb'
 type Prop = {
   id: string
   sport: Sport
+  kind: 'player' | 'team'
   game: string
   when: string
   player: string
+  team?: string
   stat: string
   line: number
   unit: string
+  photo?: string
+  badge?: string
+  badgeBg?: string
+  badgeFg?: string
 }
 
 const SPORT_LABEL: Record<Sport, string> = {
@@ -33,42 +39,62 @@ const SPORT_LABEL: Record<Sport, string> = {
 
 const PROPS: Prop[] = [
   // ─── World Cup — Argentina vs Mexico, June 11 group stage opener
-  { id: 'wc-messi-goals', sport: 'wc',
+  { id: 'wc-messi-goals', sport: 'wc', kind: 'player',
     game: 'Argentina vs Mexico · Group C', when: 'Jun 11 · 8:00 PM PHT',
-    player: 'Lionel Messi', stat: 'Goals', line: 0.5, unit: 'goals' },
-  { id: 'wc-total-goals', sport: 'wc',
+    player: 'Lionel Messi', team: 'ARG', stat: 'Goals', line: 0.5, unit: 'goals',
+    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Lionel_Messi_White_House_2026_%283x4_cropped%29.jpg/330px-Lionel_Messi_White_House_2026_%283x4_cropped%29.jpg' },
+  { id: 'wc-lautaro-sot', sport: 'wc', kind: 'player',
     game: 'Argentina vs Mexico · Group C', when: 'Jun 11 · 8:00 PM PHT',
-    player: 'Match total goals', stat: 'Total', line: 2.5, unit: 'goals' },
-  { id: 'wc-lautaro-sot', sport: 'wc',
+    player: 'Lautaro Martínez', team: 'ARG', stat: 'Shots on target', line: 2.5, unit: 'SoT',
+    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Lautaro_Martinez_ARGENTINA_VS_VENEZUELA_2017.jpg/330px-Lautaro_Martinez_ARGENTINA_VS_VENEZUELA_2017.jpg' },
+  // Team-level prop
+  { id: 'wc-arg-shots', sport: 'wc', kind: 'team',
     game: 'Argentina vs Mexico · Group C', when: 'Jun 11 · 8:00 PM PHT',
-    player: 'Lautaro Martínez', stat: 'Shots on target', line: 2.5, unit: 'SoT' },
+    player: 'Argentina', team: 'ARG', stat: 'Team shots on goal', line: 12.5, unit: 'shots',
+    badge: 'ARG', badgeBg: '#75AADB', badgeFg: '#1E3A8A' },
+  { id: 'wc-total-goals', sport: 'wc', kind: 'team',
+    game: 'Argentina vs Mexico · Group C', when: 'Jun 11 · 8:00 PM PHT',
+    player: 'Match total goals', team: 'ARG · MEX', stat: 'Both teams · Total', line: 2.5, unit: 'goals',
+    badge: 'VS', badgeBg: '#0f2419', badgeFg: '#f5f1e3' },
 
   // ─── PBA Governors' Cup — Ginebra vs TNT
-  { id: 'pba-teng-pts', sport: 'pba',
+  { id: 'pba-teng-pts', sport: 'pba', kind: 'player',
     game: 'Ginebra vs TNT', when: 'Tonight · 7:00 PM PHT',
-    player: 'Jeron Teng', stat: 'Points', line: 18.5, unit: 'pts' },
-  { id: 'pba-thompson-ast', sport: 'pba',
+    player: 'Jeron Teng', team: 'GIN', stat: 'Points', line: 18.5, unit: 'pts',
+    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Jeron_Teng_Filipino_Basketball_Player_2014-04-20_20-48_%28cropped%29.jpg/330px-Jeron_Teng_Filipino_Basketball_Player_2014-04-20_20-48_%28cropped%29.jpg' },
+  { id: 'pba-thompson-ast', sport: 'pba', kind: 'player',
     game: 'Ginebra vs TNT', when: 'Tonight · 7:00 PM PHT',
-    player: 'Scottie Thompson', stat: 'Assists', line: 6.5, unit: 'ast' },
-  { id: 'pba-fajardo-reb', sport: 'pba',
+    player: 'Scottie Thompson', team: 'GIN', stat: 'Assists', line: 6.5, unit: 'ast',
+    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/PBA_-_Scottie_Thompson_-_2021.jpg/330px-PBA_-_Scottie_Thompson_-_2021.jpg' },
+  { id: 'pba-fajardo-reb', sport: 'pba', kind: 'player',
     game: 'San Miguel vs Magnolia', when: 'Tonight · 9:30 PM PHT',
-    player: 'June Mar Fajardo', stat: 'Rebounds', line: 12.5, unit: 'reb' },
+    player: 'June Mar Fajardo', team: 'SMB', stat: 'Rebounds', line: 12.5, unit: 'reb',
+    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/June_Mar_Fajardo_2026.jpg/330px-June_Mar_Fajardo_2026.jpg' },
+  // Team-level prop
+  { id: 'pba-ginebra-pts', sport: 'pba', kind: 'team',
+    game: 'Ginebra vs TNT', when: 'Tonight · 7:00 PM PHT',
+    player: 'Barangay Ginebra', team: 'GIN', stat: 'Team total points', line: 95.5, unit: 'pts',
+    badge: 'GIN', badgeBg: '#B22234', badgeFg: '#ffffff' },
 
   // ─── NBA Finals — Celtics in finals (per existing memo assumption)
-  { id: 'nba-tatum-pts', sport: 'nba',
+  { id: 'nba-tatum-pts', sport: 'nba', kind: 'player',
     game: 'Celtics vs Thunder · Game 5', when: 'Jun 15 · 8:30 AM PHT',
-    player: 'Jayson Tatum', stat: 'Points', line: 28.5, unit: 'pts' },
-  { id: 'nba-sga-pts', sport: 'nba',
+    player: 'Jayson Tatum', team: 'BOS', stat: 'Points', line: 28.5, unit: 'pts',
+    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Celtics_at_Wizards_2024-12-044_%28cropped_2%29.jpg/330px-Celtics_at_Wizards_2024-12-044_%28cropped_2%29.jpg' },
+  { id: 'nba-sga-pts', sport: 'nba', kind: 'player',
     game: 'Celtics vs Thunder · Game 5', when: 'Jun 15 · 8:30 AM PHT',
-    player: 'Shai Gilgeous-Alexander', stat: 'Points', line: 30.5, unit: 'pts' },
+    player: 'Shai Gilgeous-Alexander', team: 'OKC', stat: 'Points', line: 30.5, unit: 'pts',
+    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Shai_Gilgeous-Alexander_-_Thunder_vs._Wizards.png/330px-Shai_Gilgeous-Alexander_-_Thunder_vs._Wizards.png' },
 
   // ─── MLBB MPL-PH
-  { id: 'mlbb-echo-maps', sport: 'mlbb',
+  { id: 'mlbb-echo-maps', sport: 'mlbb', kind: 'team',
     game: 'ECHO vs Blacklist Intl', when: 'Tonight · 6:00 PM PHT',
-    player: 'ECHO', stat: 'Maps won', line: 2.5, unit: 'maps' },
-  { id: 'mlbb-kills', sport: 'mlbb',
+    player: 'ECHO', team: 'ECHO', stat: 'Maps won', line: 2.5, unit: 'maps',
+    badge: 'E', badgeBg: '#1E3A8A', badgeFg: '#ffffff' },
+  { id: 'mlbb-kills', sport: 'mlbb', kind: 'team',
     game: 'ECHO vs Blacklist Intl', when: 'Tonight · 6:00 PM PHT',
-    player: 'Match total kills', stat: 'Total', line: 28.5, unit: 'kills' },
+    player: 'Match total kills', team: 'ECHO · BLI', stat: 'Both teams · Total', line: 28.5, unit: 'kills',
+    badge: 'VS', badgeBg: '#0f2419', badgeFg: '#f5f1e3' },
 ]
 
 const MULTIPLIERS: Record<number, number> = {
@@ -92,6 +118,51 @@ function LogoLockup() {
   )
 }
 
+function initialsFor(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase() ?? '')
+    .join('')
+}
+
+function PropAvatar({ prop }: { prop: Prop }) {
+  const [photoFailed, setPhotoFailed] = useState(false)
+  const showPhoto = prop.kind === 'player' && prop.photo && !photoFailed
+  const showTeamBadge = prop.kind === 'team'
+  const initials = initialsFor(prop.player)
+
+  if (showPhoto) {
+    return (
+      <span className="picks-avatar picks-avatar-photo">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={prop.photo} alt={prop.player} onError={() => setPhotoFailed(true)} />
+      </span>
+    )
+  }
+
+  if (showTeamBadge) {
+    return (
+      <span
+        className="picks-avatar picks-avatar-team"
+        style={{
+          background: prop.badgeBg ?? 'var(--ink)',
+          color: prop.badgeFg ?? 'var(--bg)',
+        }}
+      >
+        {prop.badge ?? initials}
+      </span>
+    )
+  }
+
+  return (
+    <span className="picks-avatar picks-avatar-initials">
+      {initials}
+    </span>
+  )
+}
+
 function SportSection({ sport, props, picks, onToggle }: {
   sport: Sport
   props: Prop[]
@@ -108,14 +179,22 @@ function SportSection({ sport, props, picks, onToggle }: {
         {props.map((p) => {
           const selected = picks[p.id]
           return (
-            <div key={p.id} className={'picks-card' + (selected ? ' is-selected' : '')}>
+            <div key={p.id} className={'picks-card' + (selected ? ' is-selected' : '') + (p.kind === 'team' ? ' picks-card-team' : '')}>
               <div className="picks-card-meta">
                 <span className="picks-card-game">{p.game}</span>
                 <span className="picks-card-when">{p.when}</span>
               </div>
-              <div className="picks-card-player">{p.player}</div>
-              <div className="picks-card-stat">
-                {p.stat} · <span className="picks-card-line">{p.line} {p.unit}</span>
+              <div className="picks-card-body">
+                <PropAvatar prop={p} />
+                <div className="picks-card-text">
+                  <div className="picks-card-player">
+                    {p.player}
+                    {p.kind === 'team' && <span className="picks-card-kind">TEAM</span>}
+                  </div>
+                  <div className="picks-card-stat">
+                    {p.stat} · <span className="picks-card-line">{p.line} {p.unit}</span>
+                  </div>
+                </div>
               </div>
               <div className="picks-card-actions">
                 <button
@@ -379,7 +458,7 @@ export default function PicksPage() {
         </div>
         <h1 className="h1 picks-h1">Build your card. <em>Win up to 25×.</em></h1>
         <p className="lede">
-          Pick OVER or UNDER on 2 to 6 player props. Stack picks for a bigger multiplier. PAGCOR predictive-skill contest, peso-native, settled to GCash within the hour.
+          Pick MORE or LESS on 2 to 6 player and team props. Stack picks for a bigger multiplier. PAGCOR predictive-skill contest, peso-native, settled to GCash within the hour.
         </p>
         <div className="picks-multikey">
           <span><strong>2</strong>×3</span>
