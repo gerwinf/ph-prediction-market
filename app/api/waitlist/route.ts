@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { email, source, picks, entry, willPay, why } = body
+    const { email, source, picks, entry, willPay, prefMode, why } = body
 
     if (!email || !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
       return NextResponse.json(
@@ -21,6 +21,7 @@ export async function POST(request: NextRequest) {
         picks,
         entry,
         willPay,
+        prefMode,
         why,
       }))
     }

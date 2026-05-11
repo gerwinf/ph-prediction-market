@@ -81,7 +81,7 @@ const MULTIPLIERS: Record<number, number> = {
 
 const ENTRY_SIZES = [100, 500, 1000, 5000] as const
 
-type Pick = 'OVER' | 'UNDER'
+type Pick = 'MORE' | 'LESS'
 
 function LogoLockup() {
   return (
@@ -120,17 +120,17 @@ function SportSection({ sport, props, picks, onToggle }: {
               <div className="picks-card-actions">
                 <button
                   type="button"
-                  className={'picks-btn' + (selected === 'OVER' ? ' picks-btn-over-active' : '')}
-                  onClick={() => onToggle(p.id, 'OVER')}
+                  className={'picks-btn' + (selected === 'MORE' ? ' picks-btn-more-active' : '')}
+                  onClick={() => onToggle(p.id, 'MORE')}
                 >
-                  <span className="picks-btn-arrow">▲</span> OVER
+                  <span className="picks-btn-arrow">▲</span> MORE
                 </button>
                 <button
                   type="button"
-                  className={'picks-btn' + (selected === 'UNDER' ? ' picks-btn-under-active' : '')}
-                  onClick={() => onToggle(p.id, 'UNDER')}
+                  className={'picks-btn' + (selected === 'LESS' ? ' picks-btn-less-active' : '')}
+                  onClick={() => onToggle(p.id, 'LESS')}
                 >
-                  <span className="picks-btn-arrow">▼</span> UNDER
+                  <span className="picks-btn-arrow">▼</span> LESS
                 </button>
               </div>
             </div>
@@ -205,6 +205,8 @@ function CardBar({
   )
 }
 
+type PrefMode = 'power' | 'flex' | null
+
 function LockInForm({
   picks, entry, onClose,
 }: {
@@ -214,12 +216,13 @@ function LockInForm({
 }) {
   const [email, setEmail] = useState('')
   const [willPay, setWillPay] = useState<'yes' | 'no' | null>(null)
+  const [prefMode, setPrefMode] = useState<PrefMode>(null)
   const [why, setWhy] = useState('')
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    if (!email.trim() || !willPay) return
+    if (!email.trim() || !willPay || !prefMode) return
     setStatus('loading')
 
     const pickPayload = Object.entries(picks).map(([id, side]) => {
@@ -237,6 +240,7 @@ function LockInForm({
           picks: pickPayload,
           entry,
           willPay,
+          prefMode,
           why: why.trim() || undefined,
         }),
       })
@@ -296,6 +300,26 @@ function LockInForm({
           >No, not at this price</button>
         </div>
 
+        <label className="picks-lockin-label">If you could pick the rules — which would you play?</label>
+        <div className="picks-lockin-yn picks-lockin-mode">
+          <button
+            type="button"
+            className={'picks-mode-btn' + (prefMode === 'power' ? ' is-active' : '')}
+            onClick={() => setPrefMode('power')}
+          >
+            <span className="picks-mode-name">All-must-hit</span>
+            <span className="picks-mode-sub">Hit every pick. Up to 25× payout. Miss 1 → lose entry.</span>
+          </button>
+          <button
+            type="button"
+            className={'picks-mode-btn' + (prefMode === 'flex' ? ' is-active' : '')}
+            onClick={() => setPrefMode('flex')}
+          >
+            <span className="picks-mode-name">Miss-and-still-win</span>
+            <span className="picks-mode-sub">Miss 1–2 picks, still win a smaller payout (up to ~10×).</span>
+          </button>
+        </div>
+
         <label className="picks-lockin-label">Why? <span className="picks-lockin-opt">(optional, one sentence)</span></label>
         <textarea
           className="picks-lockin-textarea"
@@ -309,7 +333,7 @@ function LockInForm({
         <button
           type="submit"
           className="btn btn-accent btn-lg picks-lockin-submit"
-          disabled={status === 'loading' || !email.trim() || !willPay}
+          disabled={status === 'loading' || !email.trim() || !willPay || !prefMode}
         >
           {status === 'loading' ? 'Sending…' : 'Send my feedback →'}
         </button>

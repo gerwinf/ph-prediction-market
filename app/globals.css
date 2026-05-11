@@ -842,10 +842,10 @@ button:focus {
 }
 .hula-v2 .picks-btn:hover { border-color: var(--ink); }
 .hula-v2 .picks-btn-arrow { font-size: 9px; }
-.hula-v2 .picks-btn-over-active {
+.hula-v2 .picks-btn-more-active {
   background: var(--up); color: #fff; border-color: var(--up);
 }
-.hula-v2 .picks-btn-under-active {
+.hula-v2 .picks-btn-less-active {
   background: var(--down); color: #fff; border-color: var(--down);
 }
 
@@ -1007,6 +1007,36 @@ button:focus {
 .hula-v2 .picks-yn-btn.is-no {
   background: var(--down); color: #fff; border-color: var(--down);
 }
+
+/* Flex vs Power mode picker (more text, stacked layout) */
+.hula-v2 .picks-lockin-mode { grid-template-columns: 1fr; gap: 8px; }
+@media (min-width: 540px) {
+  .hula-v2 .picks-lockin-mode { grid-template-columns: 1fr 1fr; }
+}
+.hula-v2 .picks-mode-btn {
+  text-align: left;
+  border: 1px solid var(--line-2);
+  background: var(--bg);
+  color: var(--ink);
+  border-radius: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: all .12s;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.hula-v2 .picks-mode-btn:hover { border-color: var(--ink); }
+.hula-v2 .picks-mode-btn.is-active {
+  background: var(--ink); color: #f5f1e6; border-color: var(--ink);
+}
+.hula-v2 .picks-mode-name {
+  font-family: var(--ff-sans); font-weight: 600; font-size: 14px;
+  letter-spacing: -0.01em;
+}
+.hula-v2 .picks-mode-sub {
+  font-family: var(--ff-mono); font-size: 11px;
+  color: var(--ink-3); line-height: 1.4;
+}
+.hula-v2 .picks-mode-btn.is-active .picks-mode-sub { color: rgba(245,241,230,.7); }
 .hula-v2 .picks-lockin-submit { width: 100%; margin-top: 6px; }
 .hula-v2 .picks-lockin-err {
   font-family: var(--ff-mono); font-size: 11px;
