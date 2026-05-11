@@ -11,7 +11,7 @@ import { useState, FormEvent } from 'react'
  * Not linked from / — share URL manually for validation tests only.
  * ──────────────────────────────────────────────────────────────────────── */
 
-type Sport = 'wc' | 'pba' | 'nba' | 'mlbb'
+type Sport = 'wc' | 'pba' | 'nba' | 'mlbb' | 'pool'
 
 type Prop = {
   id: string
@@ -35,6 +35,7 @@ const SPORT_LABEL: Record<Sport, string> = {
   pba:  'PBA · Governors’ Cup',
   nba:  'NBA Finals',
   mlbb: 'MLBB · MPL-PH S18',
+  pool: 'Pool · World Pool Masters',
 }
 
 const PROPS: Prop[] = [
@@ -75,6 +76,25 @@ const PROPS: Prop[] = [
     game: 'Ginebra vs TNT', when: 'Tonight · 7:00 PM PHT',
     player: 'Barangay Ginebra', team: 'GIN', stat: 'Team total points', line: 95.5, unit: 'pts',
     badge: 'GIN', badgeBg: '#B22234', badgeFg: '#ffffff' },
+
+  // ─── World Pool Masters — Carlo Biado anchor + Johann Chua + Efren Reyes
+  { id: 'pool-biado-racks', sport: 'pool', kind: 'player',
+    game: 'Biado vs Filler · Round of 16', when: 'Sat · 9:00 PM PHT',
+    player: 'Carlo Biado', team: 'PH', stat: 'Racks won (race to 9)', line: 5.5, unit: 'racks',
+    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Carlo_Biado_2018.jpg/330px-Carlo_Biado_2018.jpg' },
+  { id: 'pool-chua-racks', sport: 'pool', kind: 'player',
+    game: 'Chua vs Shaw · Round of 16', when: 'Sat · 6:00 PM PHT',
+    player: 'Johann Chua', team: 'PH', stat: 'Racks won (race to 9)', line: 4.5, unit: 'racks',
+    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Maldives_Open_2023_Final_-_Johann_Chua.jpg/330px-Maldives_Open_2023_Final_-_Johann_Chua.jpg' },
+  { id: 'pool-bata-breakrun', sport: 'pool', kind: 'player',
+    game: 'Reyes vs Pagulayan · Legends Cup', when: 'Sun · 7:00 PM PHT',
+    player: 'Efren “Bata” Reyes', team: 'PH', stat: 'Highest break run', line: 3.5, unit: 'racks',
+    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Efren_Reyes_in_the_World_9-Ball_Pool_Championship_%282%29.jpg/330px-Efren_Reyes_in_the_World_9-Ball_Pool_Championship_%282%29.jpg' },
+  // Team / match-level prop
+  { id: 'pool-total-racks', sport: 'pool', kind: 'team',
+    game: 'Biado vs Filler · Round of 16', when: 'Sat · 9:00 PM PHT',
+    player: 'Match total racks', team: 'PH · DE', stat: 'Both players · Total', line: 13.5, unit: 'racks',
+    badge: 'VS', badgeBg: '#0f2419', badgeFg: '#f5f1e3' },
 
   // ─── NBA Finals — Celtics in finals (per existing memo assumption)
   { id: 'nba-tatum-pts', sport: 'nba', kind: 'player',
@@ -438,7 +458,7 @@ export default function PicksPage() {
     })
   }
 
-  const sports: Sport[] = ['wc', 'pba', 'nba', 'mlbb']
+  const sports: Sport[] = ['wc', 'pba', 'pool', 'nba', 'mlbb']
 
   return (
     <main className="hula-v2 picks-page">
