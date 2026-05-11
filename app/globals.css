@@ -764,11 +764,31 @@ button:focus {
   display: flex; gap: 14px; flex-wrap: wrap;
   font-family: var(--ff-mono); font-size: 13px;
   color: var(--ink-2);
-  margin-top: 8px;
+  margin-top: 12px;
 }
 .hula-v2 .picks-multikey strong {
   color: var(--accent); font-weight: 700;
   margin-right: 2px;
+}
+
+/* Trust chips below hero — PAGCOR / peso / GCash / 21+ */
+.hula-v2 .picks-trust-chips {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-top: 18px;
+}
+.hula-v2 .picks-trust-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--ff-sans); font-weight: 500; font-size: 12px;
+  letter-spacing: -0.005em;
+  color: var(--ink-2);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+.hula-v2 .picks-trust-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--up);
 }
 
 .hula-v2 .picks-body { padding-bottom: 32px; }
@@ -799,10 +819,19 @@ button:focus {
   background: var(--paper);
   border: 1px solid var(--line);
   border-radius: 16px;
-  padding: 16px;
+  padding: 16px 16px 16px 20px;
   display: flex; flex-direction: column; gap: 10px;
   transition: border-color .12s, box-shadow .12s;
   min-width: 0;
+  position: relative;
+  overflow: hidden;
+}
+/* Team-colored stripe — solves no-logo / no-photo IP problem
+   while still giving fast visual recognition of which team each prop is for */
+.hula-v2 .picks-card-stripe {
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  width: 4px;
 }
 .hula-v2 .picks-card.is-selected {
   border-color: var(--accent);
@@ -916,6 +945,35 @@ button:focus {
   color: #c8c2b3; letter-spacing: 0.04em;
   text-align: center; width: 100%;
 }
+
+/* Power / Flex mode pills inside the sticky bar */
+.hula-v2 .picks-bar-modes {
+  display: flex; gap: 6px;
+  flex-shrink: 0;
+  padding: 4px;
+  background: rgba(0,0,0,0.25);
+  border-radius: 999px;
+}
+.hula-v2 .picks-mode-pill {
+  appearance: none; border: 0; background: transparent;
+  color: #c8c2b3;
+  font-family: var(--ff-sans);
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex; flex-direction: column; align-items: center;
+  gap: 1px;
+  transition: all .12s;
+}
+.hula-v2 .picks-mode-pill-name { font-weight: 700; font-size: 13px; letter-spacing: -0.01em; }
+.hula-v2 .picks-mode-pill-sub  { font-family: var(--ff-mono); font-size: 9px; letter-spacing: 0.04em; text-transform: uppercase; opacity: 0.65; }
+.hula-v2 .picks-mode-pill.is-active {
+  background: var(--accent); color: #fff;
+}
+.hula-v2 .picks-mode-pill.is-active .picks-mode-pill-sub { opacity: 0.85; }
+.hula-v2 .picks-mode-pill.is-disabled {
+  opacity: 0.4; cursor: not-allowed;
+}
 .hula-v2 .picks-bar-summary {
   display: flex; flex-direction: column; gap: 4px;
   flex-shrink: 0;
@@ -965,10 +1023,14 @@ button:focus {
 @media (max-width: 720px) {
   .hula-v2 .picks-bar { transform: translateY(calc(100% - 44px)); }
   .hula-v2 .picks-bar.has-picks { transform: translateY(0); }
-  .hula-v2 .picks-bar-shell { gap: 10px; }
+  .hula-v2 .picks-bar-shell { gap: 8px; padding-top: 10px; padding-bottom: 12px; }
+  .hula-v2 .picks-bar-modes { width: 100%; }
+  .hula-v2 .picks-mode-pill { flex: 1 1 0; padding: 4px 10px; }
+  .hula-v2 .picks-mode-pill-name { font-size: 12px; }
+  .hula-v2 .picks-mode-pill-sub  { font-size: 8.5px; }
   .hula-v2 .picks-bar-summary { width: 100%; flex-direction: row; justify-content: space-between; align-items: baseline; }
   .hula-v2 .picks-bar-entries { width: 100%; margin-left: 0; justify-content: space-between; }
-  .hula-v2 .picks-entry-chip { flex: 1 1 0; min-width: 0; padding: 0 8px; height: 38px; }
+  .hula-v2 .picks-entry-chip { flex: 1 1 0; min-width: 0; padding: 0 8px; height: 36px; }
   .hula-v2 .picks-lock-btn { width: 100%; }
   .hula-v2 .picks-bar-win { font-size: 18px; }
 }
@@ -1118,6 +1180,8 @@ button:focus {
   .hula-v2 .picks-h1 { font-size: clamp(34px, 9.5vw, 48px); margin-bottom: 14px; }
   .hula-v2 .picks-hero .lede { font-size: 15px; margin-bottom: 18px; }
   .hula-v2 .picks-multikey { font-size: 12px; gap: 10px; row-gap: 4px; }
+  .hula-v2 .picks-trust-chips { gap: 6px; margin-top: 14px; }
+  .hula-v2 .picks-trust-chip { font-size: 11px; padding: 5px 10px; }
 
   /* Top nav padding */
   .hula-v2 .picks-topnav-inner { padding-top: 12px; padding-bottom: 12px; }

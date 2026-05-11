@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, FormEvent } from 'react'
+import { useState, useEffect, FormEvent } from 'react'
 
 /* ────────────────────────────────────────────────────────────────────────
  * /picks — predictive-skill-contest prototype
@@ -30,6 +30,45 @@ type Prop = {
   badgeFg?: string
 }
 
+// Wikipedia Special:FilePath redirect — returns a real cached thumbnail at the
+// closest available width. Works in browsers (the /thumb/.../200px- format
+// returns 400 unless that exact size was pre-generated; FilePath redirects to
+// whatever IS available).
+const wp = (filename: string, width = 240) =>
+  `https://en.wikipedia.org/wiki/Special:FilePath/${encodeURIComponent(filename)}?width=${width}`
+
+// Team-colored stripe — solves the no-player-photo IP problem (no team logos
+// either, just the team's primary brand color as a 4px left-edge band). Adds
+// visual recognition without any licensing risk.
+const TEAM_COLOR: Record<string, string> = {
+  // WC 2026
+  MEX:  '#006847',  // Mexico green
+  RSA:  '#007749',  // South Africa green
+  ARG:  '#75aadb',  // Argentina light blue
+  ALG:  '#006633',  // Algeria green
+  // PBA
+  GIN:  '#c8102e',  // Ginebra red
+  TNT:  '#e87a1e',  // TNT orange
+  SMB:  '#0a3d8f',  // San Miguel blue
+  MAG:  '#1f7a3a',  // Magnolia green
+  // NBA
+  LAL:  '#552583',  // Lakers purple
+  OKC:  '#007ac1',  // Thunder blue
+  BOS:  '#007a33',  // Celtics green
+  // MLBB
+  ECHO: '#1E3A8A',
+  BLI:  '#111111',
+  // Pool
+  PH:   '#003f87',  // PH flag blue
+  DE:   '#000000',  // Germany
+}
+const stripeFor = (team?: string): string | null => {
+  if (!team) return null
+  // Multi-team strings like "MEX · RSA" or "ARG · ALG" — use first team's color
+  const first = team.split('·')[0]?.trim() || team.trim()
+  return TEAM_COLOR[first] ?? null
+}
+
 const SPORT_LABEL: Record<Sport, string> = {
   wc:   'World Cup 2026',
   pba:  'PBA · Commissioner’s Cup',
@@ -45,11 +84,11 @@ const PROPS: Prop[] = [
   { id: 'wc-lozano-sot', sport: 'wc', kind: 'player',
     game: 'Mexico vs South Africa · Group A · opener', when: 'Jun 11 · 3:00 AM PHT',
     player: 'Hirving Lozano', team: 'MEX', stat: 'Shots on target', line: 1.5, unit: 'SoT',
-    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Hirving_Lozano.png/200px-Hirving_Lozano.png' },
+    photo: wp('Hirving Lozano.png') },
   { id: 'wc-alvarez-tackles', sport: 'wc', kind: 'player',
     game: 'Mexico vs South Africa · Group A · opener', when: 'Jun 11 · 3:00 AM PHT',
     player: 'Edson Álvarez', team: 'MEX', stat: 'Tackles', line: 3.5, unit: 'tackles',
-    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Edson_%C3%81lvarez.png/200px-Edson_%C3%81lvarez.png' },
+    photo: wp('Edson Álvarez.png') },
   { id: 'wc-mex-total-goals', sport: 'wc', kind: 'team',
     game: 'Mexico vs South Africa · Group A · opener', when: 'Jun 11 · 3:00 AM PHT',
     player: 'Match total goals', team: 'MEX · RSA', stat: 'Both teams · Total', line: 2.5, unit: 'goals',
@@ -59,34 +98,34 @@ const PROPS: Prop[] = [
   { id: 'wc-messi-goals', sport: 'wc', kind: 'player',
     game: 'Argentina vs Algeria · Group J', when: 'Jun 17 · 9:00 AM PHT',
     player: 'Lionel Messi', team: 'ARG', stat: 'Goals', line: 0.5, unit: 'goals',
-    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Lionel_Messi_White_House_2026_%283x4_cropped%29.jpg/200px-Lionel_Messi_White_House_2026_%283x4_cropped%29.jpg' },
+    photo: wp('Lionel Messi White House 2026 (3x4 cropped).jpg') },
   { id: 'wc-lautaro-sot', sport: 'wc', kind: 'player',
     game: 'Argentina vs Algeria · Group J', when: 'Jun 17 · 9:00 AM PHT',
     player: 'Lautaro Martínez', team: 'ARG', stat: 'Shots on target', line: 2.5, unit: 'SoT',
-    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Lautaro_Martinez_ARGENTINA_VS_VENEZUELA_2017.jpg/200px-Lautaro_Martinez_ARGENTINA_VS_VENEZUELA_2017.jpg' },
+    photo: wp('Lautaro Martinez ARGENTINA VS VENEZUELA 2017.jpg') },
   { id: 'wc-mahrez-goals', sport: 'wc', kind: 'player',
     game: 'Argentina vs Algeria · Group J', when: 'Jun 17 · 9:00 AM PHT',
     player: 'Riyad Mahrez', team: 'ALG', stat: 'Goals', line: 0.5, unit: 'goals',
-    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Mahrez_2021.jpg/200px-Mahrez_2021.jpg' },
+    photo: wp('Mahrez 2021.jpg') },
 
   // ─── PBA Commissioner's Cup (2026, ongoing — second conference of PBA Season 50)
   // Ginebra is the defending champ. Brownlee is the long-time Ginebra import.
   { id: 'pba-brownlee-pts', sport: 'pba', kind: 'player',
     game: 'Ginebra vs TNT · Manila Clasico', when: 'Tonight · 7:00 PM PHT',
     player: 'Justin Brownlee', team: 'GIN', stat: 'Points (import)', line: 28.5, unit: 'pts',
-    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Brownlee_w._bottle_SEA_Games_2023_%28cropped%29.png/200px-Brownlee_w._bottle_SEA_Games_2023_%28cropped%29.png' },
+    photo: wp('Brownlee w. bottle SEA Games 2023 (cropped).png') },
   { id: 'pba-thompson-ast', sport: 'pba', kind: 'player',
     game: 'Ginebra vs TNT · Manila Clasico', when: 'Tonight · 7:00 PM PHT',
     player: 'Scottie Thompson', team: 'GIN', stat: 'Assists', line: 6.5, unit: 'ast',
-    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/PBA_-_Scottie_Thompson_-_2021.jpg/200px-PBA_-_Scottie_Thompson_-_2021.jpg' },
+    photo: wp('PBA - Scottie Thompson - 2021.jpg') },
   { id: 'pba-pogoy-pts', sport: 'pba', kind: 'player',
     game: 'Ginebra vs TNT · Manila Clasico', when: 'Tonight · 7:00 PM PHT',
     player: 'RR Pogoy', team: 'TNT', stat: 'Points', line: 19.5, unit: 'pts',
-    photo: 'https://upload.wikimedia.org/wikipedia/commons/8/87/Bongbong_Marcos_in_Dominican_Republic_v_Philippines_FBWC_2_Pogoy_%28cropped%29.jpg' },
+    photo: wp('Bongbong Marcos in Dominican Republic v Philippines FBWC 2 Pogoy (cropped).jpg') },
   { id: 'pba-fajardo-reb', sport: 'pba', kind: 'player',
     game: 'San Miguel vs Magnolia', when: 'Tomorrow · 9:30 PM PHT',
     player: 'June Mar Fajardo', team: 'SMB', stat: 'Rebounds', line: 12.5, unit: 'reb',
-    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/June_Mar_Fajardo_2026.jpg/200px-June_Mar_Fajardo_2026.jpg' },
+    photo: wp('June Mar Fajardo 2026.jpg') },
   { id: 'pba-ginebra-pts', sport: 'pba', kind: 'team',
     game: 'Ginebra vs TNT · Manila Clasico', when: 'Tonight · 7:00 PM PHT',
     player: 'Barangay Ginebra', team: 'GIN', stat: 'Team total points', line: 102.5, unit: 'pts',
@@ -97,15 +136,15 @@ const PROPS: Prop[] = [
   { id: 'pool-biado-racks', sport: 'pool', kind: 'player',
     game: 'Biado vs Filler · race to 9', when: 'Sat · 9:00 PM PHT',
     player: 'Carlo Biado', team: 'PH', stat: 'Racks won', line: 5.5, unit: 'racks',
-    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Carlo_Biado_2018.jpg/200px-Carlo_Biado_2018.jpg' },
+    photo: wp('Carlo Biado 2018.jpg') },
   { id: 'pool-filler-racks', sport: 'pool', kind: 'player',
     game: 'Biado vs Filler · race to 9', when: 'Sat · 9:00 PM PHT',
     player: 'Joshua Filler', team: 'DE', stat: 'Racks won', line: 4.5, unit: 'racks',
-    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Joshua_Filler_straight_pool.jpg/200px-Joshua_Filler_straight_pool.jpg' },
+    photo: wp('Joshua Filler straight pool.jpg') },
   { id: 'pool-chua-racks', sport: 'pool', kind: 'player',
     game: 'Chua vs Shaw · race to 9', when: 'Sat · 6:00 PM PHT',
     player: 'Johann Chua', team: 'PH', stat: 'Racks won', line: 4.5, unit: 'racks',
-    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Maldives_Open_2023_Final_-_Johann_Chua.jpg/200px-Maldives_Open_2023_Final_-_Johann_Chua.jpg' },
+    photo: wp('Maldives Open 2023 Final - Johann Chua.jpg') },
   { id: 'pool-total-racks', sport: 'pool', kind: 'team',
     game: 'Biado vs Filler · race to 9', when: 'Sat · 9:00 PM PHT',
     player: 'Match total racks', team: 'PH · DE', stat: 'Both players · Total', line: 13.5, unit: 'racks',
@@ -118,15 +157,15 @@ const PROPS: Prop[] = [
   { id: 'nba-sga-pts', sport: 'nba', kind: 'player',
     game: 'Thunder vs Lakers · Conf. Semis', when: 'This week · 8:30 AM PHT',
     player: 'Shai Gilgeous-Alexander', team: 'OKC', stat: 'Points', line: 31.5, unit: 'pts',
-    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Shai_Gilgeous-Alexander_-_Thunder_vs._Wizards.png/200px-Shai_Gilgeous-Alexander_-_Thunder_vs._Wizards.png' },
+    photo: wp('Shai Gilgeous-Alexander - Thunder vs. Wizards.png') },
   { id: 'nba-luka-pts', sport: 'nba', kind: 'player',
     game: 'Thunder vs Lakers · Conf. Semis', when: 'This week · 8:30 AM PHT',
     player: 'Luka Dončić', team: 'LAL', stat: 'Points', line: 28.5, unit: 'pts',
-    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Luka_Doncic_%2851914951721%29_%28cropped1%29.jpg/200px-Luka_Doncic_%2851914951721%29_%28cropped1%29.jpg' },
+    photo: wp('Luka Doncic (51914951721) (cropped1).jpg') },
   { id: 'nba-lebron-ast', sport: 'nba', kind: 'player',
     game: 'Thunder vs Lakers · Conf. Semis', when: 'This week · 8:30 AM PHT',
     player: 'LeBron James', team: 'LAL', stat: 'Assists', line: 7.5, unit: 'ast',
-    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/LeBron_James_%2851959977144%29_%28cropped2%29.jpg/200px-LeBron_James_%2851959977144%29_%28cropped2%29.jpg' },
+    photo: wp('LeBron James (51959977144) (cropped2).jpg') },
 
   // ─── MLBB MPL-PH 2026 — ECHO vs Blacklist remains the marquee rivalry
 
@@ -140,17 +179,27 @@ const PROPS: Prop[] = [
     badge: 'VS', badgeBg: '#0f2419', badgeFg: '#f5f1e3' },
 ]
 
-const MULTIPLIERS: Record<number, number> = {
-  2: 3,
-  3: 5,
-  4: 10,
-  5: 17,
-  6: 25,
+// Power Play multipliers — all picks must hit
+const POWER_MULT: Record<number, number> = {
+  2: 3, 3: 5, 4: 10, 5: 17, 6: 25,
+}
+
+// Flex Play multipliers — partial-credit. Number is the all-hit ceiling;
+// miss-1 and miss-2 fallbacks are lower. Flex requires 3+ picks.
+const FLEX_HIT: Record<number, number> = {
+  3: 2.25, 4: 5, 5: 10, 6: 25,
 }
 
 const ENTRY_SIZES = [100, 500, 1000, 5000] as const
 
 type Pick = 'MORE' | 'LESS'
+type Mode = 'power' | 'flex'
+
+function multFor(mode: Mode, n: number): number {
+  if (n < 2 || n > 6) return 0
+  if (mode === 'flex' && n >= 3) return FLEX_HIT[n] ?? 0
+  return POWER_MULT[n] ?? 0
+}
 
 function LogoLockup() {
   return (
@@ -180,7 +229,13 @@ function PropAvatar({ prop }: { prop: Prop }) {
     return (
       <span className="picks-avatar picks-avatar-photo">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={prop.photo} alt={prop.player} onError={() => setPhotoFailed(true)} />
+        <img
+          src={prop.photo}
+          alt={prop.player}
+          loading="lazy"
+          referrerPolicy="no-referrer"
+          onError={() => setPhotoFailed(true)}
+        />
       </span>
     )
   }
@@ -221,8 +276,10 @@ function SportSection({ sport, props, picks, onToggle }: {
       <div className="picks-list">
         {props.map((p) => {
           const selected = picks[p.id]
+          const stripe = stripeFor(p.team)
           return (
             <div key={p.id} className={'picks-card' + (selected ? ' is-selected' : '') + (p.kind === 'team' ? ' picks-card-team' : '')}>
+              {stripe && <span className="picks-card-stripe" style={{ background: stripe }} aria-hidden />}
               <div className="picks-card-meta">
                 <span className="picks-card-game">{p.game}</span>
                 <span className="picks-card-when">{p.when}</span>
@@ -264,23 +321,26 @@ function SportSection({ sport, props, picks, onToggle }: {
 }
 
 function CardBar({
-  picks, entry, onEntryChange, onLockIn, locked,
+  picks, entry, onEntryChange, mode, onModeChange, onLockIn, locked,
 }: {
   picks: Record<string, Pick>
   entry: number
   onEntryChange: (n: number) => void
+  mode: Mode
+  onModeChange: (m: Mode) => void
   onLockIn: () => void
   locked: boolean
 }) {
   const count = Object.keys(picks).length
-  const mult = MULTIPLIERS[count] ?? 0
-  const payout = mult * entry
+  const mult = multFor(mode, count)
+  const payout = Math.round(mult * entry)
   const canLock = count >= 2 && count <= 6 && !locked
+  const flexAvailable = count >= 3
 
   let status = ''
-  if (count === 0) status = 'Tap a prop to start building'
-  else if (count === 1) status = 'Add 1 more prop (min 2 picks)'
-  else if (count > 6) status = 'Maximum 6 picks per card'
+  if (count === 0) status = 'Pumili ng prop para magsimula'
+  else if (count === 1) status = 'Add 1 more (min 2 picks)'
+  else if (count > 6) status = 'Max 6 picks per card'
 
   return (
     <div className={'picks-bar' + (count > 0 ? ' has-picks' : '')} aria-live="polite">
@@ -290,6 +350,32 @@ function CardBar({
         )}
         {canLock && (
           <>
+            {/* Power / Flex mode toggle — primary product surface */}
+            <div className="picks-bar-modes" role="tablist">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={mode === 'power'}
+                className={'picks-mode-pill' + (mode === 'power' ? ' is-active' : '')}
+                onClick={() => onModeChange('power')}
+              >
+                <span className="picks-mode-pill-name">Power</span>
+                <span className="picks-mode-pill-sub">All must hit</span>
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={mode === 'flex'}
+                className={'picks-mode-pill' + (mode === 'flex' ? ' is-active' : '') + (!flexAvailable ? ' is-disabled' : '')}
+                onClick={() => flexAvailable && onModeChange('flex')}
+                disabled={!flexAvailable}
+                title={!flexAvailable ? 'Flex needs 3+ picks' : 'Miss 1, smaller payout'}
+              >
+                <span className="picks-mode-pill-name">Flex</span>
+                <span className="picks-mode-pill-sub">Miss 1, lower pay</span>
+              </button>
+            </div>
+
             <div className="picks-bar-summary">
               <div className="picks-bar-row">
                 <span className="picks-bar-lbl">{count} picks</span>
@@ -318,7 +404,7 @@ function CardBar({
               className="btn btn-accent btn-lg picks-lock-btn"
               onClick={onLockIn}
             >
-              Lock in →
+              Lock in {mode === 'power' ? 'Power' : 'Flex'} →
             </button>
           </>
         )}
@@ -470,6 +556,7 @@ function LockInForm({
 export default function PicksPage() {
   const [picks, setPicks] = useState<Record<string, Pick>>({})
   const [entry, setEntry] = useState<number>(500)
+  const [mode, setMode] = useState<Mode>('power')
   const [showLockIn, setShowLockIn] = useState(false)
 
   const togglePick = (id: string, side: Pick) => {
@@ -480,6 +567,12 @@ export default function PicksPage() {
       return next
     })
   }
+
+  // Flex requires 3+ picks — auto-revert to Power if user drops below that
+  const pickCount = Object.keys(picks).length
+  useEffect(() => {
+    if (pickCount < 3 && mode === 'flex') setMode('power')
+  }, [pickCount, mode])
 
   const sports: Sport[] = ['wc', 'pba', 'pool', 'nba', 'mlbb']
 
@@ -499,10 +592,18 @@ export default function PicksPage() {
           <span className="dot" />
           World Cup 2026 soft launch · Jun 11
         </div>
-        <h1 className="h1 picks-h1">Build your card. <em>Win up to 25×.</em></h1>
+        <h1 className="h1 picks-h1">
+          Hula kada game. <em>Sahod kada oras.</em>
+        </h1>
         <p className="lede">
-          Pick MORE or LESS on 2 to 6 player and team props. Stack picks for a bigger multiplier. PAGCOR predictive-skill contest, peso-native, settled to GCash within the hour.
+          Pumili ng <strong>MORE</strong> or <strong>LESS</strong> sa 2–6 player props. Mas marami, mas malaki ang multiplier — up to <strong>×25</strong>. PBA, MLBB, World Cup, NBA, Pool. Bayad sa GCash bago mag-dinner, sigurado.
         </p>
+        <div className="picks-trust-chips">
+          <span className="picks-trust-chip"><span className="picks-trust-dot" />PAGCOR-licensed</span>
+          <span className="picks-trust-chip"><span className="picks-trust-dot" />Peso-native, no crypto</span>
+          <span className="picks-trust-chip"><span className="picks-trust-dot" />GCash sa loob ng 60 min</span>
+          <span className="picks-trust-chip"><span className="picks-trust-dot" />21+ · Magdiwang nang responsable</span>
+        </div>
         <div className="picks-multikey">
           <span><strong>2</strong>×3</span>
           <span><strong>3</strong>×5</span>
@@ -533,6 +634,8 @@ export default function PicksPage() {
         picks={picks}
         entry={entry}
         onEntryChange={setEntry}
+        mode={mode}
+        onModeChange={setMode}
         onLockIn={() => setShowLockIn(true)}
         locked={showLockIn}
       />
