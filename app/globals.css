@@ -730,3 +730,304 @@ button:focus {
   .hula-v2 .email-form input { flex: 0 0 auto; width: 100%; }
   .hula-v2 .email-form .btn { width: 100%; flex: 0 0 auto; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   /picks — predictive-skill-contest prototype
+   ═══════════════════════════════════════════════════════════════════ */
+
+.hula-v2.picks-page { padding-bottom: 0; }
+
+/* Top nav (lightweight — no burger / no nav links) */
+.hula-v2 .picks-topnav {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(245, 241, 227, 0.92);
+  backdrop-filter: saturate(140%) blur(8px);
+  -webkit-backdrop-filter: saturate(140%) blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+.hula-v2 .picks-topnav-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 14px; padding-bottom: 14px;
+}
+.hula-v2 .picks-demo-badge {
+  font-family: var(--ff-mono); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--accent);
+  padding: 6px 10px; border: 1px solid var(--accent);
+  border-radius: 999px;
+}
+
+/* Hero */
+.hula-v2 .picks-hero { padding-top: 40px; padding-bottom: 32px; }
+.hula-v2 .picks-h1 { font-size: clamp(40px, 8vw, 80px); margin-bottom: 18px; }
+.hula-v2 .picks-multikey {
+  display: flex; gap: 14px; flex-wrap: wrap;
+  font-family: var(--ff-mono); font-size: 13px;
+  color: var(--ink-2);
+  margin-top: 8px;
+}
+.hula-v2 .picks-multikey strong {
+  color: var(--accent); font-weight: 700;
+  margin-right: 2px;
+}
+
+.hula-v2 .picks-body { padding-bottom: 32px; }
+
+/* Sport sections */
+.hula-v2 .picks-sport { margin-bottom: 32px; }
+.hula-v2 .picks-sport-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 10px; margin-bottom: 16px;
+}
+.hula-v2 .picks-sport-label {
+  font-family: var(--ff-sans); font-weight: 600; font-size: 18px;
+  letter-spacing: -0.02em; color: var(--ink);
+}
+.hula-v2 .picks-sport-count {
+  font-family: var(--ff-mono); font-size: 11px; color: var(--ink-3);
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+
+/* Prop list */
+.hula-v2 .picks-list {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+}
+@media (max-width: 640px) { .hula-v2 .picks-list { grid-template-columns: 1fr; } }
+
+.hula-v2 .picks-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex; flex-direction: column; gap: 8px;
+  transition: border-color .12s, box-shadow .12s;
+}
+.hula-v2 .picks-card.is-selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(232,122,30,.15);
+}
+.hula-v2 .picks-card-meta {
+  display: flex; justify-content: space-between; gap: 12px;
+  font-family: var(--ff-mono); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--ink-3);
+}
+.hula-v2 .picks-card-game { font-weight: 500; }
+.hula-v2 .picks-card-when { white-space: nowrap; }
+.hula-v2 .picks-card-player {
+  font-family: var(--ff-sans); font-weight: 600;
+  font-size: 17px; letter-spacing: -0.015em;
+  color: var(--ink); margin-top: 2px;
+}
+.hula-v2 .picks-card-stat {
+  font-family: var(--ff-mono); font-size: 13px; color: var(--ink-2);
+}
+.hula-v2 .picks-card-line { color: var(--ink); font-weight: 600; }
+.hula-v2 .picks-card-actions {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  margin-top: 8px;
+}
+.hula-v2 .picks-btn {
+  height: 44px;
+  border: 1px solid var(--line-2);
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--ff-sans); font-weight: 600; font-size: 13px;
+  letter-spacing: 0.02em;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all .12s ease;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+}
+.hula-v2 .picks-btn:hover { border-color: var(--ink); }
+.hula-v2 .picks-btn-arrow { font-size: 9px; }
+.hula-v2 .picks-btn-over-active {
+  background: var(--up); color: #fff; border-color: var(--up);
+}
+.hula-v2 .picks-btn-under-active {
+  background: var(--down); color: #fff; border-color: var(--down);
+}
+
+/* Sticky card-builder bar */
+.hula-v2 .picks-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--ink);
+  color: #f5f1e6;
+  border-top: 1px solid var(--accent);
+  z-index: 40;
+  transform: translateY(calc(100% - 56px));
+  transition: transform .25s ease;
+}
+.hula-v2 .picks-bar.has-picks { transform: translateY(0); }
+.hula-v2 .picks-bar-shell {
+  padding-top: 14px; padding-bottom: 18px;
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+}
+.hula-v2 .picks-bar-status {
+  font-family: var(--ff-mono); font-size: 12px;
+  color: #c8c2b3; letter-spacing: 0.04em;
+  text-align: center; width: 100%;
+}
+.hula-v2 .picks-bar-summary {
+  display: flex; flex-direction: column; gap: 4px;
+  flex-shrink: 0;
+}
+.hula-v2 .picks-bar-row {
+  display: flex; align-items: baseline; gap: 12px;
+}
+.hula-v2 .picks-bar-lbl {
+  font-family: var(--ff-mono); font-size: 11px;
+  color: #c8c2b3; letter-spacing: 0.06em; text-transform: uppercase;
+}
+.hula-v2 .picks-bar-mult {
+  font-family: var(--ff-sans); font-weight: 700; font-size: 18px;
+  color: var(--accent); letter-spacing: -0.02em;
+}
+.hula-v2 .picks-bar-payout {
+  display: flex; align-items: baseline; gap: 8px;
+  font-family: var(--ff-mono); font-weight: 600;
+}
+.hula-v2 .picks-bar-entry { font-size: 14px; color: #c8c2b3; }
+.hula-v2 .picks-bar-arrow { color: var(--accent); }
+.hula-v2 .picks-bar-win { font-size: 22px; color: #6fdc8c; }
+
+.hula-v2 .picks-bar-entries {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  margin-left: auto;
+}
+.hula-v2 .picks-entry-chip {
+  height: 36px; padding: 0 12px;
+  border: 1px solid rgba(245,241,230,.25);
+  background: transparent;
+  color: #f5f1e6;
+  font-family: var(--ff-mono); font-size: 12px; font-weight: 600;
+  letter-spacing: 0.04em;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all .12s;
+}
+.hula-v2 .picks-entry-chip:hover { border-color: var(--accent); }
+.hula-v2 .picks-entry-chip.is-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.hula-v2 .picks-lock-btn { white-space: nowrap; flex-shrink: 0; }
+
+@media (max-width: 720px) {
+  .hula-v2 .picks-bar { transform: translateY(calc(100% - 44px)); }
+  .hula-v2 .picks-bar.has-picks { transform: translateY(0); }
+  .hula-v2 .picks-bar-shell { gap: 10px; }
+  .hula-v2 .picks-bar-summary { width: 100%; flex-direction: row; justify-content: space-between; align-items: baseline; }
+  .hula-v2 .picks-bar-entries { width: 100%; margin-left: 0; justify-content: space-between; }
+  .hula-v2 .picks-entry-chip { flex: 1 1 0; min-width: 0; padding: 0 8px; height: 38px; }
+  .hula-v2 .picks-lock-btn { width: 100%; }
+  .hula-v2 .picks-bar-win { font-size: 18px; }
+}
+
+/* Lock-in overlay */
+.hula-v2 .picks-lockin {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(15, 36, 25, 0.72);
+  display: flex; align-items: flex-end; justify-content: center;
+  -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
+}
+@media (min-width: 720px) {
+  .hula-v2 .picks-lockin { align-items: center; }
+}
+.hula-v2 .picks-lockin-form {
+  width: 100%; max-width: 520px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 18px 18px 0 0;
+  padding: 24px;
+  display: flex; flex-direction: column; gap: 12px;
+  max-height: 90vh; overflow-y: auto;
+}
+@media (min-width: 720px) {
+  .hula-v2 .picks-lockin-form { border-radius: 18px; margin: 24px; }
+}
+.hula-v2 .picks-lockin-head {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.hula-v2 .picks-lockin-title {
+  font-family: var(--ff-sans); font-weight: 600; font-size: 22px;
+  letter-spacing: -0.02em;
+}
+.hula-v2 .picks-lockin-close {
+  appearance: none; border: 1px solid var(--line-2); background: transparent;
+  width: 36px; height: 36px; border-radius: 999px;
+  font-size: 18px; cursor: pointer; color: var(--ink);
+}
+.hula-v2 .picks-lockin-note {
+  font-size: 13px; line-height: 1.5; color: var(--ink-3);
+  margin: 0;
+}
+.hula-v2 .picks-lockin-label {
+  font-family: var(--ff-mono); font-size: 11px;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--ink-3);
+  margin-top: 6px;
+}
+.hula-v2 .picks-lockin-opt {
+  text-transform: none; letter-spacing: 0; color: var(--ink-3);
+}
+.hula-v2 .picks-lockin-input,
+.hula-v2 .picks-lockin-textarea {
+  border: 1.5px solid var(--ink); background: var(--paper);
+  border-radius: 12px; padding: 14px 18px;
+  font-family: var(--ff-sans); font-size: 15px; font-weight: 500;
+  color: var(--ink);
+  outline: none; transition: border-color .12s, box-shadow .12s;
+  resize: vertical;
+}
+.hula-v2 .picks-lockin-input:focus,
+.hula-v2 .picks-lockin-textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(232,122,30,.18);
+}
+.hula-v2 .picks-lockin-yn {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+}
+.hula-v2 .picks-yn-btn {
+  height: 50px;
+  border: 1px solid var(--line-2);
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--ff-sans); font-weight: 600; font-size: 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all .12s;
+}
+.hula-v2 .picks-yn-btn:hover { border-color: var(--ink); }
+.hula-v2 .picks-yn-btn.is-yes {
+  background: var(--up); color: #fff; border-color: var(--up);
+}
+.hula-v2 .picks-yn-btn.is-no {
+  background: var(--down); color: #fff; border-color: var(--down);
+}
+.hula-v2 .picks-lockin-submit { width: 100%; margin-top: 6px; }
+.hula-v2 .picks-lockin-err {
+  font-family: var(--ff-mono); font-size: 11px;
+  letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--down);
+}
+
+.hula-v2 .picks-lockin-success {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 32px 24px;
+  margin: 24px;
+  max-width: 480px;
+  text-align: center;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.hula-v2 .picks-lockin-success-h1 {
+  font-family: var(--ff-sans); font-weight: 600;
+  font-size: 28px; letter-spacing: -0.03em;
+}
+.hula-v2 .picks-lockin-success-sub {
+  font-size: 15px; line-height: 1.5; color: var(--ink-2);
+}
