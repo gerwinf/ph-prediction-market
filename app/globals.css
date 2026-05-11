@@ -1152,3 +1152,64 @@ button:focus {
   .hula-v2 .picks-card-player { font-size: 14px; }
   .hula-v2 .picks-entry-chip { padding: 0 6px; font-size: 11px; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   /picks — lock-in modal mobile tightening
+   The form was 704px tall on a 664px viewport (submit hidden below
+   fold). Goal: fit on a single iPhone 13 viewport without scrolling.
+   ═══════════════════════════════════════════════════════════════════ */
+@media (max-width: 720px) {
+  /* Tighter modal overall */
+  .hula-v2 .picks-lockin-form {
+    padding: 18px;
+    gap: 8px;
+    border-radius: 16px 16px 0 0;
+  }
+  .hula-v2 .picks-lockin-title { font-size: 19px; }
+  .hula-v2 .picks-lockin-close { width: 32px; height: 32px; font-size: 16px; }
+
+  /* Intro note — tighter */
+  .hula-v2 .picks-lockin-note { font-size: 12.5px; line-height: 1.4; }
+
+  /* Labels closer to inputs */
+  .hula-v2 .picks-lockin-label { font-size: 10px; margin-top: 2px; }
+
+  /* Email + textarea — smaller padding so they take less height */
+  .hula-v2 .picks-lockin-input { height: 46px; padding: 0 14px; font-size: 14px; }
+  .hula-v2 .picks-lockin-textarea { padding: 10px 14px; font-size: 13px; min-height: 56px; }
+
+  /* Yes/No buttons — tighter */
+  .hula-v2 .picks-yn-btn { height: 42px; font-size: 13px; }
+
+  /* Mode picker — the biggest space hog. Pack title + sub on one row each. */
+  .hula-v2 .picks-lockin-mode { gap: 6px; }
+  .hula-v2 .picks-mode-btn {
+    padding: 9px 12px;
+    gap: 2px;
+    border-radius: 10px;
+  }
+  .hula-v2 .picks-mode-name { font-size: 13px; }
+  .hula-v2 .picks-mode-sub { font-size: 10px; line-height: 1.35; }
+
+  /* Submit */
+  .hula-v2 .picks-lockin-submit { height: 50px; font-size: 14px; margin-top: 4px; }
+
+  /* Success state — tighter so it doesn't overflow either */
+  .hula-v2 .picks-lockin-success {
+    padding: 24px 18px;
+    margin: 16px;
+    gap: 12px;
+  }
+  .hula-v2 .picks-lockin-success-h1 { font-size: 22px; }
+  .hula-v2 .picks-lockin-success-sub { font-size: 13.5px; }
+}
+
+@media (max-width: 380px) {
+  /* iPhone SE — even tighter */
+  .hula-v2 .picks-lockin-form { padding: 16px; }
+  .hula-v2 .picks-lockin-title { font-size: 18px; }
+  .hula-v2 .picks-lockin-note { font-size: 12px; }
+  .hula-v2 .picks-mode-btn { padding: 8px 10px; }
+  .hula-v2 .picks-mode-name { font-size: 12.5px; }
+  .hula-v2 .picks-mode-sub { font-size: 9.5px; }
+}
