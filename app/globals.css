@@ -802,6 +802,7 @@ button:focus {
   padding: 16px;
   display: flex; flex-direction: column; gap: 10px;
   transition: border-color .12s, box-shadow .12s;
+  min-width: 0;
 }
 .hula-v2 .picks-card.is-selected {
   border-color: var(--accent);
@@ -815,14 +816,20 @@ button:focus {
   font-family: var(--ff-mono); font-size: 10px;
   text-transform: uppercase; letter-spacing: 0.1em;
   color: var(--ink-3);
+  min-width: 0;
 }
 .hula-v2 .picks-card-game {
   font-weight: 500;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  min-width: 0; flex: 1 1 auto;
 }
-.hula-v2 .picks-card-when { white-space: nowrap; }
+.hula-v2 .picks-card-when {
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
 .hula-v2 .picks-card-body {
   display: flex; align-items: center; gap: 12px;
+  min-width: 0;
 }
 .hula-v2 .picks-card-text {
   display: flex; flex-direction: column; gap: 2px;
@@ -1100,4 +1107,48 @@ button:focus {
 }
 .hula-v2 .picks-lockin-success-sub {
   font-size: 15px; line-height: 1.5; color: var(--ink-2);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   /picks — mobile tightening
+   ═══════════════════════════════════════════════════════════════════ */
+@media (max-width: 720px) {
+  /* Hero */
+  .hula-v2 .picks-hero { padding-top: 28px; padding-bottom: 24px; }
+  .hula-v2 .picks-h1 { font-size: clamp(34px, 9.5vw, 48px); margin-bottom: 14px; }
+  .hula-v2 .picks-hero .lede { font-size: 15px; margin-bottom: 18px; }
+  .hula-v2 .picks-multikey { font-size: 12px; gap: 10px; row-gap: 4px; }
+
+  /* Top nav padding */
+  .hula-v2 .picks-topnav-inner { padding-top: 12px; padding-bottom: 12px; }
+  .hula-v2 .picks-demo-badge { font-size: 9px; padding: 5px 8px; letter-spacing: 0.1em; }
+
+  /* Sport sections */
+  .hula-v2 .picks-sport { margin-bottom: 24px; }
+  .hula-v2 .picks-sport-head { padding-bottom: 8px; margin-bottom: 12px; }
+  .hula-v2 .picks-sport-label { font-size: 16px; }
+  .hula-v2 .picks-sport-count { font-size: 10px; }
+
+  /* Prop cards: tighter padding, smaller avatar, smaller fonts */
+  .hula-v2 .picks-card { padding: 14px; gap: 8px; }
+  .hula-v2 .picks-avatar { width: 44px; height: 44px; font-size: 14px; }
+  .hula-v2 .picks-card-body { gap: 10px; }
+  .hula-v2 .picks-card-meta { font-size: 9px; gap: 8px; }
+  .hula-v2 .picks-card-player { font-size: 15px; gap: 6px; }
+  .hula-v2 .picks-card-kind { font-size: 8px; padding: 1px 5px; }
+  .hula-v2 .picks-card-stat { font-size: 12px; }
+  .hula-v2 .picks-btn { height: 42px; font-size: 12px; }
+
+  /* Card-builder sticky bar — already mobile-styled but keep numbers consistent */
+  .hula-v2 .picks-bar-shell { padding-top: 12px; padding-bottom: 16px; }
+}
+
+@media (max-width: 380px) {
+  /* iPhone SE and below — extra-tight */
+  .hula-v2 .picks-h1 { font-size: 32px; }
+  .hula-v2 .picks-card-meta { font-size: 8.5px; }
+  .hula-v2 .picks-card-when { letter-spacing: 0.06em; }
+  .hula-v2 .picks-avatar { width: 40px; height: 40px; font-size: 13px; }
+  .hula-v2 .picks-card-player { font-size: 14px; }
+  .hula-v2 .picks-entry-chip { padding: 0 6px; font-size: 11px; }
 }
