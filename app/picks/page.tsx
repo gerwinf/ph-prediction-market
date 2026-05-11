@@ -604,13 +604,6 @@ export default function PicksPage() {
           <span className="picks-trust-chip"><span className="picks-trust-dot" />GCash sa loob ng 60 min</span>
           <span className="picks-trust-chip"><span className="picks-trust-dot" />21+ · Magdiwang nang responsable</span>
         </div>
-        <div className="picks-multikey">
-          <span><strong>2</strong>×3</span>
-          <span><strong>3</strong>×5</span>
-          <span><strong>4</strong>×10</span>
-          <span><strong>5</strong>×17</span>
-          <span><strong>6</strong>×25</span>
-        </div>
       </section>
 
       {/* Prop sections by sport */}
