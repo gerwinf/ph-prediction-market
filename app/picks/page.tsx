@@ -32,81 +32,104 @@ type Prop = {
 
 const SPORT_LABEL: Record<Sport, string> = {
   wc:   'World Cup 2026',
-  pba:  'PBA · Governors’ Cup',
-  nba:  'NBA Finals',
-  mlbb: 'MLBB · MPL-PH S18',
-  pool: 'Pool · World Pool Masters',
+  pba:  'PBA · Commissioner’s Cup',
+  nba:  'NBA · Conf. Semifinals',
+  mlbb: 'MLBB · MPL-PH 2026',
+  pool: 'Pool · Pro Tour 2026',
 }
 
 const PROPS: Prop[] = [
-  // ─── World Cup — Argentina vs Mexico, June 11 group stage opener
-  { id: 'wc-messi-goals', sport: 'wc', kind: 'player',
-    game: 'Argentina vs Mexico · Group C', when: 'Jun 11 · 8:00 PM PHT',
-    player: 'Lionel Messi', team: 'ARG', stat: 'Goals', line: 0.5, unit: 'goals',
-    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Lionel_Messi_White_House_2026_%283x4_cropped%29.jpg/330px-Lionel_Messi_White_House_2026_%283x4_cropped%29.jpg' },
-  { id: 'wc-lautaro-sot', sport: 'wc', kind: 'player',
-    game: 'Argentina vs Mexico · Group C', when: 'Jun 11 · 8:00 PM PHT',
-    player: 'Lautaro Martínez', team: 'ARG', stat: 'Shots on target', line: 2.5, unit: 'SoT',
-    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Lautaro_Martinez_ARGENTINA_VS_VENEZUELA_2017.jpg/330px-Lautaro_Martinez_ARGENTINA_VS_VENEZUELA_2017.jpg' },
-  // Team-level prop
-  { id: 'wc-arg-shots', sport: 'wc', kind: 'team',
-    game: 'Argentina vs Mexico · Group C', when: 'Jun 11 · 8:00 PM PHT',
-    player: 'Argentina', team: 'ARG', stat: 'Team shots on goal', line: 12.5, unit: 'shots',
-    badge: 'ARG', badgeBg: '#75AADB', badgeFg: '#1E3A8A' },
-  { id: 'wc-total-goals', sport: 'wc', kind: 'team',
-    game: 'Argentina vs Mexico · Group C', when: 'Jun 11 · 8:00 PM PHT',
-    player: 'Match total goals', team: 'ARG · MEX', stat: 'Both teams · Total', line: 2.5, unit: 'goals',
+  // ─── World Cup 2026 — REAL fixtures verified vs Wikipedia (draw was Dec 2025)
+
+  // Jun 11 · Tournament opener: Mexico vs South Africa, Group A, Estadio Azteca
+  { id: 'wc-lozano-sot', sport: 'wc', kind: 'player',
+    game: 'Mexico vs South Africa · Group A · opener', when: 'Jun 11 · 3:00 AM PHT',
+    player: 'Hirving Lozano', team: 'MEX', stat: 'Shots on target', line: 1.5, unit: 'SoT',
+    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Hirving_Lozano.png/200px-Hirving_Lozano.png' },
+  { id: 'wc-alvarez-tackles', sport: 'wc', kind: 'player',
+    game: 'Mexico vs South Africa · Group A · opener', when: 'Jun 11 · 3:00 AM PHT',
+    player: 'Edson Álvarez', team: 'MEX', stat: 'Tackles', line: 3.5, unit: 'tackles',
+    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Edson_%C3%81lvarez.png/200px-Edson_%C3%81lvarez.png' },
+  { id: 'wc-mex-total-goals', sport: 'wc', kind: 'team',
+    game: 'Mexico vs South Africa · Group A · opener', when: 'Jun 11 · 3:00 AM PHT',
+    player: 'Match total goals', team: 'MEX · RSA', stat: 'Both teams · Total', line: 2.5, unit: 'goals',
     badge: 'VS', badgeBg: '#0f2419', badgeFg: '#f5f1e3' },
 
-  // ─── PBA Governors' Cup — Ginebra vs TNT
-  { id: 'pba-teng-pts', sport: 'pba', kind: 'player',
-    game: 'Ginebra vs TNT', when: 'Tonight · 7:00 PM PHT',
-    player: 'Jeron Teng', team: 'GIN', stat: 'Points', line: 18.5, unit: 'pts',
-    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Jeron_Teng_Filipino_Basketball_Player_2014-04-20_20-48_%28cropped%29.jpg/330px-Jeron_Teng_Filipino_Basketball_Player_2014-04-20_20-48_%28cropped%29.jpg' },
+  // Jun 16 (Jun 17 PHT) · Argentina vs Algeria, Group J, Arrowhead Stadium Kansas City
+  { id: 'wc-messi-goals', sport: 'wc', kind: 'player',
+    game: 'Argentina vs Algeria · Group J', when: 'Jun 17 · 9:00 AM PHT',
+    player: 'Lionel Messi', team: 'ARG', stat: 'Goals', line: 0.5, unit: 'goals',
+    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Lionel_Messi_White_House_2026_%283x4_cropped%29.jpg/200px-Lionel_Messi_White_House_2026_%283x4_cropped%29.jpg' },
+  { id: 'wc-lautaro-sot', sport: 'wc', kind: 'player',
+    game: 'Argentina vs Algeria · Group J', when: 'Jun 17 · 9:00 AM PHT',
+    player: 'Lautaro Martínez', team: 'ARG', stat: 'Shots on target', line: 2.5, unit: 'SoT',
+    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Lautaro_Martinez_ARGENTINA_VS_VENEZUELA_2017.jpg/200px-Lautaro_Martinez_ARGENTINA_VS_VENEZUELA_2017.jpg' },
+  { id: 'wc-mahrez-goals', sport: 'wc', kind: 'player',
+    game: 'Argentina vs Algeria · Group J', when: 'Jun 17 · 9:00 AM PHT',
+    player: 'Riyad Mahrez', team: 'ALG', stat: 'Goals', line: 0.5, unit: 'goals',
+    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Mahrez_2021.jpg/200px-Mahrez_2021.jpg' },
+
+  // ─── PBA Commissioner's Cup (2026, ongoing — second conference of PBA Season 50)
+  // Ginebra is the defending champ. Brownlee is the long-time Ginebra import.
+  { id: 'pba-brownlee-pts', sport: 'pba', kind: 'player',
+    game: 'Ginebra vs TNT · Manila Clasico', when: 'Tonight · 7:00 PM PHT',
+    player: 'Justin Brownlee', team: 'GIN', stat: 'Points (import)', line: 28.5, unit: 'pts',
+    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Brownlee_w._bottle_SEA_Games_2023_%28cropped%29.png/200px-Brownlee_w._bottle_SEA_Games_2023_%28cropped%29.png' },
   { id: 'pba-thompson-ast', sport: 'pba', kind: 'player',
-    game: 'Ginebra vs TNT', when: 'Tonight · 7:00 PM PHT',
+    game: 'Ginebra vs TNT · Manila Clasico', when: 'Tonight · 7:00 PM PHT',
     player: 'Scottie Thompson', team: 'GIN', stat: 'Assists', line: 6.5, unit: 'ast',
-    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/PBA_-_Scottie_Thompson_-_2021.jpg/330px-PBA_-_Scottie_Thompson_-_2021.jpg' },
+    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/PBA_-_Scottie_Thompson_-_2021.jpg/200px-PBA_-_Scottie_Thompson_-_2021.jpg' },
+  { id: 'pba-pogoy-pts', sport: 'pba', kind: 'player',
+    game: 'Ginebra vs TNT · Manila Clasico', when: 'Tonight · 7:00 PM PHT',
+    player: 'RR Pogoy', team: 'TNT', stat: 'Points', line: 19.5, unit: 'pts',
+    photo: 'https://upload.wikimedia.org/wikipedia/commons/8/87/Bongbong_Marcos_in_Dominican_Republic_v_Philippines_FBWC_2_Pogoy_%28cropped%29.jpg' },
   { id: 'pba-fajardo-reb', sport: 'pba', kind: 'player',
-    game: 'San Miguel vs Magnolia', when: 'Tonight · 9:30 PM PHT',
+    game: 'San Miguel vs Magnolia', when: 'Tomorrow · 9:30 PM PHT',
     player: 'June Mar Fajardo', team: 'SMB', stat: 'Rebounds', line: 12.5, unit: 'reb',
-    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/June_Mar_Fajardo_2026.jpg/330px-June_Mar_Fajardo_2026.jpg' },
-  // Team-level prop
+    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/June_Mar_Fajardo_2026.jpg/200px-June_Mar_Fajardo_2026.jpg' },
   { id: 'pba-ginebra-pts', sport: 'pba', kind: 'team',
-    game: 'Ginebra vs TNT', when: 'Tonight · 7:00 PM PHT',
-    player: 'Barangay Ginebra', team: 'GIN', stat: 'Team total points', line: 95.5, unit: 'pts',
+    game: 'Ginebra vs TNT · Manila Clasico', when: 'Tonight · 7:00 PM PHT',
+    player: 'Barangay Ginebra', team: 'GIN', stat: 'Team total points', line: 102.5, unit: 'pts',
     badge: 'GIN', badgeBg: '#B22234', badgeFg: '#ffffff' },
 
-  // ─── World Pool Masters — Carlo Biado anchor + Johann Chua + Efren Reyes
+  // ─── Pool · Pro Tour 2026 — Biado, Chua, Filler are all real active tour players
+
   { id: 'pool-biado-racks', sport: 'pool', kind: 'player',
-    game: 'Biado vs Filler · Round of 16', when: 'Sat · 9:00 PM PHT',
-    player: 'Carlo Biado', team: 'PH', stat: 'Racks won (race to 9)', line: 5.5, unit: 'racks',
-    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Carlo_Biado_2018.jpg/330px-Carlo_Biado_2018.jpg' },
+    game: 'Biado vs Filler · race to 9', when: 'Sat · 9:00 PM PHT',
+    player: 'Carlo Biado', team: 'PH', stat: 'Racks won', line: 5.5, unit: 'racks',
+    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Carlo_Biado_2018.jpg/200px-Carlo_Biado_2018.jpg' },
+  { id: 'pool-filler-racks', sport: 'pool', kind: 'player',
+    game: 'Biado vs Filler · race to 9', when: 'Sat · 9:00 PM PHT',
+    player: 'Joshua Filler', team: 'DE', stat: 'Racks won', line: 4.5, unit: 'racks',
+    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Joshua_Filler_straight_pool.jpg/200px-Joshua_Filler_straight_pool.jpg' },
   { id: 'pool-chua-racks', sport: 'pool', kind: 'player',
-    game: 'Chua vs Shaw · Round of 16', when: 'Sat · 6:00 PM PHT',
-    player: 'Johann Chua', team: 'PH', stat: 'Racks won (race to 9)', line: 4.5, unit: 'racks',
-    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Maldives_Open_2023_Final_-_Johann_Chua.jpg/330px-Maldives_Open_2023_Final_-_Johann_Chua.jpg' },
-  { id: 'pool-bata-breakrun', sport: 'pool', kind: 'player',
-    game: 'Reyes vs Pagulayan · Legends Cup', when: 'Sun · 7:00 PM PHT',
-    player: 'Efren “Bata” Reyes', team: 'PH', stat: 'Highest break run', line: 3.5, unit: 'racks',
-    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Efren_Reyes_in_the_World_9-Ball_Pool_Championship_%282%29.jpg/330px-Efren_Reyes_in_the_World_9-Ball_Pool_Championship_%282%29.jpg' },
-  // Team / match-level prop
+    game: 'Chua vs Shaw · race to 9', when: 'Sat · 6:00 PM PHT',
+    player: 'Johann Chua', team: 'PH', stat: 'Racks won', line: 4.5, unit: 'racks',
+    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Maldives_Open_2023_Final_-_Johann_Chua.jpg/200px-Maldives_Open_2023_Final_-_Johann_Chua.jpg' },
   { id: 'pool-total-racks', sport: 'pool', kind: 'team',
-    game: 'Biado vs Filler · Round of 16', when: 'Sat · 9:00 PM PHT',
+    game: 'Biado vs Filler · race to 9', when: 'Sat · 9:00 PM PHT',
     player: 'Match total racks', team: 'PH · DE', stat: 'Both players · Total', line: 13.5, unit: 'racks',
     badge: 'VS', badgeBg: '#0f2419', badgeFg: '#f5f1e3' },
 
-  // ─── NBA Finals — Celtics in finals (per existing memo assumption)
-  { id: 'nba-tatum-pts', sport: 'nba', kind: 'player',
-    game: 'Celtics vs Thunder · Game 5', when: 'Jun 15 · 8:30 AM PHT',
-    player: 'Jayson Tatum', team: 'BOS', stat: 'Points', line: 28.5, unit: 'pts',
-    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Celtics_at_Wizards_2024-12-044_%28cropped_2%29.jpg/330px-Celtics_at_Wizards_2024-12-044_%28cropped_2%29.jpg' },
-  { id: 'nba-sga-pts', sport: 'nba', kind: 'player',
-    game: 'Celtics vs Thunder · Game 5', when: 'Jun 15 · 8:30 AM PHT',
-    player: 'Shai Gilgeous-Alexander', team: 'OKC', stat: 'Points', line: 30.5, unit: 'pts',
-    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Shai_Gilgeous-Alexander_-_Thunder_vs._Wizards.png/330px-Shai_Gilgeous-Alexander_-_Thunder_vs._Wizards.png' },
+  // ─── NBA — REAL Conference Semifinals (Round 2) in progress May 2026
+  // Round 2 East: Pistons-Cavs and Knicks-76ers. West: Thunder-Lakers and Spurs-Wolves.
+  // Lakers vs Thunder is the marquee for PH (LeBron / Luka vs SGA).
 
-  // ─── MLBB MPL-PH
+  { id: 'nba-sga-pts', sport: 'nba', kind: 'player',
+    game: 'Thunder vs Lakers · Conf. Semis', when: 'This week · 8:30 AM PHT',
+    player: 'Shai Gilgeous-Alexander', team: 'OKC', stat: 'Points', line: 31.5, unit: 'pts',
+    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Shai_Gilgeous-Alexander_-_Thunder_vs._Wizards.png/200px-Shai_Gilgeous-Alexander_-_Thunder_vs._Wizards.png' },
+  { id: 'nba-luka-pts', sport: 'nba', kind: 'player',
+    game: 'Thunder vs Lakers · Conf. Semis', when: 'This week · 8:30 AM PHT',
+    player: 'Luka Dončić', team: 'LAL', stat: 'Points', line: 28.5, unit: 'pts',
+    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Luka_Doncic_%2851914951721%29_%28cropped1%29.jpg/200px-Luka_Doncic_%2851914951721%29_%28cropped1%29.jpg' },
+  { id: 'nba-lebron-ast', sport: 'nba', kind: 'player',
+    game: 'Thunder vs Lakers · Conf. Semis', when: 'This week · 8:30 AM PHT',
+    player: 'LeBron James', team: 'LAL', stat: 'Assists', line: 7.5, unit: 'ast',
+    photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/LeBron_James_%2851959977144%29_%28cropped2%29.jpg/200px-LeBron_James_%2851959977144%29_%28cropped2%29.jpg' },
+
+  // ─── MLBB MPL-PH 2026 — ECHO vs Blacklist remains the marquee rivalry
+
   { id: 'mlbb-echo-maps', sport: 'mlbb', kind: 'team',
     game: 'ECHO vs Blacklist Intl', when: 'Tonight · 6:00 PM PHT',
     player: 'ECHO', team: 'ECHO', stat: 'Maps won', line: 2.5, unit: 'maps',
