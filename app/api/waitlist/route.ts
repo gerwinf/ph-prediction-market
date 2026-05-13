@@ -3,7 +3,19 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { email, source, picks, entry, willPay, prefMode, why } = body
+    const {
+      email,
+      source,
+      picks,
+      entry,
+      willPay,
+      // NumeroHula validation fields
+      prefFreq,
+      prefBetType,
+      // Legacy /picks (PrizePicks-shape) field, still accepted for backward compat
+      prefMode,
+      why,
+    } = body
 
     if (!email || !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
       return NextResponse.json(
@@ -17,47 +29,76 @@ export async function POST(request: NextRequest) {
     const notifyTo = process.env.RESEND_NOTIFY_TO
     const notifyFrom = process.env.RESEND_NOTIFY_FROM || 'onboarding@resend.dev'
 
-    // Log /picks submissions to server logs so we can review demand signal
-    // (Resend Audiences API only takes email; richer payload is captured here too)
-    if (source === 'picks') {
-      console.log('[picks-submission]', JSON.stringify({
+    // Log validation-prototype submissions to server output so we can review
+    // demand signal. Resend Audiences API only stores email; we log the
+    // structured payload here AND mirror it to a notify email.
+    const isValidationSource = source === 'numero' || source === 'picks'
+    if (isValidationSource) {
+      console.log(`[${source}-submission]`, JSON.stringify({
         ts: new Date().toISOString(),
         email,
         picks,
         entry,
         willPay,
+        prefFreq,
+        prefBetType,
         prefMode,
         why,
       }))
 
-      // Also notify the team by email per submission, so the full payload
-      // (which Resend Audiences won't store) lands somewhere queryable.
+      // Email the team per submission with the full payload (Resend Audiences
+      // doesn't store custom fields). One email per submission, subject is
+      // grep-friendly so the team can filter their inbox.
       if (apiKey && notifyTo) {
-        const subj = `[Hula picks] ${email} · pay=${willPay ?? '—'} · mode=${prefMode ?? '—'} · entry=₱${entry ?? '—'}`
+        const subj = source === 'numero'
+          ? `[NumeroHula] ${email} · pay=${willPay ?? '—'} · freq=${prefFreq ?? '—'} · prefer=${prefBetType ?? '—'} · picks=${Array.isArray(picks) ? picks.length : 0} · ${entry != null ? `₱${entry}` : '₱—'}`
+          : `[Hula picks] ${email} · pay=${willPay ?? '—'} · mode=${prefMode ?? '—'} · entry=₱${entry ?? '—'}`
+
         const pickLines = Array.isArray(picks)
           ? picks
-              .map((p: { player?: string; stat?: string; line?: number; side?: string }) =>
-                `  - ${p.side ?? '?'} · ${p.player ?? '?'} · ${p.stat ?? ''} ${p.line ?? ''}`
-              )
+              .map((p: {
+                // NumeroHula shape
+                betType?: string; outcome?: string; stake?: number
+                // Legacy /picks shape
+                player?: string; stat?: string; line?: number; side?: string
+              }) => {
+                if (p.betType) return `  - ${p.betType} · ${p.outcome ?? '?'} · ₱${p.stake ?? '—'}`
+                return `  - ${p.side ?? '?'} · ${p.player ?? '?'} · ${p.stat ?? ''} ${p.line ?? ''}`
+              })
               .join('\n')
           : '(none)'
-        const text = [
-          `New /picks submission`,
-          ``,
-          `Email:    ${email}`,
-          `WillPay:  ${willPay ?? '(unanswered)'}`,
-          `PrefMode: ${prefMode ?? '(unanswered)'}`,
-          `Entry:    ₱${entry ?? '(unanswered)'}`,
-          `Why:      ${why ?? '(blank)'}`,
-          ``,
-          `Picks:`,
-          pickLines,
-          ``,
-          `Timestamp: ${new Date().toISOString()}`,
-        ].join('\n')
 
-        // Fire and don't block the user response on this — but await briefly
-        // so Vercel edge runtime doesn't kill the request before it sends.
+        const text = source === 'numero'
+          ? [
+              `New NumeroHula submission`,
+              ``,
+              `Email:        ${email}`,
+              `WillPay:      ${willPay ?? '(unanswered)'}`,
+              `PrefFreq:     ${prefFreq ?? '(unanswered)'}`,
+              `PrefBetType:  ${prefBetType ?? '(not selected)'}`,
+              `Stake total:  ₱${entry ?? '(unanswered)'}`,
+              `Why:          ${why ?? '(blank)'}`,
+              ``,
+              `Picks (${Array.isArray(picks) ? picks.length : 0}):`,
+              pickLines,
+              ``,
+              `Timestamp: ${new Date().toISOString()}`,
+            ].join('\n')
+          : [
+              `New /picks submission`,
+              ``,
+              `Email:    ${email}`,
+              `WillPay:  ${willPay ?? '(unanswered)'}`,
+              `PrefMode: ${prefMode ?? '(unanswered)'}`,
+              `Entry:    ₱${entry ?? '(unanswered)'}`,
+              `Why:      ${why ?? '(blank)'}`,
+              ``,
+              `Picks:`,
+              pickLines,
+              ``,
+              `Timestamp: ${new Date().toISOString()}`,
+            ].join('\n')
+
         try {
           await fetch('https://api.resend.com/emails', {
             method: 'POST',
