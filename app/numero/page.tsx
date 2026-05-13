@@ -116,6 +116,10 @@ function HowItDraws() {
   const [open, setOpen] = useState(false)
   return (
     <div className="numero-how shell">
+      <div className="numero-trust-tagline">
+        <div className="numero-trust-title">Powered by NIST Beacon randomness</div>
+        <div className="numero-trust-sub">Public at verifiable ang bawat draw.</div>
+      </div>
       <button type="button" className="numero-how-toggle" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
         {open ? '▾' : '▸'} How is the winning number drawn?
       </button>
@@ -592,24 +596,21 @@ export default function NumeroPage() {
         </div>
       </div>
 
-      {/* Hero */}
+      {/* Hero — simple, clean, understandable in 3 seconds */}
       <section className="shell picks-hero">
         <div className="eyebrow">
           <span className="dot" />
-          NumeroHula soft launch · validation prototype
+          NUMEROHULA
         </div>
         <h1 className="h1 picks-h1">
           Hula kada game. <em>Sahod kada oras.</em>
         </h1>
-        <p className="lede">
-          NIST-beacon draw, every 15 minutes. Pumili ng number, <strong>₱20 lang</strong>. <strong>82 sentimos balik sa player</strong> — lotto, 55. Federal randomness standard, anyone can verify.
-        </p>
-        <div className="picks-trust-chips">
-          <span className="picks-trust-chip"><span className="picks-trust-dot" />PAGCOR-licensed</span>
-          <span className="picks-trust-chip"><span className="picks-trust-dot" />Peso-native, no crypto</span>
-          <span className="picks-trust-chip"><span className="picks-trust-dot" />GCash sa loob ng 60 min</span>
-          <span className="picks-trust-chip"><span className="picks-trust-dot" />US NIST randomness · anyone can verify</span>
-        </div>
+        <ul className="numero-promise">
+          <li>Every <strong>15 minutes</strong> ang draw.</li>
+          <li><strong>₱20 lang</strong> ang taya.</li>
+          <li><strong>82% balik</strong> sa players.</li>
+          <li><strong>Fair</strong> at <strong>transparent</strong> ang resulta.</li>
+        </ul>
       </section>
 
       <DrawCountdown secondsLeft={countdown} />

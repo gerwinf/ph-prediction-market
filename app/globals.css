@@ -1065,6 +1065,57 @@ button:focus {
   color: var(--ink-3);
 }
 
+/* Hero promise list — 4 short Taglish statements, scannable in 3 sec */
+.hula-v2 .numero-promise {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.hula-v2 .numero-promise li {
+  position: relative;
+  padding-left: 22px;
+  font-family: var(--ff-sans);
+  font-size: 18px;
+  line-height: 1.4;
+  color: var(--ink);
+  letter-spacing: -0.005em;
+}
+.hula-v2 .numero-promise li::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0.6em;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.hula-v2 .numero-promise strong {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* Trust tagline above the "How is it drawn?" disclosure */
+.hula-v2 .numero-trust-tagline {
+  margin-bottom: 10px;
+  padding: 10px 0;
+}
+.hula-v2 .numero-trust-title {
+  font-family: var(--ff-sans);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+.hula-v2 .numero-trust-sub {
+  font-family: var(--ff-sans);
+  font-size: 13px;
+  color: var(--ink-3);
+  margin-top: 2px;
+  letter-spacing: -0.005em;
+}
+
 /* Countdown + recent winners strip */
 .hula-v2 .numero-countdown {
   padding-top: 18px; padding-bottom: 14px;
@@ -1499,6 +1550,11 @@ button:focus {
 @media (max-width: 720px) {
   .hula-v2 .numerohula-word { font-size: 19px; }
   .hula-v2 .numerohula-tag { font-size: 8.5px; letter-spacing: 0.16em; }
+
+  .hula-v2 .numero-promise li { font-size: 16px; padding-left: 18px; }
+  .hula-v2 .numero-promise li::before { width: 6px; height: 6px; top: 0.55em; }
+  .hula-v2 .numero-trust-title { font-size: 13px; }
+  .hula-v2 .numero-trust-sub { font-size: 12px; }
 
   .hula-v2 .numero-countdown { padding-top: 14px; padding-bottom: 12px; }
   .hula-v2 .numero-countdown-val { font-size: 30px; }
