@@ -760,6 +760,17 @@ button:focus {
 /* Hero */
 .hula-v2 .picks-hero { padding-top: 40px; padding-bottom: 32px; }
 .hula-v2 .picks-h1 { font-size: clamp(40px, 8vw, 80px); margin-bottom: 18px; }
+.hula-v2 .picks-multikey {
+  display: flex; gap: 14px; flex-wrap: wrap;
+  font-family: var(--ff-mono); font-size: 13px;
+  color: var(--ink-2);
+  margin-top: 12px;
+}
+.hula-v2 .picks-multikey strong {
+  color: var(--accent); font-weight: 700;
+  margin-right: 2px;
+}
+
 /* Trust chips below hero — PAGCOR / peso / GCash / 21+ */
 .hula-v2 .picks-trust-chips {
   display: flex; gap: 8px; flex-wrap: wrap;
@@ -782,6 +793,138 @@ button:focus {
 
 .hula-v2 .picks-body { padding-bottom: 32px; }
 
+/* Sport sections */
+.hula-v2 .picks-sport { margin-bottom: 32px; }
+.hula-v2 .picks-sport-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 10px; margin-bottom: 16px;
+}
+.hula-v2 .picks-sport-label {
+  font-family: var(--ff-sans); font-weight: 600; font-size: 18px;
+  letter-spacing: -0.02em; color: var(--ink);
+}
+.hula-v2 .picks-sport-count {
+  font-family: var(--ff-mono); font-size: 11px; color: var(--ink-3);
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+
+/* Prop list */
+.hula-v2 .picks-list {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+}
+@media (max-width: 640px) { .hula-v2 .picks-list { grid-template-columns: 1fr; } }
+
+.hula-v2 .picks-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px 16px 16px 20px;
+  display: flex; flex-direction: column; gap: 10px;
+  transition: border-color .12s, box-shadow .12s;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+}
+/* Team-colored stripe — solves no-logo / no-photo IP problem
+   while still giving fast visual recognition of which team each prop is for */
+.hula-v2 .picks-card-stripe {
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  width: 4px;
+}
+.hula-v2 .picks-card.is-selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(232,122,30,.15);
+}
+.hula-v2 .picks-card-team {
+  background: linear-gradient(180deg, #fffaf0 0%, var(--paper) 60%);
+}
+.hula-v2 .picks-card-meta {
+  display: flex; justify-content: space-between; gap: 12px;
+  font-family: var(--ff-mono); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--ink-3);
+  min-width: 0;
+}
+.hula-v2 .picks-card-game {
+  font-weight: 500;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  min-width: 0; flex: 1 1 auto;
+}
+.hula-v2 .picks-card-when {
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+.hula-v2 .picks-card-body {
+  display: flex; align-items: center; gap: 12px;
+  min-width: 0;
+}
+.hula-v2 .picks-card-text {
+  display: flex; flex-direction: column; gap: 2px;
+  min-width: 0; flex: 1;
+}
+.hula-v2 .picks-card-player {
+  font-family: var(--ff-sans); font-weight: 600;
+  font-size: 17px; letter-spacing: -0.015em;
+  color: var(--ink);
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.hula-v2 .picks-card-kind {
+  font-family: var(--ff-mono); font-size: 9px;
+  font-weight: 600; letter-spacing: 0.14em;
+  background: var(--accent); color: #fff;
+  padding: 2px 6px; border-radius: 4px;
+}
+.hula-v2 .picks-card-stat {
+  font-family: var(--ff-mono); font-size: 13px; color: var(--ink-2);
+}
+.hula-v2 .picks-card-line { color: var(--ink); font-weight: 600; }
+
+/* Avatar: photo for players, badge for team-kind props, initials fallback */
+.hula-v2 .picks-avatar {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--ff-sans); font-weight: 700;
+  font-size: 16px; letter-spacing: -0.04em;
+  color: var(--ink);
+}
+.hula-v2 .picks-avatar-photo { background: var(--ink-2); border-color: var(--ink-2); }
+.hula-v2 .picks-avatar-photo img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.hula-v2 .picks-avatar-team { border: none; }
+.hula-v2 .picks-avatar-initials { color: var(--ink-2); }
+.hula-v2 .picks-card-actions {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  margin-top: 8px;
+}
+.hula-v2 .picks-btn {
+  height: 44px;
+  border: 1px solid var(--line-2);
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--ff-sans); font-weight: 600; font-size: 13px;
+  letter-spacing: 0.02em;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all .12s ease;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+}
+.hula-v2 .picks-btn:hover { border-color: var(--ink); }
+.hula-v2 .picks-btn-arrow { font-size: 9px; }
+.hula-v2 .picks-btn-more-active {
+  background: var(--up); color: #fff; border-color: var(--up);
+}
+.hula-v2 .picks-btn-less-active {
+  background: var(--down); color: #fff; border-color: var(--down);
+}
+
 /* Sticky card-builder bar */
 .hula-v2 .picks-bar {
   position: fixed; bottom: 0; left: 0; right: 0;
@@ -801,6 +944,35 @@ button:focus {
   font-family: var(--ff-mono); font-size: 12px;
   color: #c8c2b3; letter-spacing: 0.04em;
   text-align: center; width: 100%;
+}
+
+/* Power / Flex mode pills inside the sticky bar */
+.hula-v2 .picks-bar-modes {
+  display: flex; gap: 6px;
+  flex-shrink: 0;
+  padding: 4px;
+  background: rgba(0,0,0,0.25);
+  border-radius: 999px;
+}
+.hula-v2 .picks-mode-pill {
+  appearance: none; border: 0; background: transparent;
+  color: #c8c2b3;
+  font-family: var(--ff-sans);
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex; flex-direction: column; align-items: center;
+  gap: 1px;
+  transition: all .12s;
+}
+.hula-v2 .picks-mode-pill-name { font-weight: 700; font-size: 13px; letter-spacing: -0.01em; }
+.hula-v2 .picks-mode-pill-sub  { font-family: var(--ff-mono); font-size: 9px; letter-spacing: 0.04em; text-transform: uppercase; opacity: 0.65; }
+.hula-v2 .picks-mode-pill.is-active {
+  background: var(--accent); color: #fff;
+}
+.hula-v2 .picks-mode-pill.is-active .picks-mode-pill-sub { opacity: 0.85; }
+.hula-v2 .picks-mode-pill.is-disabled {
+  opacity: 0.4; cursor: not-allowed;
 }
 .hula-v2 .picks-bar-summary {
   display: flex; flex-direction: column; gap: 4px;
@@ -852,6 +1024,10 @@ button:focus {
   .hula-v2 .picks-bar { transform: translateY(calc(100% - 44px)); }
   .hula-v2 .picks-bar.has-picks { transform: translateY(0); }
   .hula-v2 .picks-bar-shell { gap: 8px; padding-top: 10px; padding-bottom: 12px; }
+  .hula-v2 .picks-bar-modes { width: 100%; }
+  .hula-v2 .picks-mode-pill { flex: 1 1 0; padding: 4px 10px; }
+  .hula-v2 .picks-mode-pill-name { font-size: 12px; }
+  .hula-v2 .picks-mode-pill-sub  { font-size: 8.5px; }
   .hula-v2 .picks-bar-summary { width: 100%; flex-direction: row; justify-content: space-between; align-items: baseline; }
   .hula-v2 .picks-bar-entries { width: 100%; margin-left: 0; justify-content: space-between; }
   .hula-v2 .picks-entry-chip { flex: 1 1 0; min-width: 0; padding: 0 8px; height: 36px; }
@@ -941,6 +1117,35 @@ button:focus {
   background: var(--down); color: #fff; border-color: var(--down);
 }
 
+/* Flex vs Power mode picker (more text, stacked layout) */
+.hula-v2 .picks-lockin-mode { grid-template-columns: 1fr; gap: 8px; }
+@media (min-width: 540px) {
+  .hula-v2 .picks-lockin-mode { grid-template-columns: 1fr 1fr; }
+}
+.hula-v2 .picks-mode-btn {
+  text-align: left;
+  border: 1px solid var(--line-2);
+  background: var(--bg);
+  color: var(--ink);
+  border-radius: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: all .12s;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.hula-v2 .picks-mode-btn:hover { border-color: var(--ink); }
+.hula-v2 .picks-mode-btn.is-active {
+  background: var(--ink); color: #f5f1e6; border-color: var(--ink);
+}
+.hula-v2 .picks-mode-name {
+  font-family: var(--ff-sans); font-weight: 600; font-size: 14px;
+  letter-spacing: -0.01em;
+}
+.hula-v2 .picks-mode-sub {
+  font-family: var(--ff-mono); font-size: 11px;
+  color: var(--ink-3); line-height: 1.4;
+}
+.hula-v2 .picks-mode-btn.is-active .picks-mode-sub { color: rgba(245,241,230,.7); }
 .hula-v2 .picks-lockin-submit { width: 100%; margin-top: 6px; }
 .hula-v2 .picks-lockin-err {
   font-family: var(--ff-mono); font-size: 11px;
@@ -974,12 +1179,29 @@ button:focus {
   .hula-v2 .picks-hero { padding-top: 28px; padding-bottom: 24px; }
   .hula-v2 .picks-h1 { font-size: clamp(34px, 9.5vw, 48px); margin-bottom: 14px; }
   .hula-v2 .picks-hero .lede { font-size: 15px; margin-bottom: 18px; }
+  .hula-v2 .picks-multikey { font-size: 12px; gap: 10px; row-gap: 4px; }
   .hula-v2 .picks-trust-chips { gap: 6px; margin-top: 14px; }
   .hula-v2 .picks-trust-chip { font-size: 11px; padding: 5px 10px; }
 
   /* Top nav padding */
   .hula-v2 .picks-topnav-inner { padding-top: 12px; padding-bottom: 12px; }
   .hula-v2 .picks-demo-badge { font-size: 9px; padding: 5px 8px; letter-spacing: 0.1em; }
+
+  /* Sport sections */
+  .hula-v2 .picks-sport { margin-bottom: 24px; }
+  .hula-v2 .picks-sport-head { padding-bottom: 8px; margin-bottom: 12px; }
+  .hula-v2 .picks-sport-label { font-size: 16px; }
+  .hula-v2 .picks-sport-count { font-size: 10px; }
+
+  /* Prop cards: tighter padding, smaller avatar, smaller fonts */
+  .hula-v2 .picks-card { padding: 14px; gap: 8px; }
+  .hula-v2 .picks-avatar { width: 44px; height: 44px; font-size: 14px; }
+  .hula-v2 .picks-card-body { gap: 10px; }
+  .hula-v2 .picks-card-meta { font-size: 9px; gap: 8px; }
+  .hula-v2 .picks-card-player { font-size: 15px; gap: 6px; }
+  .hula-v2 .picks-card-kind { font-size: 8px; padding: 1px 5px; }
+  .hula-v2 .picks-card-stat { font-size: 12px; }
+  .hula-v2 .picks-btn { height: 42px; font-size: 12px; }
 
   /* Card-builder sticky bar — already mobile-styled but keep numbers consistent */
   .hula-v2 .picks-bar-shell { padding-top: 12px; padding-bottom: 16px; }
@@ -988,6 +1210,10 @@ button:focus {
 @media (max-width: 380px) {
   /* iPhone SE and below — extra-tight */
   .hula-v2 .picks-h1 { font-size: 32px; }
+  .hula-v2 .picks-card-meta { font-size: 8.5px; }
+  .hula-v2 .picks-card-when { letter-spacing: 0.06em; }
+  .hula-v2 .picks-avatar { width: 40px; height: 40px; font-size: 13px; }
+  .hula-v2 .picks-card-player { font-size: 14px; }
   .hula-v2 .picks-entry-chip { padding: 0 6px; font-size: 11px; }
 }
 
@@ -1019,6 +1245,16 @@ button:focus {
   /* Yes/No buttons — tighter */
   .hula-v2 .picks-yn-btn { height: 42px; font-size: 13px; }
 
+  /* Mode picker — the biggest space hog. Pack title + sub on one row each. */
+  .hula-v2 .picks-lockin-mode { gap: 6px; }
+  .hula-v2 .picks-mode-btn {
+    padding: 9px 12px;
+    gap: 2px;
+    border-radius: 10px;
+  }
+  .hula-v2 .picks-mode-name { font-size: 13px; }
+  .hula-v2 .picks-mode-sub { font-size: 10px; line-height: 1.35; }
+
   /* Submit */
   .hula-v2 .picks-lockin-submit { height: 50px; font-size: 14px; margin-top: 4px; }
 
@@ -1037,562 +1273,7 @@ button:focus {
   .hula-v2 .picks-lockin-form { padding: 16px; }
   .hula-v2 .picks-lockin-title { font-size: 18px; }
   .hula-v2 .picks-lockin-note { font-size: 12px; }
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   /numero — NumeroHula (sub-brand) styles
-   Reuses .picks-* shell selectors (topnav, hero, trust chips, bar,
-   lockin overlay/form). All new selectors are .numero-* or
-   .numerohula-*.
-   ═══════════════════════════════════════════════════════════════════ */
-
-/* Logo lockup adaptation — keeps the parent H monogram, swaps wordmark */
-.hula-v2 .numerohula-lockup .numerohula-wordmark {
-  display: inline-flex; flex-direction: column;
-  align-items: flex-start;
-  line-height: 1.05;
-  gap: 1px;
-}
-.hula-v2 .numerohula-word {
-  font-family: var(--ff-sans); font-weight: 600;
-  font-size: 22px; letter-spacing: -0.04em;
-  color: var(--ink);
-}
-.hula-v2 .numerohula-word .dot { color: var(--accent); }
-.hula-v2 .numerohula-tag {
-  font-family: var(--ff-mono); font-size: 9px;
-  text-transform: uppercase; letter-spacing: 0.18em;
-  color: var(--ink-3);
-}
-
-/* Hero promise list — 4 short Taglish statements, scannable in 3 sec */
-.hula-v2 .numero-promise {
-  list-style: none;
-  margin: 0 0 8px;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.hula-v2 .numero-promise li {
-  position: relative;
-  padding-left: 22px;
-  font-family: var(--ff-sans);
-  font-size: 18px;
-  line-height: 1.4;
-  color: var(--ink);
-  letter-spacing: -0.005em;
-}
-.hula-v2 .numero-promise li::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 0.6em;
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: var(--accent);
-}
-.hula-v2 .numero-promise strong {
-  font-weight: 700;
-  color: var(--ink);
-}
-
-/* Trust tagline above the "How is it drawn?" disclosure */
-.hula-v2 .numero-trust-tagline {
-  margin-bottom: 10px;
-  padding: 10px 0;
-}
-.hula-v2 .numero-trust-title {
-  font-family: var(--ff-sans);
-  font-weight: 600;
-  font-size: 14px;
-  color: var(--ink);
-  letter-spacing: -0.01em;
-}
-.hula-v2 .numero-trust-sub {
-  font-family: var(--ff-sans);
-  font-size: 13px;
-  color: var(--ink-3);
-  margin-top: 2px;
-  letter-spacing: -0.005em;
-}
-
-/* Countdown + recent winners strip */
-.hula-v2 .numero-countdown {
-  padding-top: 18px; padding-bottom: 14px;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-  background: linear-gradient(180deg, var(--bg-2), var(--bg) 80%);
-}
-.hula-v2 .numero-countdown-row {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 16px; flex-wrap: wrap;
-  margin-bottom: 14px;
-}
-.hula-v2 .numero-countdown-block {
-  display: flex; flex-direction: column; gap: 2px;
-}
-.hula-v2 .numero-countdown-lbl {
-  font-family: var(--ff-mono); font-size: 10px;
-  text-transform: uppercase; letter-spacing: 0.12em;
-  color: var(--ink-3);
-}
-.hula-v2 .numero-countdown-val {
-  font-family: var(--ff-mono); font-weight: 700;
-  font-size: 36px; color: var(--ink);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
-}
-.hula-v2 .numero-countdown-meta {
-  display: flex; flex-direction: column; gap: 2px;
-  align-items: flex-end;
-  text-align: right;
-  font-family: var(--ff-mono); font-size: 10px;
-  color: var(--ink-3);
-}
-.hula-v2 .numero-pulse-hint { color: var(--ink-2); font-weight: 600; }
-.hula-v2 .numero-drawid { letter-spacing: 0.04em; }
-
-.hula-v2 .numero-recent {
-  display: flex; flex-direction: column; gap: 8px;
-}
-.hula-v2 .numero-recent-lbl {
-  font-family: var(--ff-mono); font-size: 10px;
-  text-transform: uppercase; letter-spacing: 0.12em;
-  color: var(--ink-3);
-}
-.hula-v2 .numero-recent-list {
-  display: flex; gap: 8px; flex-wrap: nowrap;
-  overflow-x: auto;
-  margin-left: -24px; margin-right: -24px;
-  padding: 0 24px 4px;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-}
-.hula-v2 .numero-recent-list::-webkit-scrollbar { display: none; }
-.hula-v2 .numero-recent-pill {
-  display: inline-flex; align-items: baseline; gap: 8px;
-  flex-shrink: 0;
-  background: var(--paper);
-  border: 1px solid var(--line);
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-family: var(--ff-mono);
-}
-.hula-v2 .numero-recent-num {
-  font-weight: 700; font-size: 16px;
-  color: var(--ink);
-  letter-spacing: 0.02em;
-}
-.hula-v2 .numero-recent-rolled .numero-recent-num { color: var(--accent); }
-.hula-v2 .numero-recent-meta {
-  font-size: 10px; color: var(--ink-3);
-}
-
-/* "How is the number drawn?" disclosure */
-.hula-v2 .numero-how {
-  padding-top: 12px; padding-bottom: 4px;
-}
-.hula-v2 .numero-how-toggle {
-  appearance: none; background: transparent; border: 0;
-  cursor: pointer;
-  font-family: var(--ff-sans); font-weight: 500; font-size: 13px;
-  color: var(--ink-2);
-  padding: 6px 0;
-  letter-spacing: -0.005em;
-}
-.hula-v2 .numero-how-toggle:hover { color: var(--accent); }
-.hula-v2 .numero-how-body {
-  margin-top: 8px;
-  background: var(--paper);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 16px 18px;
-}
-.hula-v2 .numero-how-lede {
-  font-size: 13.5px; line-height: 1.55; color: var(--ink-2);
-  margin: 0 0 12px;
-}
-.hula-v2 .numero-how-lede code {
-  font-family: var(--ff-mono); font-size: 12px;
-  background: var(--bg-2); padding: 1px 5px; border-radius: 4px;
-}
-.hula-v2 .numero-how-eq {
-  font-family: var(--ff-mono); font-size: 12px;
-  background: var(--ink); color: #f5f1e6;
-  padding: 10px 14px; border-radius: 8px;
-  margin: 0 0 12px;
-  display: flex; align-items: center; gap: 10px;
-  flex-wrap: wrap;
-}
-.hula-v2 .numero-how-eq-lhs { color: var(--accent); font-weight: 700; }
-.hula-v2 .numero-how-eq-op { color: #c8c2b3; }
-.hula-v2 .numero-how-eq-rhs { color: #f5f1e6; }
-.hula-v2 .numero-how-sample {
-  display: flex; flex-direction: column; gap: 4px;
-  font-family: var(--ff-mono); font-size: 11px;
-  margin-bottom: 12px;
-}
-.hula-v2 .numero-how-row { display: flex; gap: 10px; align-items: baseline; }
-.hula-v2 .numero-how-row-lbl {
-  color: var(--ink-3);
-  text-transform: uppercase; letter-spacing: 0.1em;
-  font-size: 9.5px;
-  flex: 0 0 90px;
-}
-.hula-v2 .numero-how-row code {
-  color: var(--ink);
-  flex: 1 1 auto; min-width: 0;
-  word-break: break-all;
-}
-.hula-v2 .numero-how-hex { font-size: 10px; }
-.hula-v2 .numero-how-winner { color: var(--ink-3); font-style: italic; }
-.hula-v2 .numero-how-link {
-  font-family: var(--ff-sans); font-size: 13px; font-weight: 600;
-  color: var(--accent);
-  text-decoration: none;
-}
-.hula-v2 .numero-how-link:hover { text-decoration: underline; }
-
-/* Bet type tabs */
-.hula-v2 .numero-tabs {
-  display: flex; gap: 4px;
-  margin: 18px 24px 0;
-  background: var(--bg-2);
-  border-radius: 12px;
-  padding: 4px;
-}
-.hula-v2 .numero-tab {
-  appearance: none; border: 0; background: transparent;
-  flex: 1 1 0; min-width: 0;
-  padding: 10px 8px;
-  border-radius: 8px;
-  cursor: pointer;
-  display: inline-flex; flex-direction: column; align-items: center; gap: 1px;
-  font-family: var(--ff-sans);
-  color: var(--ink-2);
-  transition: all .12s;
-}
-.hula-v2 .numero-tab-name { font-weight: 600; font-size: 13px; letter-spacing: -0.005em; }
-.hula-v2 .numero-tab-x {
-  font-family: var(--ff-mono); font-size: 10px;
-  color: var(--ink-3);
-  letter-spacing: 0.02em;
-}
-.hula-v2 .numero-tab.is-active {
-  background: var(--paper);
-  color: var(--ink);
-  box-shadow: 0 1px 3px rgba(15, 36, 25, 0.08);
-}
-.hula-v2 .numero-tab.is-active .numero-tab-x { color: var(--accent); }
-
-/* Bet type card */
-.hula-v2 .numero-bet-card {
-  padding-top: 18px; padding-bottom: 24px;
-}
-.hula-v2 .numero-bet-head {
-  display: flex; align-items: flex-start; justify-content: space-between;
-  gap: 12px; flex-wrap: wrap;
-  margin-bottom: 16px;
-}
-.hula-v2 .numero-bet-title {
-  font-family: var(--ff-sans); font-weight: 600; font-size: 20px;
-  letter-spacing: -0.02em;
-  color: var(--ink);
-}
-.hula-v2 .numero-bet-blurb {
-  font-family: var(--ff-mono); font-size: 11px;
-  color: var(--ink-3);
-  letter-spacing: 0.04em;
-  margin-top: 2px;
-}
-.hula-v2 .numero-bet-meta {
-  display: flex; flex-direction: column; align-items: flex-end; gap: 4px;
-}
-.hula-v2 .numero-payout-pill {
-  display: inline-block;
-  background: var(--accent); color: #fff;
-  font-family: var(--ff-sans); font-weight: 700; font-size: 13px;
-  letter-spacing: -0.005em;
-  padding: 4px 10px;
-  border-radius: 999px;
-}
-.hula-v2 .numero-pool {
-  font-family: var(--ff-mono); font-size: 11px;
-  color: var(--ink-3);
-}
-
-/* Number grids — varies by bet type */
-.hula-v2 .numero-grid {
-  display: grid;
-  gap: 8px;
-}
-.hula-v2 .numero-grid-10 {
-  grid-template-columns: repeat(5, 1fr);
-}
-@media (min-width: 720px) {
-  .hula-v2 .numero-grid-10 { grid-template-columns: repeat(10, 1fr); }
-}
-.hula-v2 .numero-grid-100 {
-  grid-template-columns: repeat(10, 1fr);
-  gap: 4px;
-}
-
-/* Number cells */
-.hula-v2 .numero-cell {
-  appearance: none; border: 1px solid var(--line);
-  background: var(--paper);
-  color: var(--ink);
-  font-family: var(--ff-mono); font-weight: 700;
-  cursor: pointer;
-  transition: all .12s;
-  display: inline-flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  aspect-ratio: 1 / 1;
-  border-radius: 10px;
-  padding: 4px;
-  min-width: 0;
-}
-.hula-v2 .numero-cell:hover { border-color: var(--ink); }
-.hula-v2 .numero-cell.is-active {
-  background: var(--accent); color: #fff; border-color: var(--accent);
-  transform: scale(0.96);
-}
-.hula-v2 .numero-cell:disabled {
-  opacity: 0.35; cursor: not-allowed;
-}
-.hula-v2 .numero-cell-n {
-  font-size: 22px; letter-spacing: -0.02em;
-}
-.hula-v2 .numero-cell-share {
-  font-family: var(--ff-mono); font-size: 9px;
-  color: var(--ink-3);
-  letter-spacing: 0.04em;
-  margin-top: 2px;
-}
-.hula-v2 .numero-cell.is-active .numero-cell-share { color: rgba(255,255,255,0.75); }
-
-/* Small variant for last2 (100-cell grid) */
-.hula-v2 .numero-cell-sm {
-  font-size: 11px;
-  padding: 2px;
-  border-radius: 6px;
-}
-.hula-v2 .numero-cell-sm.is-active { transform: scale(0.92); }
-
-/* Last 3 Straight — number input */
-.hula-v2 .numero-input-block {
-  display: flex; flex-direction: column; gap: 12px;
-}
-.hula-v2 .numero-input-row {
-  display: flex; gap: 8px;
-}
-.hula-v2 .numero-input-num {
-  flex: 1 1 auto; min-width: 0;
-  height: 56px;
-  font-family: var(--ff-mono); font-weight: 700; font-size: 28px;
-  letter-spacing: 0.06em;
-  text-align: center;
-  background: var(--paper);
-  border: 1.5px solid var(--ink);
-  border-radius: 12px;
-  color: var(--ink);
-  outline: none;
-}
-.hula-v2 .numero-input-num:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 4px rgba(232,122,30,.18);
-}
-.hula-v2 .numero-input-num::placeholder { color: var(--ink-3); font-weight: 400; }
-.hula-v2 .numero-input-add,
-.hula-v2 .numero-input-qp {
-  appearance: none; border: 1.5px solid var(--ink);
-  background: var(--ink); color: #f5f1e6;
-  font-family: var(--ff-sans); font-weight: 600; font-size: 14px;
-  padding: 0 20px;
-  border-radius: 12px;
-  cursor: pointer;
-  height: 56px;
-  white-space: nowrap;
-  transition: all .12s;
-}
-.hula-v2 .numero-input-add:disabled { opacity: 0.4; cursor: not-allowed; }
-.hula-v2 .numero-input-qp {
-  background: transparent; color: var(--ink);
-}
-.hula-v2 .numero-input-qp:hover { background: var(--bg-2); }
-
-/* Pick chips — show committed picks for last3s + last3b */
-.hula-v2 .numero-chips {
-  display: flex; flex-wrap: wrap; gap: 6px;
-}
-.hula-v2 .numero-chip {
-  appearance: none;
-  background: var(--accent); color: #fff; border: 0;
-  font-family: var(--ff-mono); font-weight: 700; font-size: 14px;
-  letter-spacing: 0.04em;
-  padding: 6px 12px;
-  border-radius: 999px;
-  cursor: pointer;
-  display: inline-flex; align-items: center; gap: 6px;
-}
-.hula-v2 .numero-chip-x { font-weight: 400; opacity: 0.8; }
-.hula-v2 .numero-chip:hover .numero-chip-x { opacity: 1; }
-
-/* Last 3 Box block */
-.hula-v2 .numero-box-block {
-  display: flex; flex-direction: column; gap: 12px;
-}
-.hula-v2 .numero-box-hint {
-  font-family: var(--ff-mono); font-size: 11px;
-  color: var(--ink-3);
-  letter-spacing: 0.04em;
-}
-.hula-v2 .numero-box-commit {
-  appearance: none; border: 1.5px solid var(--ink);
-  background: var(--ink); color: #f5f1e6;
-  font-family: var(--ff-sans); font-weight: 600; font-size: 14px;
-  height: 50px;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all .12s;
-}
-.hula-v2 .numero-box-commit:disabled {
-  background: transparent; color: var(--ink-3);
-  border-color: var(--line-2);
-  cursor: not-allowed;
-}
-
-/* Sticky bar (Numero variant) — reuses .picks-bar container styles via parent class */
-.hula-v2 .numero-bar {
-  position: fixed; bottom: 0; left: 0; right: 0;
-  background: var(--ink);
-  color: #f5f1e6;
-  border-top: 1px solid var(--accent);
-  z-index: 40;
-  transform: translateY(calc(100% - 44px));
-  transition: transform .25s ease;
-}
-.hula-v2 .numero-bar.has-picks { transform: translateY(0); }
-.hula-v2 .numero-bar-shell {
-  padding-top: 14px; padding-bottom: 18px;
-  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
-}
-.hula-v2 .numero-bar-status {
-  font-family: var(--ff-mono); font-size: 12px;
-  color: #c8c2b3; letter-spacing: 0.04em;
-  text-align: center; width: 100%;
-}
-.hula-v2 .numero-bar-summary {
-  display: flex; flex-direction: column; gap: 6px;
-  flex: 1 1 auto; min-width: 0;
-}
-.hula-v2 .numero-bar-row {
-  display: flex; align-items: baseline; justify-content: space-between;
-  gap: 12px;
-  font-family: var(--ff-mono);
-}
-.hula-v2 .numero-bar-lbl {
-  font-size: 11px;
-  color: #c8c2b3; letter-spacing: 0.06em; text-transform: uppercase;
-}
-.hula-v2 .numero-bar-stake {
-  font-size: 18px; font-weight: 700; color: #f5f1e6;
-}
-.hula-v2 .numero-bar-win {
-  font-size: 22px; font-weight: 700; color: #6fdc8c;
-}
-.hula-v2 .numero-bar-breakdown {
-  display: flex; gap: 6px; flex-wrap: wrap;
-}
-.hula-v2 .numero-bar-chip {
-  font-family: var(--ff-mono); font-size: 10px;
-  color: #c8c2b3;
-  background: rgba(255,255,255,0.08);
-  padding: 3px 8px;
-  border-radius: 999px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-.hula-v2 .numero-lock-btn { white-space: nowrap; flex-shrink: 0; }
-
-/* Lock-in modal: bet-type preference radio (replaces Flex/Power picker) */
-.hula-v2 .numero-pref-grid {
-  display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;
-}
-@media (min-width: 540px) {
-  .hula-v2 .numero-pref-grid { grid-template-columns: repeat(4, 1fr); }
-}
-.hula-v2 .numero-pref-btn {
-  appearance: none;
-  border: 1px solid var(--line-2);
-  background: var(--bg);
-  color: var(--ink);
-  border-radius: 10px;
-  padding: 8px 10px;
-  cursor: pointer;
-  display: flex; flex-direction: column; align-items: center; gap: 1px;
-  transition: all .12s;
-}
-.hula-v2 .numero-pref-btn:hover { border-color: var(--ink); }
-.hula-v2 .numero-pref-btn.is-active {
-  background: var(--ink); color: #f5f1e6; border-color: var(--ink);
-}
-.hula-v2 .numero-pref-name {
-  font-family: var(--ff-sans); font-weight: 600; font-size: 13px;
-}
-.hula-v2 .numero-pref-x {
-  font-family: var(--ff-mono); font-size: 10px;
-  color: var(--ink-3);
-}
-.hula-v2 .numero-pref-btn.is-active .numero-pref-x { color: rgba(245,241,230,0.7); }
-
-/* Mobile responsive tightening for /numero */
-@media (max-width: 720px) {
-  .hula-v2 .numerohula-word { font-size: 19px; }
-  .hula-v2 .numerohula-tag { font-size: 8.5px; letter-spacing: 0.16em; }
-
-  .hula-v2 .numero-promise li { font-size: 16px; padding-left: 18px; }
-  .hula-v2 .numero-promise li::before { width: 6px; height: 6px; top: 0.55em; }
-  .hula-v2 .numero-trust-title { font-size: 13px; }
-  .hula-v2 .numero-trust-sub { font-size: 12px; }
-
-  .hula-v2 .numero-countdown { padding-top: 14px; padding-bottom: 12px; }
-  .hula-v2 .numero-countdown-val { font-size: 30px; }
-  .hula-v2 .numero-countdown-meta { font-size: 9px; }
-  .hula-v2 .numero-recent-pill { padding: 5px 10px; }
-  .hula-v2 .numero-recent-num { font-size: 14px; }
-  .hula-v2 .numero-recent-meta { font-size: 9px; }
-
-  .hula-v2 .numero-tabs { margin-left: 24px; margin-right: 24px; }
-  .hula-v2 .numero-tab { padding: 8px 6px; }
-  .hula-v2 .numero-tab-name { font-size: 12px; }
-  .hula-v2 .numero-tab-x { font-size: 9px; }
-
-  .hula-v2 .numero-bet-card { padding-top: 14px; padding-bottom: 16px; }
-  .hula-v2 .numero-bet-title { font-size: 18px; }
-  .hula-v2 .numero-payout-pill { font-size: 12px; padding: 3px 8px; }
-
-  .hula-v2 .numero-grid { gap: 6px; }
-  .hula-v2 .numero-grid-100 { gap: 3px; }
-  .hula-v2 .numero-cell-n { font-size: 18px; }
-  .hula-v2 .numero-cell-share { font-size: 8px; }
-  .hula-v2 .numero-cell-sm { font-size: 10px; border-radius: 5px; }
-
-  .hula-v2 .numero-input-num { height: 50px; font-size: 24px; }
-  .hula-v2 .numero-input-add,
-  .hula-v2 .numero-input-qp { height: 50px; font-size: 13px; padding: 0 14px; }
-
-  .hula-v2 .numero-bar { transform: translateY(calc(100% - 40px)); }
-  .hula-v2 .numero-bar.has-picks { transform: translateY(0); }
-  .hula-v2 .numero-bar-shell { padding-top: 10px; padding-bottom: 12px; gap: 8px; }
-  .hula-v2 .numero-bar-stake { font-size: 16px; }
-  .hula-v2 .numero-bar-win { font-size: 18px; }
-  .hula-v2 .numero-lock-btn { width: 100%; }
-}
-
-@media (max-width: 380px) {
-  .hula-v2 .numero-grid-100 { gap: 2px; }
-  .hula-v2 .numero-cell-sm { font-size: 9.5px; }
-  .hula-v2 .numero-cell-n { font-size: 16px; }
-  .hula-v2 .numero-tab-name { font-size: 11px; }
+  .hula-v2 .picks-mode-btn { padding: 8px 10px; }
+  .hula-v2 .picks-mode-name { font-size: 12.5px; }
+  .hula-v2 .picks-mode-sub { font-size: 9.5px; }
 }
