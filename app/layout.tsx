@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Fraunces, Space_Mono } from 'next/font/google'
 import './globals.css'
 
@@ -18,6 +18,12 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://hulaan.ph'
 const TITLE = 'Hula — The market for what happens next.'
 const DESCRIPTION =
   "The Philippines' prediction market. Trade real odds on PBA, boxing, MMFF, weather, World Cup — pesos in, pesos out."
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+}
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

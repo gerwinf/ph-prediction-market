@@ -628,7 +628,8 @@ button:focus {
 }
 .hula-v2 .mobile-menu-links a:hover { color: var(--accent); }
 .hula-v2 .mobile-menu-foot {
-  padding: 24px; display: flex; flex-direction: column; gap: 10px;
+  padding: 24px; padding-bottom: max(24px, env(safe-area-inset-bottom));
+  display: flex; flex-direction: column; gap: 10px;
   border-top: 1px solid var(--line);
 }
 .hula-v2 .mobile-menu-foot .btn { width: 100%; }
@@ -937,7 +938,7 @@ button:focus {
 }
 .hula-v2 .picks-bar.has-picks { transform: translateY(0); }
 .hula-v2 .picks-bar-shell {
-  padding-top: 14px; padding-bottom: 18px;
+  padding-top: 14px; padding-bottom: max(18px, env(safe-area-inset-bottom));
   display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
 }
 .hula-v2 .picks-bar-status {
@@ -1023,7 +1024,7 @@ button:focus {
 @media (max-width: 720px) {
   .hula-v2 .picks-bar { transform: translateY(calc(100% - 44px)); }
   .hula-v2 .picks-bar.has-picks { transform: translateY(0); }
-  .hula-v2 .picks-bar-shell { gap: 8px; padding-top: 10px; padding-bottom: 12px; }
+  .hula-v2 .picks-bar-shell { gap: 8px; padding-top: 10px; padding-bottom: max(12px, env(safe-area-inset-bottom)); }
   .hula-v2 .picks-bar-modes { width: 100%; }
   .hula-v2 .picks-mode-pill { flex: 1 1 0; padding: 4px 10px; }
   .hula-v2 .picks-mode-pill-name { font-size: 12px; }
@@ -1204,7 +1205,7 @@ button:focus {
   .hula-v2 .picks-btn { height: 42px; font-size: 12px; }
 
   /* Card-builder sticky bar — already mobile-styled but keep numbers consistent */
-  .hula-v2 .picks-bar-shell { padding-top: 12px; padding-bottom: 16px; }
+  .hula-v2 .picks-bar-shell { padding-top: 12px; padding-bottom: max(16px, env(safe-area-inset-bottom)); }
 }
 
 @media (max-width: 380px) {
@@ -1226,6 +1227,7 @@ button:focus {
   /* Tighter modal overall */
   .hula-v2 .picks-lockin-form {
     padding: 18px;
+    padding-bottom: max(18px, env(safe-area-inset-bottom));
     gap: 8px;
     border-radius: 16px 16px 0 0;
   }
