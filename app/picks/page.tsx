@@ -11,7 +11,7 @@ import { useState, useEffect, FormEvent } from 'react'
  * Not linked from / — share URL manually for validation tests only.
  * ──────────────────────────────────────────────────────────────────────── */
 
-type Sport = 'wc' | 'pba' | 'nba' | 'mlbb' | 'pool'
+type Sport = 'wc' | 'pba' | 'nba' | 'mlbb' | 'pool' | 'showbiz'
 
 type Prop = {
   id: string
@@ -70,11 +70,12 @@ const stripeFor = (team?: string): string | null => {
 }
 
 const SPORT_LABEL: Record<Sport, string> = {
-  wc:   'World Cup 2026',
-  pba:  'PBA · Commissioner’s Cup',
-  nba:  'NBA · Conf. Semifinals',
-  mlbb: 'MLBB · MPL-PH 2026',
-  pool: 'Pool · Pro Tour 2026',
+  wc:      'World Cup 2026',
+  pba:     'PBA · Commissioner’s Cup',
+  nba:     'NBA · Conference Finals',
+  mlbb:    'MLBB · MPL-PH S17 Playoffs',
+  pool:    'Pool · Pro Tour 2026',
+  showbiz: 'Showbiz · Kultura',
 }
 
 const PROPS: Prop[] = [
@@ -108,26 +109,27 @@ const PROPS: Prop[] = [
     player: 'Riyad Mahrez', team: 'ALG', stat: 'Goals', line: 0.5, unit: 'goals',
     photo: wp('Mahrez 2021.jpg') },
 
-  // ─── PBA Commissioner's Cup (2026, ongoing — second conference of PBA Season 50)
-  // Ginebra is the defending champ. Brownlee is the long-time Ginebra import.
+  // ─── PBA Commissioner's Cup — REAL semifinals (2nd conf of PBA Season 50)
+  // Verified May 2026: semis are TNT vs Meralco and Ginebra vs Rain or Shine,
+  // May 20–Jun 3. (sources in ~/.claude/plans/goofy-percolating-turing.md)
+  { id: 'pba-pogoy-pts', sport: 'pba', kind: 'player',
+    game: 'TNT vs Meralco · Comm’s Cup semis', when: 'May 20–Jun 3 · 7:00 PM PHT',
+    player: 'RR Pogoy', team: 'TNT', stat: 'Points', line: 19.5, unit: 'pts',
+    photo: wp('Bongbong Marcos in Dominican Republic v Philippines FBWC 2 Pogoy (cropped).jpg') },
+  { id: 'pba-newsome-pts', sport: 'pba', kind: 'player',
+    game: 'TNT vs Meralco · Comm’s Cup semis', when: 'May 20–Jun 3 · 7:00 PM PHT',
+    player: 'Chris Newsome', team: 'MER', stat: 'Points', line: 16.5, unit: 'pts',
+    photo: wp('Chris Newsome at the 2023 SEA Games (cropped).png') },
   { id: 'pba-brownlee-pts', sport: 'pba', kind: 'player',
-    game: 'Ginebra vs TNT · Manila Clasico', when: 'Tonight · 7:00 PM PHT',
+    game: 'Ginebra vs Rain or Shine · Comm’s Cup semis', when: 'May 20–Jun 3 · 4:30 PM PHT',
     player: 'Justin Brownlee', team: 'GIN', stat: 'Points (import)', line: 28.5, unit: 'pts',
     photo: wp('Brownlee w. bottle SEA Games 2023 (cropped).png') },
   { id: 'pba-thompson-ast', sport: 'pba', kind: 'player',
-    game: 'Ginebra vs TNT · Manila Clasico', when: 'Tonight · 7:00 PM PHT',
+    game: 'Ginebra vs Rain or Shine · Comm’s Cup semis', when: 'May 20–Jun 3 · 4:30 PM PHT',
     player: 'Scottie Thompson', team: 'GIN', stat: 'Assists', line: 6.5, unit: 'ast',
     photo: wp('PBA - Scottie Thompson - 2021.jpg') },
-  { id: 'pba-pogoy-pts', sport: 'pba', kind: 'player',
-    game: 'Ginebra vs TNT · Manila Clasico', when: 'Tonight · 7:00 PM PHT',
-    player: 'RR Pogoy', team: 'TNT', stat: 'Points', line: 19.5, unit: 'pts',
-    photo: wp('Bongbong Marcos in Dominican Republic v Philippines FBWC 2 Pogoy (cropped).jpg') },
-  { id: 'pba-fajardo-reb', sport: 'pba', kind: 'player',
-    game: 'San Miguel vs Magnolia', when: 'Tomorrow · 9:30 PM PHT',
-    player: 'June Mar Fajardo', team: 'SMB', stat: 'Rebounds', line: 12.5, unit: 'reb',
-    photo: wp('June Mar Fajardo 2026.jpg') },
   { id: 'pba-ginebra-pts', sport: 'pba', kind: 'team',
-    game: 'Ginebra vs TNT · Manila Clasico', when: 'Tonight · 7:00 PM PHT',
+    game: 'Ginebra vs Rain or Shine · Comm’s Cup semis', when: 'May 20–Jun 3 · 4:30 PM PHT',
     player: 'Barangay Ginebra', team: 'GIN', stat: 'Team total points', line: 102.5, unit: 'pts',
     badge: 'GIN', badgeBg: '#B22234', badgeFg: '#ffffff' },
 
@@ -150,33 +152,56 @@ const PROPS: Prop[] = [
     player: 'Match total racks', team: 'PH · DE', stat: 'Both players · Total', line: 13.5, unit: 'racks',
     badge: 'VS', badgeBg: '#0f2419', badgeFg: '#f5f1e3' },
 
-  // ─── NBA — REAL Conference Semifinals (Round 2) in progress May 2026
-  // Round 2 East: Pistons-Cavs and Knicks-76ers. West: Thunder-Lakers and Spurs-Wolves.
-  // Lakers vs Thunder is the marquee for PH (LeBron / Luka vs SGA).
-
+  // ─── NBA — REAL Conference Finals, live May 18–30 2026
+  // West: OKC Thunder vs San Antonio Spurs (SGA vs Wembanyama).
+  // East: NY Knicks vs Cleveland Cavaliers. (Lakers eliminated in R2.)
   { id: 'nba-sga-pts', sport: 'nba', kind: 'player',
-    game: 'Thunder vs Lakers · Conf. Semis', when: 'This week · 8:30 AM PHT',
+    game: 'Thunder vs Spurs · West Finals', when: 'May 18–30 · 8:30 AM PHT',
     player: 'Shai Gilgeous-Alexander', team: 'OKC', stat: 'Points', line: 31.5, unit: 'pts',
     photo: wp('Shai Gilgeous-Alexander - Thunder vs. Wizards.png') },
-  { id: 'nba-luka-pts', sport: 'nba', kind: 'player',
-    game: 'Thunder vs Lakers · Conf. Semis', when: 'This week · 8:30 AM PHT',
-    player: 'Luka Dončić', team: 'LAL', stat: 'Points', line: 28.5, unit: 'pts',
-    photo: wp('Luka Doncic (51914951721) (cropped1).jpg') },
-  { id: 'nba-lebron-ast', sport: 'nba', kind: 'player',
-    game: 'Thunder vs Lakers · Conf. Semis', when: 'This week · 8:30 AM PHT',
-    player: 'LeBron James', team: 'LAL', stat: 'Assists', line: 7.5, unit: 'ast',
-    photo: wp('LeBron James (51959977144) (cropped2).jpg') },
+  { id: 'nba-wemby-blk', sport: 'nba', kind: 'player',
+    game: 'Thunder vs Spurs · West Finals', when: 'May 18–30 · 8:30 AM PHT',
+    player: 'Victor Wembanyama', team: 'SAS', stat: 'Blocks', line: 3.5, unit: 'blk',
+    photo: wp('Victor Wembanyama San Antonio Spurs 2024.jpg') },
+  { id: 'nba-wemby-pts', sport: 'nba', kind: 'player',
+    game: 'Thunder vs Spurs · West Finals', when: 'May 18–30 · 8:30 AM PHT',
+    player: 'Victor Wembanyama', team: 'SAS', stat: 'Points', line: 24.5, unit: 'pts',
+    photo: wp('Victor Wembanyama San Antonio Spurs 2024.jpg') },
+  { id: 'nba-brunson-pts', sport: 'nba', kind: 'player',
+    game: 'Knicks vs Cavaliers · East Finals', when: 'May 18–30 · 8:00 AM PHT',
+    player: 'Jalen Brunson', team: 'NYK', stat: 'Points', line: 28.5, unit: 'pts',
+    photo: wp('Jalen Brunson 2023 (cropped).jpg') },
 
-  // ─── MLBB MPL-PH 2026 — ECHO vs Blacklist remains the marquee rivalry
-
+  // ─── MLBB — MPL-PH Season 17 Playoffs, May 27–31 2026
+  // ECHO vs Blacklist remains the marquee rivalry.
   { id: 'mlbb-echo-maps', sport: 'mlbb', kind: 'team',
-    game: 'ECHO vs Blacklist Intl', when: 'Tonight · 6:00 PM PHT',
+    game: 'ECHO vs Blacklist · S17 Playoffs', when: 'May 27–31 · 6:00 PM PHT',
     player: 'ECHO', team: 'ECHO', stat: 'Maps won', line: 2.5, unit: 'maps',
     badge: 'E', badgeBg: '#1E3A8A', badgeFg: '#ffffff' },
   { id: 'mlbb-kills', sport: 'mlbb', kind: 'team',
-    game: 'ECHO vs Blacklist Intl', when: 'Tonight · 6:00 PM PHT',
+    game: 'ECHO vs Blacklist · S17 Playoffs', when: 'May 27–31 · 6:00 PM PHT',
     player: 'Match total kills', team: 'ECHO · BLI', stat: 'Both teams · Total', line: 28.5, unit: 'kills',
     badge: 'VS', badgeBg: '#0f2419', badgeFg: '#f5f1e3' },
+
+  // ─── Showbiz · Kultura — real upcoming PH cultural events.
+  // Lines illustrative (same standard as the sports lines); events verified
+  // mid-May 2026 (sources in ~/.claude/plans/goofy-percolating-turing.md).
+  { id: 'sb-bini-songs', sport: 'showbiz', kind: 'player',
+    game: 'BINI · SM MOA Arena · Manila', when: 'Jun 20 · 8:00 PM PHT',
+    player: 'BINI', team: 'BINI', stat: 'Setlist songs', line: 24.5, unit: 'songs',
+    badge: 'BINI', badgeBg: '#E84393', badgeFg: '#ffffff' },
+  { id: 'sb-bea-placement', sport: 'showbiz', kind: 'player',
+    game: 'Miss Universe 2026 · Puerto Rico', when: 'Nov 2026',
+    player: 'Bea Millan-Windorski', team: 'PH', stat: 'Final placement (lower = better)', line: 5.5, unit: 'place',
+    badge: 'MUP', badgeBg: '#7b1fa2', badgeFg: '#ffffff' },
+  { id: 'sb-ts5-gross', sport: 'showbiz', kind: 'player',
+    game: 'PH cinemas nationwide', when: 'Opens Jun 19',
+    player: 'Toy Story 5', team: 'FILM', stat: 'PH opening weekend', line: 145.5, unit: '₱M',
+    badge: 'TS5', badgeBg: '#1565c0', badgeFg: '#ffffff' },
+  { id: 'sb-spiderman-gross', sport: 'showbiz', kind: 'player',
+    game: 'PH cinemas nationwide', when: 'Opens Jul 31',
+    player: 'Spider-Man: Brand New Day', team: 'FILM', stat: 'PH opening weekend', line: 220.5, unit: '₱M',
+    badge: 'SPD', badgeBg: '#c62828', badgeFg: '#ffffff' },
 ]
 
 // Power Play multipliers — all picks must hit
@@ -574,7 +599,7 @@ export default function PicksPage() {
     if (pickCount < 3 && mode === 'flex') setMode('power')
   }, [pickCount, mode])
 
-  const sports: Sport[] = ['wc', 'pba', 'pool', 'nba', 'mlbb']
+  const sports: Sport[] = ['wc', 'pba', 'nba', 'mlbb', 'pool', 'showbiz']
 
   return (
     <main className="hula-v2 picks-page">
