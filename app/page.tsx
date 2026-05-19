@@ -3,15 +3,15 @@
 import { useState, useEffect, FormEvent } from 'react'
 
 const TICKER_DATA = [
-  { mkt: 'Gilas vs Australia · FIBA',       pct: 38, d: -4 },
-  { mkt: 'BTC > ₱4M by Q3',                 pct: 71, d: +6 },
-  { mkt: 'Signal No. 3 hits Manila in May', pct: 22, d: -2 },
-  { mkt: 'Pacquiao back in the ring 2026',  pct: 17, d: +1 },
-  { mkt: 'ABS-CBN franchise renewed',       pct: 44, d: +9 },
-  { mkt: 'BLACKPINK Manila concert 2026',   pct: 88, d: +3 },
-  { mkt: 'PBA Finals — TNT in 6',           pct: 52, d: -3 },
-  { mkt: 'USD/PHP closes < 55 by Dec',      pct: 31, d: -7 },
-  { mkt: 'UAAP S88 Crown — UP',             pct: 34, d: +2 },
+  { mkt: 'Argentina defend WC 2026',         pct: 31, d: +2 },
+  { mkt: 'BTC > ₱4M by Q3',                  pct: 71, d: +6 },
+  { mkt: 'Thunder reach NBA Finals',         pct: 64, d: +5 },
+  { mkt: 'Signal No. 3 hits Manila in May',  pct: 22, d: -2 },
+  { mkt: 'Bea top-5 at Miss Universe 2026',  pct: 48, d: +7 },
+  { mkt: 'BINI sells out MOA · Jun 20',      pct: 88, d: +3 },
+  { mkt: 'Ginebra win PBA Comm’s Cup',       pct: 41, d: -3 },
+  { mkt: 'USD/PHP closes < 55 by Dec',       pct: 31, d: -7 },
+  { mkt: 'ECHO win MPL-PH S17',              pct: 44, d: +9 },
 ]
 
 const CATEGORIES = [
@@ -30,28 +30,28 @@ type MarketRow = { cat: string; q: string; pct: number; d: number; vol: string }
 
 const MARKETS: Record<CategoryKey, MarketRow[]> = {
   trending: [
-    { cat: 'Sports',  q: 'Ginebra wins PBA Philippine Cup 2026',           pct: 47, d: +5,  vol: '₱2.8M' },
-    { cat: 'Showbiz', q: 'Bea Alonzo wins Best Actress at MMFF 2026',       pct: 62, d: +12, vol: '₱891K' },
-    { cat: 'Crypto',  q: 'Bitcoin closes above ₱4M on Dec 31, 2026',       pct: 71, d: +6,  vol: '₱5.4M' },
-    { cat: 'Weather', q: 'Signal No. 3 declared in Metro Manila this May', pct: 22, d: -2,  vol: '₱614K' },
-    { cat: 'World',   q: 'US recession officially declared in 2026',        pct: 34, d: -8,  vol: '₱3.1M' },
-    { cat: 'Pop',     q: 'BLACKPINK Manila concert announced in 2026',      pct: 88, d: +3,  vol: '₱1.2M' },
+    { cat: 'World Cup', q: 'Argentina defend their World Cup title in 2026',    pct: 31, d: +2,  vol: '₱6.1M' },
+    { cat: 'NBA',       q: 'OKC Thunder reach the 2026 NBA Finals',             pct: 64, d: +5,  vol: '₱4.0M' },
+    { cat: 'Showbiz',   q: 'Bea Millan-Windorski places top-5 at Miss Universe 2026', pct: 48, d: +7, vol: '₱1.3M' },
+    { cat: 'Crypto',    q: 'Bitcoin closes above ₱4M on Dec 31, 2026',          pct: 71, d: +6,  vol: '₱5.4M' },
+    { cat: 'MLBB',      q: 'ECHO wins MPL-PH Season 17',                        pct: 44, d: +9,  vol: '₱2.2M' },
+    { cat: 'Music',     q: 'BINI sells out the SM MOA Arena on June 20',        pct: 88, d: +3,  vol: '₱1.2M' },
   ],
   sports: [
-    { cat: 'PBA',    q: "TNT wins PBA Governor's Cup 2026 Finals",            pct: 52, d: -3,  vol: '₱1.9M' },
-    { cat: 'UAAP',   q: "UP wins UAAP Season 88 men's basketball title",      pct: 34, d: +2,  vol: '₱2.2M' },
-    { cat: 'FIBA',   q: 'Gilas Pilipinas reaches FIBA Asia Cup quarterfinals', pct: 71, d: +4,  vol: '₱1.4M' },
-    { cat: 'Boxing', q: 'Manny Pacquiao announces a return bout in 2026',     pct: 17, d: +1,  vol: '₱2.7M' },
-    { cat: 'F1',     q: "Max Verstappen wins 2026 Drivers' Championship",     pct: 41, d: -6,  vol: '₱783K' },
-    { cat: 'NBA',    q: 'OKC Thunder makes the 2026 NBA Finals',              pct: 58, d: +11, vol: '₱4.0M' },
+    { cat: 'World Cup', q: 'Argentina defend their World Cup title in 2026',     pct: 31, d: +2,  vol: '₱6.1M' },
+    { cat: 'NBA',       q: 'OKC Thunder reach the 2026 NBA Finals',              pct: 64, d: +5,  vol: '₱4.0M' },
+    { cat: 'PBA',       q: 'Ginebra wins the 2026 PBA Commissioner’s Cup',       pct: 41, d: -3,  vol: '₱2.8M' },
+    { cat: 'NBA',       q: 'Wembanyama outscores SGA in the West Finals series', pct: 38, d: +4,  vol: '₱1.9M' },
+    { cat: 'Boxing',    q: 'Manny Pacquiao announces a return bout in 2026',     pct: 17, d: +1,  vol: '₱2.7M' },
+    { cat: 'F1',        q: "Max Verstappen wins the 2026 Drivers' Championship", pct: 41, d: -6,  vol: '₱783K' },
   ],
   showbiz: [
-    { cat: 'GMA',     q: 'Marian Rivera returns to a primetime teleserye',    pct: 44, d: +9, vol: '₱1.1M' },
-    { cat: 'ABS-CBN', q: "It's Showtime hits 22 years on the air",            pct: 96, d: 0,  vol: '₱402K' },
-    { cat: 'MMFF',    q: "Vice Ganda's MMFF entry crosses ₱500M gross",       pct: 38, d: -4, vol: '₱870K' },
-    { cat: 'Music',   q: 'SB19 wins Best Asian Act at MTV EMAs 2026',         pct: 51, d: +7, vol: '₱643K' },
-    { cat: 'News',    q: 'ABS-CBN franchise renewed by Congress in 2026',     pct: 44, d: +9, vol: '₱1.4M' },
-    { cat: 'Awards',  q: 'Dolly de Leon nominated for an Oscar in 2027',      pct: 19, d: -3, vol: '₱511K' },
+    { cat: 'Pageant', q: 'Bea Millan-Windorski places top-5 at Miss Universe 2026', pct: 48, d: +7,  vol: '₱1.3M' },
+    { cat: 'Music',   q: 'BINI sells out the SM MOA Arena on June 20',             pct: 88, d: +3,  vol: '₱1.2M' },
+    { cat: 'Movies',  q: 'Toy Story 5 tops ₱150M on its PH opening weekend',       pct: 55, d: +4,  vol: '₱612K' },
+    { cat: 'Movies',  q: 'Spider-Man: Brand New Day is the biggest PH opening of 2026', pct: 63, d: +9, vol: '₱934K' },
+    { cat: 'Music',   q: 'SB19 performs at Lollapalooza 2026',                     pct: 92, d: +1,  vol: '₱508K' },
+    { cat: 'Awards',  q: 'Dolly de Leon lands another Hollywood lead in 2026',     pct: 34, d: -2,  vol: '₱421K' },
   ],
   crypto: [
     { cat: 'BTC',  q: 'Bitcoin > ₱4M by close of Q3 2026',            pct: 71, d: +6, vol: '₱5.4M' },
@@ -78,11 +78,11 @@ const MARKETS: Record<CategoryKey, MarketRow[]> = {
     { cat: 'Korea', q: 'BTS reunion world tour announced before 2027',        pct: 56, d: +5,  vol: '₱2.4M' },
   ],
   popcult: [
-    { cat: 'K-pop', q: 'BLACKPINK Manila concert announced in 2026',     pct: 88, d: +3, vol: '₱1.2M' },
-    { cat: 'Movie', q: 'Avatar 3 grosses ₱1B+ in PH theaters',           pct: 42, d: -5, vol: '₱587K' },
+    { cat: 'Music', q: 'BINI sells out the SM MOA Arena on June 20',      pct: 88, d: +3, vol: '₱1.2M' },
+    { cat: 'Movie', q: 'Toy Story 5 tops ₱150M on its PH opening weekend', pct: 55, d: +4, vol: '₱612K' },
     { cat: 'Viral', q: 'A Filipino creator hits 50M YouTube subscribers', pct: 36, d: +7, vol: '₱221K' },
     { cat: 'Game',  q: 'GTA VI launches before end of 2026',              pct: 81, d: +4, vol: '₱1.9M' },
-    { cat: 'Meme',  q: "'Hugot' returns as TikTok trend in Q3 2026",       pct: 27, d: -2, vol: '₱98K'  },
+    { cat: 'Music', q: 'SB19 performs at Lollapalooza 2026',              pct: 92, d: +1, vol: '₱508K' },
     { cat: 'Award', q: 'A Filipino wins the Magsaysay this year',         pct: 51, d: +1, vol: '₱312K' },
   ],
 }
@@ -191,10 +191,10 @@ function FeaturedCard() {
   return (
     <div className="featured">
       <div className="featured-head">
-        <span className="featured-tag">Featured · Sports</span>
+        <span className="featured-tag">Featured · World Cup 2026</span>
         <span className="featured-vol">VOL ₱4.21M</span>
       </div>
-      <h3 className="featured-q">Will Gilas Pilipinas qualify for the FIBA World Cup 2027?</h3>
+      <h3 className="featured-q">Will Argentina defend their World Cup title in 2026?</h3>
       <div className="featured-bar">
         <i className="yes" style={{ width: yes + '%' }} />
         <i className="no" style={{ width: no + '%' }} />
