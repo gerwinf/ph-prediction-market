@@ -1281,13 +1281,13 @@ button:focus {
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
- * /bingo — masa-tier live-event bingo prototype
+ * /hits — masa-tier live-event hits prototype
  *
  * Scoped under .hula-v2 to inherit the cream + forest + mango design system
  * (matches landing + /picks). "Colorful" comes from the mango accent on hit
  * cells + win animations — not from a separate palette.
  * ────────────────────────────────────────────────────────────────────────── */
-.hula-v2 .bingo-shell {
+.hula-v2 .hits-shell {
   max-width: 520px;
   margin: 0 auto;
   padding: 18px 24px 80px;
@@ -1295,11 +1295,11 @@ button:focus {
 }
 
 /* ── Header ───────────────────────────────────────────────────────────── */
-.hula-v2 .bingo-header {
+.hula-v2 .hits-header {
   display: flex; align-items: center; justify-content: space-between;
   padding: 4px 0 22px;
 }
-.hula-v2 .bingo-brand {
+.hula-v2 .hits-brand {
   font-family: var(--ff-display);
   font-size: 26px;
   font-weight: 500;
@@ -1307,11 +1307,11 @@ button:focus {
   color: var(--ink);
   line-height: 1;
 }
-.hula-v2 .bingo-brand em {
+.hula-v2 .hits-brand em {
   font-style: italic;
   color: var(--accent);
 }
-.hula-v2 .bingo-eyebrow {
+.hula-v2 .hits-eyebrow {
   display: inline-flex; align-items: center; gap: 8px;
   font-family: var(--ff-mono);
   font-size: 10px;
@@ -1320,12 +1320,12 @@ button:focus {
   letter-spacing: 0.14em;
   color: var(--ink-3);
 }
-.hula-v2 .bingo-eyebrow::before {
+.hula-v2 .hits-eyebrow::before {
   content: ""; width: 5px; height: 5px; border-radius: 50%;
   background: var(--accent);
   box-shadow: 0 0 0 3px rgba(232,122,30,.22);
 }
-.hula-v2 .bingo-back {
+.hula-v2 .hits-back {
   font-family: var(--ff-mono);
   font-size: 11px;
   font-weight: 500;
@@ -1340,17 +1340,17 @@ button:focus {
   display: inline-flex;
   align-items: center;
 }
-.hula-v2 .bingo-back:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
+.hula-v2 .hits-back:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
 
 /* ── Match preview card ───────────────────────────────────────────────── */
-.hula-v2 .bingo-match {
+.hula-v2 .hits-match {
   background: var(--paper);
   border: 1px solid var(--line);
   border-radius: 18px;
   padding: 20px 20px 18px;
   box-shadow: 0 1px 0 rgba(0,0,0,0.02), 0 24px 48px -28px rgba(21,22,25,.18);
 }
-.hula-v2 .bingo-match-league {
+.hula-v2 .hits-match-league {
   font-family: var(--ff-mono);
   font-size: 10px;
   letter-spacing: 0.14em;
@@ -1359,33 +1359,33 @@ button:focus {
   margin-bottom: 14px;
   display: inline-flex; align-items: center; gap: 8px;
 }
-.hula-v2 .bingo-match-league::before {
+.hula-v2 .hits-match-league::before {
   content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
 }
-.hula-v2 .bingo-match-teams {
+.hula-v2 .hits-match-teams {
   display: flex; align-items: center; gap: 14px;
   margin-bottom: 14px;
 }
-.hula-v2 .bingo-team {
+.hula-v2 .hits-team {
   flex: 1; min-width: 0;
   display: flex; flex-direction: column; gap: 6px;
 }
-.hula-v2 .bingo-team-stripe { height: 3px; border-radius: 2px; }
-.hula-v2 .bingo-team-name {
+.hula-v2 .hits-team-stripe { height: 3px; border-radius: 2px; }
+.hula-v2 .hits-team-name {
   font-family: var(--ff-sans);
   font-size: 15px;
   font-weight: 600;
   letter-spacing: -0.015em;
   color: var(--ink);
 }
-.hula-v2 .bingo-vs {
+.hula-v2 .hits-vs {
   font-family: var(--ff-display);
   font-size: 22px;
   font-style: italic;
   color: var(--ink-3);
   letter-spacing: -0.02em;
 }
-.hula-v2 .bingo-match-when {
+.hula-v2 .hits-match-when {
   font-family: var(--ff-mono);
   font-size: 11px;
   letter-spacing: 0.04em;
@@ -1395,7 +1395,7 @@ button:focus {
 }
 
 /* ── Purchase block ───────────────────────────────────────────────────── */
-.hula-v2 .bingo-purchase {
+.hula-v2 .hits-purchase {
   margin-top: 18px;
   background: var(--paper);
   border: 1px solid var(--line);
@@ -1403,7 +1403,7 @@ button:focus {
   padding: 22px 20px 18px;
   box-shadow: 0 1px 0 rgba(0,0,0,0.02), 0 24px 48px -28px rgba(21,22,25,.18);
 }
-.hula-v2 .bingo-purchase-h {
+.hula-v2 .hits-purchase-h {
   font-family: var(--ff-sans);
   font-size: clamp(26px, 6vw, 32px);
   font-weight: 600;
@@ -1413,25 +1413,25 @@ button:focus {
   margin-bottom: 10px;
   text-wrap: balance;
 }
-.hula-v2 .bingo-purchase-h em {
+.hula-v2 .hits-purchase-h em {
   font-family: var(--ff-display);
   font-style: italic;
   font-weight: 500;
   color: var(--accent);
 }
-.hula-v2 .bingo-purchase-sub {
+.hula-v2 .hits-purchase-sub {
   font-size: 14px;
   line-height: 1.45;
   color: var(--ink-2);
   margin-bottom: 18px;
 }
-.hula-v2 .bingo-price-row {
+.hula-v2 .hits-price-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
   margin-bottom: 12px;
 }
-.hula-v2 .bingo-price-btn {
+.hula-v2 .hits-price-btn {
   height: 64px;
   border: 1px solid var(--line-2);
   background: var(--bg);
@@ -1442,19 +1442,19 @@ button:focus {
   cursor: pointer;
   transition: all 0.12s ease;
 }
-.hula-v2 .bingo-price-btn:hover { border-color: var(--ink); }
-.hula-v2 .bingo-price-btn[data-selected='true'] {
+.hula-v2 .hits-price-btn:hover { border-color: var(--ink); }
+.hula-v2 .hits-price-btn[data-selected='true'] {
   background: var(--ink);
   border-color: var(--ink);
   color: #fff;
 }
-.hula-v2 .bingo-price-amt {
+.hula-v2 .hits-price-amt {
   font-family: var(--ff-mono);
   font-size: 22px;
   font-weight: 600;
   letter-spacing: -0.01em;
 }
-.hula-v2 .bingo-price-sub {
+.hula-v2 .hits-price-sub {
   font-family: var(--ff-mono);
   font-size: 10px;
   font-weight: 500;
@@ -1462,9 +1462,9 @@ button:focus {
   letter-spacing: 0.08em;
   color: var(--ink-3);
 }
-.hula-v2 .bingo-price-btn[data-selected='true'] .bingo-price-sub { color: rgba(255,255,255,0.7); }
+.hula-v2 .hits-price-btn[data-selected='true'] .hits-price-sub { color: rgba(255,255,255,0.7); }
 
-.hula-v2 .bingo-buy-btn {
+.hula-v2 .hits-buy-btn {
   width: 100%;
   height: 56px;
   border-radius: 999px;
@@ -1478,14 +1478,14 @@ button:focus {
   cursor: pointer;
   transition: filter 0.12s ease, transform 0.08s ease;
 }
-.hula-v2 .bingo-buy-btn:hover { filter: brightness(0.93); }
-.hula-v2 .bingo-buy-btn:active { transform: translateY(1px); }
-.hula-v2 .bingo-buy-btn[data-disabled='true'] {
+.hula-v2 .hits-buy-btn:hover { filter: brightness(0.93); }
+.hula-v2 .hits-buy-btn:active { transform: translateY(1px); }
+.hula-v2 .hits-buy-btn[data-disabled='true'] {
   background: var(--bg-2);
   color: var(--ink-3);
   cursor: not-allowed;
 }
-.hula-v2 .bingo-buy-meta {
+.hula-v2 .hits-buy-meta {
   font-family: var(--ff-mono);
   font-size: 10px;
   letter-spacing: 0.06em;
@@ -1496,10 +1496,10 @@ button:focus {
 }
 
 /* ── Payouts table (informational, NOT interactive) ──────────────────── */
-.hula-v2 .bingo-payouts {
+.hula-v2 .hits-payouts {
   margin-top: 18px;
 }
-.hula-v2 .bingo-payouts-eyebrow {
+.hula-v2 .hits-payouts-eyebrow {
   font-family: var(--ff-mono);
   font-size: 10px;
   letter-spacing: 0.14em;
@@ -1508,24 +1508,24 @@ button:focus {
   margin-bottom: 8px;
   padding: 0 4px;
 }
-.hula-v2 .bingo-payouts-list {
+.hula-v2 .hits-payouts-list {
   display: flex; flex-direction: column;
   border-top: 1px solid var(--line);
 }
-.hula-v2 .bingo-payout-row {
+.hula-v2 .hits-payout-row {
   display: flex; align-items: baseline; justify-content: space-between;
   padding: 9px 4px;
   border-bottom: 1px solid var(--line);
 }
-.hula-v2 .bingo-payout-row.gold .bingo-payout-mult { color: var(--accent); }
-.hula-v2 .bingo-payout-label {
+.hula-v2 .hits-payout-row.gold .hits-payout-mult { color: var(--accent); }
+.hula-v2 .hits-payout-label {
   font-family: var(--ff-mono);
   font-size: 11px;
   color: var(--ink-2);
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
-.hula-v2 .bingo-payout-mult {
+.hula-v2 .hits-payout-mult {
   font-family: var(--ff-mono);
   font-size: 13.5px;
   font-weight: 600;
@@ -1534,7 +1534,7 @@ button:focus {
 }
 
 /* ── Limit chip (header) ──────────────────────────────────────────────── */
-.hula-v2 .bingo-limit-chip {
+.hula-v2 .hits-limit-chip {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 6px 11px;
   border-radius: 999px;
@@ -1545,10 +1545,10 @@ button:focus {
   font-weight: 500;
   letter-spacing: 0.06em;
 }
-.hula-v2 .bingo-limit-chip-dot { width: 5px; height: 5px; border-radius: 999px; background: var(--accent); }
+.hula-v2 .hits-limit-chip-dot { width: 5px; height: 5px; border-radius: 999px; background: var(--accent); }
 
 /* ── Live ticker (active card page) ───────────────────────────────────── */
-.hula-v2 .bingo-ticker {
+.hula-v2 .hits-ticker {
   display: flex; align-items: center; gap: 12px;
   background: var(--ink);
   border-radius: 14px;
@@ -1561,7 +1561,7 @@ button:focus {
   z-index: 10;
   box-shadow: 0 12px 28px -16px rgba(15, 36, 25, 0.45);
 }
-.hula-v2 .bingo-ticker-clock {
+.hula-v2 .hits-ticker-clock {
   font-family: var(--ff-mono);
   font-size: 11px;
   letter-spacing: 0.06em;
@@ -1572,14 +1572,14 @@ button:focus {
   font-weight: 500;
   flex-shrink: 0;
 }
-.hula-v2 .bingo-ticker-event {
+.hula-v2 .hits-ticker-event {
   flex: 1; min-width: 0;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   font-family: var(--ff-sans);
   font-size: 13.5px;
   letter-spacing: -0.005em;
 }
-.hula-v2 .bingo-ticker-score {
+.hula-v2 .hits-ticker-score {
   font-family: var(--ff-mono);
   font-size: 11px;
   color: #c8c2b3;
@@ -1587,8 +1587,8 @@ button:focus {
   flex-shrink: 0;
 }
 
-/* ── Bingo card grid ──────────────────────────────────────────────────── */
-.hula-v2 .bingo-card {
+/* ── Hits card grid ──────────────────────────────────────────────────── */
+.hula-v2 .hits-card {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 6px;
@@ -1598,7 +1598,7 @@ button:focus {
   border-radius: 18px;
   box-shadow: 0 1px 0 rgba(0,0,0,0.02), 0 24px 48px -28px rgba(21,22,25,.18);
 }
-.hula-v2 .bingo-cell {
+.hula-v2 .hits-cell {
   aspect-ratio: 1 / 1;
   background: var(--bg);
   border: 1px solid var(--line-2);
@@ -1616,7 +1616,7 @@ button:focus {
   overflow: hidden;
   transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.hula-v2 .bingo-cell[data-state='hit'] {
+.hula-v2 .hits-cell[data-state='hit'] {
   background: var(--accent);
   border-color: var(--accent);
   color: #fff;
@@ -1624,7 +1624,7 @@ button:focus {
   transform: scale(1.02);
   box-shadow: 0 6px 18px -4px rgba(232, 122, 30, 0.45);
 }
-.hula-v2 .bingo-cell[data-state='free'] {
+.hula-v2 .hits-cell[data-state='free'] {
   background: var(--ink);
   border-color: var(--ink);
   color: #fff;
@@ -1634,24 +1634,24 @@ button:focus {
   font-weight: 500;
   letter-spacing: -0.02em;
 }
-.hula-v2 .bingo-cell[data-just-hit='true'] {
-  animation: bingo-pop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+.hula-v2 .hits-cell[data-just-hit='true'] {
+  animation: hits-pop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-@keyframes bingo-pop {
+@keyframes hits-pop {
   0%   { transform: scale(1); }
   40%  { transform: scale(1.18) rotate(-3deg); box-shadow: 0 0 32px rgba(232, 122, 30, 0.8); }
   100% { transform: scale(1.02) rotate(0); }
 }
-.hula-v2 .bingo-cell[data-pattern-flash='true'] {
-  animation: bingo-flash 0.9s ease-in-out;
+.hula-v2 .hits-cell[data-pattern-flash='true'] {
+  animation: hits-flash 0.9s ease-in-out;
 }
-@keyframes bingo-flash {
+@keyframes hits-flash {
   0%, 100% { filter: brightness(1); }
   50%      { filter: brightness(1.18) saturate(1.25); transform: scale(1.06); }
 }
 
 /* ── Win modal ───────────────────────────────────────────────────────── */
-.hula-v2 .bingo-win-backdrop {
+.hula-v2 .hits-win-backdrop {
   position: fixed; inset: 0;
   background: rgba(15, 36, 25, 0.5);
   backdrop-filter: saturate(140%) blur(8px);
@@ -1661,7 +1661,7 @@ button:focus {
   padding: 24px;
   animation: fadeIn 0.18s ease-out;
 }
-.hula-v2 .bingo-win-card {
+.hula-v2 .hits-win-card {
   background: var(--paper);
   border: 1px solid var(--line);
   border-radius: 20px;
@@ -1672,7 +1672,7 @@ button:focus {
   position: relative;
   box-shadow: 0 1px 0 rgba(0,0,0,0.02), 0 36px 64px -24px rgba(15,36,25,.3);
 }
-.hula-v2 .bingo-win-badge {
+.hula-v2 .hits-win-badge {
   display: inline-flex; align-items: center; gap: 6px;
   font-family: var(--ff-mono);
   font-size: 10px;
@@ -1682,10 +1682,10 @@ button:focus {
   margin-bottom: 14px;
   font-weight: 500;
 }
-.hula-v2 .bingo-win-badge::before {
+.hula-v2 .hits-win-badge::before {
   content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--accent);
 }
-.hula-v2 .bingo-win-h {
+.hula-v2 .hits-win-h {
   font-family: var(--ff-sans);
   font-size: 40px;
   font-weight: 600;
@@ -1694,13 +1694,13 @@ button:focus {
   color: var(--ink);
   margin-bottom: 6px;
 }
-.hula-v2 .bingo-win-h em {
+.hula-v2 .hits-win-h em {
   font-family: var(--ff-display);
   font-style: italic;
   font-weight: 500;
   color: var(--accent);
 }
-.hula-v2 .bingo-win-pattern {
+.hula-v2 .hits-win-pattern {
   font-family: var(--ff-mono);
   font-size: 11px;
   letter-spacing: 0.08em;
@@ -1708,7 +1708,7 @@ button:focus {
   color: var(--ink-3);
   margin-bottom: 22px;
 }
-.hula-v2 .bingo-win-payout {
+.hula-v2 .hits-win-payout {
   background: var(--bg);
   border: 1px solid var(--line);
   border-radius: 12px;
@@ -1716,21 +1716,21 @@ button:focus {
   display: flex; flex-direction: column; align-items: center; gap: 2px;
   margin-bottom: 18px;
 }
-.hula-v2 .bingo-win-payout-amt {
+.hula-v2 .hits-win-payout-amt {
   font-family: var(--ff-mono);
   font-size: 32px;
   font-weight: 600;
   color: var(--ink);
   letter-spacing: -0.02em;
 }
-.hula-v2 .bingo-win-payout-mult {
+.hula-v2 .hits-win-payout-mult {
   font-family: var(--ff-mono);
   font-size: 10px;
   color: var(--ink-3);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-.hula-v2 .bingo-win-close {
+.hula-v2 .hits-win-close {
   background: var(--ink);
   color: #fff;
   border: 0;
@@ -1744,10 +1744,10 @@ button:focus {
   cursor: pointer;
   transition: filter 0.12s ease;
 }
-.hula-v2 .bingo-win-close:hover { filter: brightness(1.15); }
+.hula-v2 .hits-win-close:hover { filter: brightness(1.15); }
 
 /* ── Bet-limit modal (responsibility) ─────────────────────────────────── */
-.hula-v2 .bingo-limit-modal {
+.hula-v2 .hits-limit-modal {
   position: fixed; inset: 0;
   background: rgba(15, 36, 25, 0.55);
   backdrop-filter: saturate(140%) blur(8px);
@@ -1757,7 +1757,7 @@ button:focus {
   padding: 0;
   animation: fadeIn 0.18s ease-out;
 }
-.hula-v2 .bingo-limit-card {
+.hula-v2 .hits-limit-card {
   background: var(--paper);
   border-radius: 20px 20px 0 0;
   padding: 26px 24px 28px;
@@ -1768,7 +1768,7 @@ button:focus {
   border-top: 3px solid var(--accent);
   animation: slideUp 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.hula-v2 .bingo-limit-h {
+.hula-v2 .hits-limit-h {
   font-family: var(--ff-sans);
   font-size: 26px;
   font-weight: 600;
@@ -1778,20 +1778,20 @@ button:focus {
   margin-bottom: 8px;
   text-wrap: balance;
 }
-.hula-v2 .bingo-limit-h em {
+.hula-v2 .hits-limit-h em {
   font-family: var(--ff-display);
   font-style: italic;
   font-weight: 500;
   color: var(--accent);
 }
-.hula-v2 .bingo-limit-sub {
+.hula-v2 .hits-limit-sub {
   font-size: 14px;
   line-height: 1.45;
   color: var(--ink-2);
   margin-bottom: 20px;
 }
-.hula-v2 .bingo-limit-opts { display: grid; gap: 8px; margin-bottom: 10px; }
-.hula-v2 .bingo-limit-opt {
+.hula-v2 .hits-limit-opts { display: grid; gap: 8px; margin-bottom: 10px; }
+.hula-v2 .hits-limit-opt {
   border: 1px solid var(--line-2);
   background: var(--bg);
   border-radius: 12px;
@@ -1805,14 +1805,14 @@ button:focus {
   cursor: pointer;
   transition: all 0.12s ease;
 }
-.hula-v2 .bingo-limit-opt:hover { border-color: var(--ink); }
-.hula-v2 .bingo-limit-opt-amt { font-family: var(--ff-mono); letter-spacing: -0.005em; }
-.hula-v2 .bingo-limit-opt-rec {
+.hula-v2 .hits-limit-opt:hover { border-color: var(--ink); }
+.hula-v2 .hits-limit-opt-amt { font-family: var(--ff-mono); letter-spacing: -0.005em; }
+.hula-v2 .hits-limit-opt-rec {
   background: var(--ink);
   color: #fff;
   border-color: var(--ink);
 }
-.hula-v2 .bingo-limit-opt-rec::after {
+.hula-v2 .hits-limit-opt-rec::after {
   content: 'Safe';
   font-family: var(--ff-mono);
   font-size: 9px;
@@ -1824,7 +1824,7 @@ button:focus {
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-.hula-v2 .bingo-limit-skip {
+.hula-v2 .hits-limit-skip {
   background: transparent;
   border: 0;
   font-family: var(--ff-mono);
@@ -1836,10 +1836,10 @@ button:focus {
   width: 100%;
   cursor: pointer;
 }
-.hula-v2 .bingo-limit-skip:hover { color: var(--ink); }
+.hula-v2 .hits-limit-skip:hover { color: var(--ink); }
 
 /* ── Card meta strip (active card page) ───────────────────────────────── */
-.hula-v2 .bingo-card-meta {
+.hula-v2 .hits-card-meta {
   display: flex; align-items: center; justify-content: space-between;
   gap: 12px;
   background: var(--paper);
@@ -1848,39 +1848,39 @@ button:focus {
   padding: 12px 16px;
   margin-bottom: 12px;
 }
-.hula-v2 .bingo-card-meta-id {
+.hula-v2 .hits-card-meta-id {
   font-family: var(--ff-mono);
   font-size: 10px;
   letter-spacing: 0.12em;
   color: var(--ink-3);
   text-transform: uppercase;
 }
-.hula-v2 .bingo-card-meta-bet {
+.hula-v2 .hits-card-meta-bet {
   font-family: var(--ff-mono);
   font-size: 13px;
   font-weight: 500;
   color: var(--ink);
 }
-.hula-v2 .bingo-card-meta-payout {
+.hula-v2 .hits-card-meta-payout {
   font-family: var(--ff-mono);
   font-size: 13px;
   font-weight: 600;
   color: var(--up);
   letter-spacing: -0.005em;
 }
-.hula-v2 .bingo-card-meta-payout[data-zero='true'] {
+.hula-v2 .hits-card-meta-payout[data-zero='true'] {
   color: var(--ink-3);
   font-weight: 500;
 }
 
 /* ── Bottom CTA on active card ────────────────────────────────────────── */
-.hula-v2 .bingo-active-actions {
+.hula-v2 .hits-active-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
   margin-top: 16px;
 }
-.hula-v2 .bingo-share-btn, .hula-v2 .bingo-replay-btn {
+.hula-v2 .hits-share-btn, .hula-v2 .hits-replay-btn {
   background: transparent;
   border: 1px solid var(--line-2);
   color: var(--ink);
@@ -1893,16 +1893,16 @@ button:focus {
   cursor: pointer;
   transition: all 0.12s ease;
 }
-.hula-v2 .bingo-share-btn:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
-.hula-v2 .bingo-replay-btn {
+.hula-v2 .hits-share-btn:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
+.hula-v2 .hits-replay-btn {
   background: var(--ink);
   color: #fff;
   border-color: var(--ink);
 }
-.hula-v2 .bingo-replay-btn:hover { background: var(--accent); border-color: var(--accent); }
+.hula-v2 .hits-replay-btn:hover { background: var(--accent); border-color: var(--accent); }
 
 /* ── Footer / disclaimer ──────────────────────────────────────────────── */
-.hula-v2 .bingo-foot {
+.hula-v2 .hits-foot {
   margin-top: 24px;
   text-align: center;
   font-family: var(--ff-mono);
@@ -1913,15 +1913,15 @@ button:focus {
   text-transform: uppercase;
   padding: 0 8px;
 }
-.hula-v2 .bingo-foot strong { color: var(--ink); font-weight: 500; }
+.hula-v2 .hits-foot strong { color: var(--ink); font-weight: 500; }
 
 /* ── Mobile tighten ───────────────────────────────────────────────────── */
 @media (max-width: 380px) {
-  .hula-v2 .bingo-shell { padding: 14px 18px 80px; }
-  .hula-v2 .bingo-cell { font-size: 9.5px; padding: 3px; line-height: 1.12; }
-  .hula-v2 .bingo-cell[data-state='free'] { font-size: 15px; }
-  .hula-v2 .bingo-win-h { font-size: 34px; }
-  .hula-v2 .bingo-win-payout-amt { font-size: 28px; }
-  .hula-v2 .bingo-limit-h { font-size: 22px; }
-  .hula-v2 .bingo-brand { font-size: 22px; }
+  .hula-v2 .hits-shell { padding: 14px 18px 80px; }
+  .hula-v2 .hits-cell { font-size: 9.5px; padding: 3px; line-height: 1.12; }
+  .hula-v2 .hits-cell[data-state='free'] { font-size: 15px; }
+  .hula-v2 .hits-win-h { font-size: 34px; }
+  .hula-v2 .hits-win-payout-amt { font-size: 28px; }
+  .hula-v2 .hits-limit-h { font-size: 22px; }
+  .hula-v2 .hits-brand { font-size: 22px; }
 }
