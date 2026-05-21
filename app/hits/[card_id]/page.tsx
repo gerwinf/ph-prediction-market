@@ -2,13 +2,13 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { SAMPLE_MATCH } from '../../../lib/bingo/sample-match'
-import { generateCard, isFreeCell } from '../../../lib/bingo/card-generator'
-import { bestPayout, detectWins } from '../../../lib/bingo/payouts'
-import type { WinPattern } from '../../../lib/bingo/types'
+import { SAMPLE_MATCH } from '../../../lib/hits/sample-match'
+import { generateCard, isFreeCell } from '../../../lib/hits/card-generator'
+import { bestPayout, detectWins } from '../../../lib/hits/payouts'
+import type { WinPattern } from '../../../lib/hits/types'
 
 /* ────────────────────────────────────────────────────────────────────────
- * /bingo/[card_id] — active card watching the simulated match
+ * /hits/[card_id] — active card watching the simulated match
  *
  * Timer-driven event resolution. Each timeline event has an atMs offset
  * from the moment this page mounted; matching cells light up; win patterns
@@ -21,7 +21,7 @@ type PageProps = { params: { card_id: string } }
 
 const SPEED_MULT = 1 // 1 = full 90s; bump to 3 for fast demo
 
-export default function BingoCardPage({ params }: PageProps) {
+export default function HitsCardPage({ params }: PageProps) {
   const { card_id } = params
   const router = useRouter()
   const search = useSearchParams()
@@ -100,14 +100,14 @@ export default function BingoCardPage({ params }: PageProps) {
 
   const payout = bestPayout(hitIndices, card.pricePhp)
   const shareUrl =
-    typeof window !== 'undefined' ? `${window.location.origin}/bingo/${card_id}?bet=${bet}` : ''
+    typeof window !== 'undefined' ? `${window.location.origin}/hits/${card_id}?bet=${bet}` : ''
 
   function handleShare() {
     if (typeof navigator !== 'undefined' && navigator.share) {
       navigator
         .share({
-          title: `Hula Bingo card ${card_id}`,
-          text: `Watch my Hula bingo card for ${SAMPLE_MATCH.home} vs ${SAMPLE_MATCH.away}`,
+          title: `Hula Hits card ${card_id}`,
+          text: `Watch my Hula hits card for ${SAMPLE_MATCH.home} vs ${SAMPLE_MATCH.away}`,
           url: shareUrl,
         })
         .catch(() => {})
@@ -124,37 +124,37 @@ export default function BingoCardPage({ params }: PageProps) {
 
   return (
     <main className="hula-v2">
-      <div className="bingo-shell">
-        <header className="bingo-header">
-          <div className="bingo-brand">
-            Hula <em>Bingo</em>
+      <div className="hits-shell">
+        <header className="hits-header">
+          <div className="hits-brand">
+            Hula <em>Hits</em>
           </div>
-          <button className="bingo-back" onClick={() => router.push('/bingo')}>
+          <button className="hits-back" onClick={() => router.push('/hits')}>
             ← New card
           </button>
         </header>
 
-        <section className="bingo-ticker">
-          <span className="bingo-ticker-clock">
+        <section className="hits-ticker">
+          <span className="hits-ticker-clock">
             {currentEvent ? currentEvent.clock : 'TIP-OFF'}
           </span>
-          <span className="bingo-ticker-event">
+          <span className="hits-ticker-event">
             {currentEvent ? currentEvent.desc : `${SAMPLE_MATCH.home} vs ${SAMPLE_MATCH.away}`}
           </span>
-          <span className="bingo-ticker-score">
+          <span className="hits-ticker-score">
             {hitIndices.size - 1}/24
           </span>
         </section>
 
-        <section className="bingo-card-meta">
-          <span className="bingo-card-meta-id">{card_id}</span>
-          <span className="bingo-card-meta-bet">₱{card.pricePhp} bet</span>
-          <span className="bingo-card-meta-payout" data-zero={payout.payoutPhp === 0}>
+        <section className="hits-card-meta">
+          <span className="hits-card-meta-id">{card_id}</span>
+          <span className="hits-card-meta-bet">₱{card.pricePhp} bet</span>
+          <span className="hits-card-meta-payout" data-zero={payout.payoutPhp === 0}>
             {payout.payoutPhp > 0 ? `+₱${payout.payoutPhp.toLocaleString()}` : '—'}
           </span>
         </section>
 
-        <section className="bingo-card">
+        <section className="hits-card">
           {card.cells.map((cell, idx) => {
             const isHit = hitIndices.has(idx)
             const isFree = isFreeCell(idx)
@@ -162,7 +162,7 @@ export default function BingoCardPage({ params }: PageProps) {
             return (
               <div
                 key={idx}
-                className="bingo-cell"
+                className="hits-cell"
                 data-state={state}
                 data-just-hit={justHitIdx === idx}
                 data-pattern-flash={flashPattern.has(idx)}
@@ -173,46 +173,46 @@ export default function BingoCardPage({ params }: PageProps) {
           })}
         </section>
 
-        <section className="bingo-active-actions">
-          <button className="bingo-share-btn" onClick={handleShare}>
+        <section className="hits-active-actions">
+          <button className="hits-share-btn" onClick={handleShare}>
             Share card
           </button>
-          <button className="bingo-replay-btn" onClick={handleReplay}>
+          <button className="hits-replay-btn" onClick={handleReplay}>
             {done ? 'Buy another →' : 'Ulit'}
           </button>
         </section>
 
-        <p className="bingo-foot">
-          Demo. <strong>Real bingo follows a real game.</strong>
+        <p className="hits-foot">
+          Demo. <strong>Real hits follows a real game.</strong>
         </p>
       </div>
 
       {winShown && (
         <div
-          className="bingo-win-backdrop"
+          className="hits-win-backdrop"
           onClick={(e) => e.target === e.currentTarget && setWinShown(null)}
         >
-          <div className="bingo-win-card">
-            <span className="bingo-win-badge">
+          <div className="hits-win-card">
+            <span className="hits-win-badge">
               {winShown.kind === 'full' ? 'Jackpot!' : 'Panalo ka!'}
             </span>
-            <h2 className="bingo-win-h">
+            <h2 className="hits-win-h">
               {winShown.kind === 'full' ? (
                 <><em>Full card.</em></>
               ) : (
                 <>{winShown.label}<em>.</em></>
               )}
             </h2>
-            <div className="bingo-win-pattern">
+            <div className="hits-win-pattern">
               {winShown.multiplier}× your bet
             </div>
-            <div className="bingo-win-payout">
-              <span className="bingo-win-payout-amt">
+            <div className="hits-win-payout">
+              <span className="hits-win-payout-amt">
                 ₱{(card.pricePhp * winShown.multiplier).toLocaleString()}
               </span>
-              <span className="bingo-win-payout-mult">you win</span>
+              <span className="hits-win-payout-mult">you win</span>
             </div>
-            <button className="bingo-win-close" onClick={() => setWinShown(null)}>
+            <button className="hits-win-close" onClick={() => setWinShown(null)}>
               Tuloy laro
             </button>
           </div>

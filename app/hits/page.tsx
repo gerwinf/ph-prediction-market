@@ -2,24 +2,24 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { SAMPLE_MATCH } from '../../lib/bingo/sample-match'
-import { newCardId } from '../../lib/bingo/card-generator'
-import { MULTIPLIERS } from '../../lib/bingo/payouts'
+import { SAMPLE_MATCH } from '../../lib/hits/sample-match'
+import { newCardId } from '../../lib/hits/card-generator'
+import { MULTIPLIERS } from '../../lib/hits/payouts'
 
 /* ────────────────────────────────────────────────────────────────────────
- * /bingo — masa-tier live-event bingo entry page
+ * /hits — masa-tier live-event hits entry page
  *
- * One-tap purchase flow. ₱20 or ₱50 card → routes to /bingo/[card_id].
+ * One-tap purchase flow. ₱20 or ₱50 card → routes to /hits/[card_id].
  * No payment yet — purchase is fake. Tracks session spend in localStorage
  * so the responsible-bet-limit UX can fire after card #3.
  * Not linked from / — share URL manually for masa validation tests only.
  * ──────────────────────────────────────────────────────────────────────── */
 
 const STORAGE = {
-  day: 'hula-bingo-day',
-  spend: 'hula-bingo-session-spend',
-  cards: 'hula-bingo-session-cards',
-  limit: 'hula-bingo-daily-limit',
+  day: 'hula-hits-day',
+  spend: 'hula-hits-session-spend',
+  cards: 'hula-hits-session-cards',
+  limit: 'hula-hits-daily-limit',
 }
 
 function todayISO() {
@@ -52,7 +52,7 @@ function writeSession(s: { spend: number; cards: number; limit: number }) {
   if (s.limit > 0) localStorage.setItem(STORAGE.limit, String(s.limit))
 }
 
-export default function BingoEntry() {
+export default function HitsEntry() {
   const router = useRouter()
   const [price, setPrice] = useState<20 | 50>(20)
   const [session, setSession] = useState({ spend: 0, cards: 0, limit: 0 })
@@ -86,7 +86,7 @@ export default function BingoEntry() {
       limit: session.limit,
     }
     writeSession(newSession)
-    router.push(`/bingo/${cardId}?bet=${price}`)
+    router.push(`/hits/${cardId}?bet=${price}`)
   }
 
   function setLimit(amount: number) {
@@ -106,127 +106,127 @@ export default function BingoEntry() {
 
   return (
     <main className="hula-v2">
-      <div className="bingo-shell">
-        <header className="bingo-header">
-          <div className="bingo-brand">
-            Hula <em>Bingo</em>
+      <div className="hits-shell">
+        <header className="hits-header">
+          <div className="hits-brand">
+            Hula <em>Hits</em>
           </div>
           {mounted && session.limit > 0 ? (
-            <span className="bingo-limit-chip">
-              <span className="bingo-limit-chip-dot" />
+            <span className="hits-limit-chip">
+              <span className="hits-limit-chip-dot" />
               ₱{session.spend}/₱{session.limit} today
             </span>
           ) : (
-            <span className="bingo-eyebrow">Demo</span>
+            <span className="hits-eyebrow">Demo</span>
           )}
         </header>
 
-        <section className="bingo-match">
-          <div className="bingo-match-league">{SAMPLE_MATCH.league}</div>
-          <div className="bingo-match-teams">
-            <div className="bingo-team">
-              <div className="bingo-team-stripe" style={{ background: SAMPLE_MATCH.homeColor }} />
-              <div className="bingo-team-name">{SAMPLE_MATCH.home}</div>
+        <section className="hits-match">
+          <div className="hits-match-league">{SAMPLE_MATCH.league}</div>
+          <div className="hits-match-teams">
+            <div className="hits-team">
+              <div className="hits-team-stripe" style={{ background: SAMPLE_MATCH.homeColor }} />
+              <div className="hits-team-name">{SAMPLE_MATCH.home}</div>
             </div>
-            <div className="bingo-vs">vs</div>
-            <div className="bingo-team">
-              <div className="bingo-team-stripe" style={{ background: SAMPLE_MATCH.awayColor }} />
-              <div className="bingo-team-name">{SAMPLE_MATCH.away}</div>
+            <div className="hits-vs">vs</div>
+            <div className="hits-team">
+              <div className="hits-team-stripe" style={{ background: SAMPLE_MATCH.awayColor }} />
+              <div className="hits-team-name">{SAMPLE_MATCH.away}</div>
             </div>
           </div>
-          <div className="bingo-match-when">{SAMPLE_MATCH.tipoff}</div>
+          <div className="hits-match-when">{SAMPLE_MATCH.tipoff}</div>
         </section>
 
-        <section className="bingo-purchase">
-          <h1 className="bingo-purchase-h">
+        <section className="hits-purchase">
+          <h1 className="hits-purchase-h">
             Bili ng card.<br />Panóorin ang laro.<br /><em>Manalo ng pera.</em>
           </h1>
-          <p className="bingo-purchase-sub">
+          <p className="hits-purchase-sub">
             Every box is something that can happen in the game. Get 5 in a row and win.
             Fill the whole card and win big.
           </p>
 
-          <div className="bingo-price-row">
+          <div className="hits-price-row">
             <button
-              className="bingo-price-btn"
+              className="hits-price-btn"
               data-selected={price === 20}
               onClick={() => setPrice(20)}
             >
-              <span className="bingo-price-amt">₱20</span>
-              <span className="bingo-price-sub">card</span>
+              <span className="hits-price-amt">₱20</span>
+              <span className="hits-price-sub">card</span>
             </button>
             <button
-              className="bingo-price-btn"
+              className="hits-price-btn"
               data-selected={price === 50}
               onClick={() => setPrice(50)}
             >
-              <span className="bingo-price-amt">₱50</span>
-              <span className="bingo-price-sub">Bigger wins</span>
+              <span className="hits-price-amt">₱50</span>
+              <span className="hits-price-sub">Bigger wins</span>
             </button>
           </div>
 
           {wouldExceedLimit ? (
-            <button className="bingo-buy-btn" data-disabled="true" disabled>
+            <button className="hits-buy-btn" data-disabled="true" disabled>
               Tigil muna · balik bukas
             </button>
           ) : (
-            <button className="bingo-buy-btn" onClick={handleBuy}>
+            <button className="hits-buy-btn" onClick={handleBuy}>
               Bumili ng ₱{price} card →
             </button>
           )}
 
-          <div className="bingo-buy-meta">
+          <div className="hits-buy-meta">
             Demo only · no real money yet
           </div>
         </section>
 
-        <section className="bingo-payouts">
-          <div className="bingo-payouts-eyebrow">What you can win on a ₱{price} card</div>
-          <div className="bingo-payouts-list">
-            <div className="bingo-payout-row">
-              <span className="bingo-payout-label">5 in a row</span>
-              <span className="bingo-payout-mult">₱{(price * MULTIPLIERS.row).toLocaleString()}</span>
+        <section className="hits-payouts">
+          <div className="hits-payouts-eyebrow">What you can win on a ₱{price} card</div>
+          <div className="hits-payouts-list">
+            <div className="hits-payout-row">
+              <span className="hits-payout-label">5 in a row</span>
+              <span className="hits-payout-mult">₱{(price * MULTIPLIERS.row).toLocaleString()}</span>
             </div>
-            <div className="bingo-payout-row">
-              <span className="bingo-payout-label">Corner to corner</span>
-              <span className="bingo-payout-mult">₱{(price * MULTIPLIERS.diag).toLocaleString()}</span>
+            <div className="hits-payout-row">
+              <span className="hits-payout-label">Corner to corner</span>
+              <span className="hits-payout-mult">₱{(price * MULTIPLIERS.diag).toLocaleString()}</span>
             </div>
-            <div className="bingo-payout-row gold">
-              <span className="bingo-payout-label">All boxes (jackpot)</span>
-              <span className="bingo-payout-mult">₱{(price * MULTIPLIERS.full).toLocaleString()}</span>
+            <div className="hits-payout-row gold">
+              <span className="hits-payout-label">All boxes (jackpot)</span>
+              <span className="hits-payout-mult">₱{(price * MULTIPLIERS.full).toLocaleString()}</span>
             </div>
           </div>
         </section>
 
-        <p className="bingo-foot">
+        <p className="hits-foot">
           21+ only · <strong>Play smart</strong> · Need help? Call 8521-1542
         </p>
       </div>
 
       {showLimitModal && (
-        <div className="bingo-limit-modal" onClick={(e) => e.target === e.currentTarget && skipLimit()}>
-          <div className="bingo-limit-card">
-            <h2 className="bingo-limit-h">
+        <div className="hits-limit-modal" onClick={(e) => e.target === e.currentTarget && skipLimit()}>
+          <div className="hits-limit-card">
+            <h2 className="hits-limit-h">
               Gumastos ka na ng ₱{session.spend} today. <em>Magtigil kailan?</em>
             </h2>
-            <p className="bingo-limit-sub">
+            <p className="hits-limit-sub">
               Pick your stop. We&apos;ll block the buy button when you hit it. Resets tomorrow.
             </p>
-            <div className="bingo-limit-opts">
-              <button className="bingo-limit-opt" onClick={() => setLimit(100)}>
+            <div className="hits-limit-opts">
+              <button className="hits-limit-opt" onClick={() => setLimit(100)}>
                 <span>Tigil sa ₱100</span>
               </button>
-              <button className="bingo-limit-opt bingo-limit-opt-rec" onClick={() => setLimit(300)}>
+              <button className="hits-limit-opt hits-limit-opt-rec" onClick={() => setLimit(300)}>
                 <span>Tigil sa ₱300</span>
               </button>
-              <button className="bingo-limit-opt" onClick={() => setLimit(500)}>
+              <button className="hits-limit-opt" onClick={() => setLimit(500)}>
                 <span>Tigil sa ₱500</span>
               </button>
-              <button className="bingo-limit-opt" onClick={() => setLimit(1000)}>
+              <button className="hits-limit-opt" onClick={() => setLimit(1000)}>
                 <span>Tigil sa ₱1,000</span>
               </button>
             </div>
-            <button className="bingo-limit-skip" onClick={skipLimit}>
+            <button className="hits-limit-skip" onClick={skipLimit}>
               Saka na
             </button>
           </div>
