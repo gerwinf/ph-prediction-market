@@ -53,6 +53,15 @@ export type SendOtpResult =
  * Returns { ok: true, status: 'pending' } on success — Twilio is now
  * waiting for the user to submit the code via checkOtp().
  */
+// DORMANT for Phase 0. Globe carrier filtered every Twilio sender we
+// tested (default pool + Hrtech US long code) with error 30008. Bypassing
+// to Messages API with explicit messagingServiceSid still routed via
+// KonekBuhay alphanumeric, which Globe blocks. Real fix is NTC PH Sender
+// ID registration (~2-week lead time) — doesn't fit June 11 WC kickoff.
+// Phase 0 uses email magic link instead (app/api/auth/email/*).
+// Revisit this file for Phase 1 once NTC Sender ID is registered.
+const OTP_CHANNEL: 'sms' | 'whatsapp' = 'sms'
+
 export async function sendOtp(phoneE164: string): Promise<SendOtpResult> {
   try {
     const client = getClient()
@@ -60,7 +69,7 @@ export async function sendOtp(phoneE164: string): Promise<SendOtpResult> {
       .services(getVerifyServiceSid())
       .verifications.create({
         to: phoneE164,
-        channel: 'sms',
+        channel: OTP_CHANNEL,
       })
 
     return { ok: true, status: verification.status as 'pending' | 'approved' }
