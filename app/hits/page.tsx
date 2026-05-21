@@ -79,7 +79,7 @@ export default function HitsEntry() {
     completePurchase()
   }
 
-  function completePurchase() {
+  async function completePurchase() {
     const cardId = newCardId()
     const newSession = {
       spend: session.spend + price,
@@ -87,6 +87,21 @@ export default function HitsEntry() {
       limit: session.limit,
     }
     writeSession(newSession)
+
+    // Best-effort: persist the card in Supabase. If the call fails
+    // (transient backend outage, RLS misconfig, etc.) we still route
+    // to the active card page — the page generates cells from cardId
+    // deterministically so the demo still works without persistence.
+    try {
+      await fetch('/api/cards', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cardId, cardType: type, pricePhp: price }),
+      })
+    } catch (err) {
+      console.error('[hits] /api/cards POST failed:', err)
+    }
+
     router.push(`/hits/${cardId}?bet=${price}&type=${type}`)
   }
 
