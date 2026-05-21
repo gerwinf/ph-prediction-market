@@ -41,13 +41,13 @@ export const DAILY_EVENTS: GameEvent[] = [
   { id: 'd-pbb-twist',    label: 'PBB / reality TV twist',       category: 'play', rarity: 'uncommon' },
   { id: 'd-mmff-bo',      label: 'MMFF box-office milestone',    category: 'play', rarity: 'rare' },
 
-  // Financial (6)
+  // Financial (6) — direction-only, no stale thresholds
   { id: 'd-psei-green',   label: 'PSEi closes green',            category: 'scoring', rarity: 'common' },
-  { id: 'd-psei-8500',    label: 'PSEi closes > 8,500',          category: 'scoring', rarity: 'uncommon' },
-  { id: 'd-usdphp-low',   label: 'USD/PHP closes < 56',          category: 'scoring', rarity: 'uncommon' },
-  { id: 'd-usdphp-high',  label: 'USD/PHP closes > 57',          category: 'scoring', rarity: 'uncommon' },
-  { id: 'd-btc-100k',     label: 'BTC closes > $100k',           category: 'scoring', rarity: 'common' },
-  { id: 'd-eth-3500',     label: 'ETH closes > $3,500',          category: 'scoring', rarity: 'common' },
+  { id: 'd-psei-up1',     label: 'PSEi closes up 1%+',           category: 'scoring', rarity: 'uncommon' },
+  { id: 'd-usdphp-strong',label: 'Peso strengthens today',       category: 'scoring', rarity: 'uncommon' },
+  { id: 'd-usdphp-weak',  label: 'Peso weakens today',           category: 'scoring', rarity: 'uncommon' },
+  { id: 'd-btc-green',    label: 'BTC closes green today',       category: 'scoring', rarity: 'common' },
+  { id: 'd-eth-green',    label: 'ETH closes green today',       category: 'scoring', rarity: 'common' },
 
   // Cultural & daily life (7)
   { id: 'd-mrt-down',     label: 'MRT-3 breakdown today',        category: 'foul', rarity: 'common' },
