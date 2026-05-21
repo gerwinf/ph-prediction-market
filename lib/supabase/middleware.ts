@@ -11,9 +11,20 @@ import { NextResponse, type NextRequest } from 'next/server'
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request })
 
+  // Fail-safe: if Supabase env vars are missing (e.g. preview deploy or
+  // pre-config Vercel env), don't crash the request. The whole site
+  // shouldn't 500 just because auth isn't wired up yet. Pages that need
+  // a session can still read it from cookies via the per-request server
+  // client; this middleware is only for refresh.
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+  if (!url || !key) {
+    return response
+  }
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    url,
+    key,
     {
       cookies: {
         getAll() {
@@ -32,9 +43,14 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  // Refresh the session. We do not block on the result — the cookies are
-  // updated as a side effect of getUser() under the hood.
-  await supabase.auth.getUser()
+  // Refresh the session. Cookies are updated as a side effect of
+  // getUser(). Swallow errors — a failed refresh shouldn't 500 the
+  // request; the user just won't have an authenticated session.
+  try {
+    await supabase.auth.getUser()
+  } catch (err) {
+    console.error('[middleware] supabase.auth.getUser failed:', err)
+  }
 
   return response
 }
