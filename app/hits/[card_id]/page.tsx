@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { SAMPLE_MATCH } from '../../../lib/hits/sample-match'
 import { generateCard, isFreeCell } from '../../../lib/hits/card-generator'
@@ -19,13 +19,15 @@ import type { WinPattern } from '../../../lib/hits/types'
 
 type PageProps = { params: { card_id: string } }
 
-const SPEED_MULT = 1 // 1 = full 90s; bump to 3 for fast demo
-
 export default function HitsCardPage({ params }: PageProps) {
   const { card_id } = params
   const router = useRouter()
   const search = useSearchParams()
   const bet = Number(search?.get('bet') || '20')
+  // ?speed=N compresses the 90s timeline to 90s/N. Clamp 1-20 so a typo
+  // can't break the page; cap at 20 because below ~4.5s total runtime the
+  // cells flicker faster than the eye can register.
+  const speed = Math.max(1, Math.min(20, Number(search?.get('speed') || '1')))
 
   const card = useMemo(() => generateCard(card_id, bet), [card_id, bet])
 
@@ -36,17 +38,13 @@ export default function HitsCardPage({ params }: PageProps) {
   const [highestWinMult, setHighestWinMult] = useState(0)
   const [done, setDone] = useState(false)
   const [flashPattern, setFlashPattern] = useState<Set<number>>(new Set())
-  const startedRef = useRef(false)
 
   useEffect(() => {
-    if (startedRef.current) return
-    startedRef.current = true
-
     const t0 = Date.now()
     const timers: ReturnType<typeof setTimeout>[] = []
 
     SAMPLE_MATCH.timeline.forEach((te) => {
-      const fireAt = te.atMs / SPEED_MULT
+      const fireAt = te.atMs / speed
       const timer = setTimeout(() => {
         const elapsedFromT0 = Date.now() - t0
         if (elapsedFromT0 < 0) return
@@ -89,7 +87,7 @@ export default function HitsCardPage({ params }: PageProps) {
     // Mark done after final event fires
     const endTimer = setTimeout(() => {
       setDone(true)
-    }, SAMPLE_MATCH.durationMs / SPEED_MULT + 500)
+    }, SAMPLE_MATCH.durationMs / speed + 500)
     timers.push(endTimer)
 
     return () => {
