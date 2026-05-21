@@ -20,6 +20,7 @@ export type Card = {
   cells: GameEvent[]
   purchasedAt: number
   pricePhp: number
+  type: 'sports' | 'daily'
 }
 
 export type TimelineEvent = {

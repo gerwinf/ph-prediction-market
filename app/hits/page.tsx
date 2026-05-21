@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { SAMPLE_MATCH } from '../../lib/hits/sample-match'
 import { newCardId } from '../../lib/hits/card-generator'
 import { MULTIPLIERS } from '../../lib/hits/payouts'
+import { CARD_TYPES, type CardType } from '../../lib/hits/card-types'
 
 /* ────────────────────────────────────────────────────────────────────────
  * /hits — masa-tier live-event hits entry page
@@ -55,6 +55,7 @@ function writeSession(s: { spend: number; cards: number; limit: number }) {
 export default function HitsEntry() {
   const router = useRouter()
   const [price, setPrice] = useState<20 | 50>(20)
+  const [type, setType] = useState<CardType>('sports')
   const [session, setSession] = useState({ spend: 0, cards: 0, limit: 0 })
   const [showLimitModal, setShowLimitModal] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -86,7 +87,7 @@ export default function HitsEntry() {
       limit: session.limit,
     }
     writeSession(newSession)
-    router.push(`/hits/${cardId}?bet=${price}`)
+    router.push(`/hits/${cardId}?bet=${price}&type=${type}`)
   }
 
   function setLimit(amount: number) {
@@ -121,20 +122,41 @@ export default function HitsEntry() {
           )}
         </header>
 
-        <section className="hits-match">
-          <div className="hits-match-league">{SAMPLE_MATCH.league}</div>
-          <div className="hits-match-teams">
-            <div className="hits-team">
-              <div className="hits-team-stripe" style={{ background: SAMPLE_MATCH.homeColor }} />
-              <div className="hits-team-name">{SAMPLE_MATCH.home}</div>
-            </div>
-            <div className="hits-vs">vs</div>
-            <div className="hits-team">
-              <div className="hits-team-stripe" style={{ background: SAMPLE_MATCH.awayColor }} />
-              <div className="hits-team-name">{SAMPLE_MATCH.away}</div>
-            </div>
-          </div>
-          <div className="hits-match-when">{SAMPLE_MATCH.tipoff}</div>
+        <div className="hits-today-eyebrow">Ang laro ngayon</div>
+        <section className="hits-type-row">
+          {(['sports', 'daily'] as const).map((t) => {
+            const meta = CARD_TYPES[t]
+            const m = meta.sample
+            const selected = type === t
+            return (
+              <button
+                key={t}
+                className="hits-type-tile"
+                data-selected={selected}
+                data-kind={t}
+                onClick={() => setType(t)}
+              >
+                <div className="hits-type-label">
+                  <span className="hits-type-dot" /> {meta.label}
+                </div>
+                <div className="hits-type-anchor">
+                  <div className="hits-type-anchor-head">{meta.sublabel}</div>
+                  <div className="hits-type-anchor-vs">
+                    <div className="hits-type-side">
+                      <div className="hits-team-stripe" style={{ background: m.homeColor }} />
+                      <div className="hits-type-side-name">{m.home}</div>
+                    </div>
+                    <span className="hits-type-vs">vs</span>
+                    <div className="hits-type-side">
+                      <div className="hits-team-stripe" style={{ background: m.awayColor }} />
+                      <div className="hits-type-side-name">{m.away}</div>
+                    </div>
+                  </div>
+                  <div className="hits-type-when">{meta.tagline}</div>
+                </div>
+              </button>
+            )
+          })}
         </section>
 
         <section className="hits-purchase">

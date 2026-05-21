@@ -1,21 +1,26 @@
 /**
  * Brute-force find demo-worthy card_ids for /hits.
  *
- * Generates N random card_ids, runs each through the SAMPLE_MATCH timeline,
+ * Generates N random card_ids, runs each through the type's sample timeline,
  * and reports the most interesting ones: fastest wins, diagonals, full cards,
  * and dry no-wins. Output is a markdown table of shareable demo URLs.
  *
- * Run:  npx tsx scripts/find-winning-cards.ts
- * Or:   bun scripts/find-winning-cards.ts
+ * Run:  npx tsx scripts/find-winning-cards.ts            # sports (default)
+ * Or:   npx tsx scripts/find-winning-cards.ts --type=daily
  */
 
 import { generateCard, newCardId } from '../lib/hits/card-generator'
-import { SAMPLE_MATCH } from '../lib/hits/sample-match'
 import { detectWins } from '../lib/hits/payouts'
+import { CARD_TYPES, resolveCardType, type CardType } from '../lib/hits/card-types'
 import type { WinPattern } from '../lib/hits/types'
 
 const N = 2000
 const BASE_URL = 'https://hulaan.ph'
+
+// Parse --type=sports|daily from argv. Default sports.
+const typeArg = process.argv.find((a) => a.startsWith('--type='))?.split('=')[1]
+const CARD_TYPE: CardType = resolveCardType(typeArg)
+const SAMPLE = CARD_TYPES[CARD_TYPE].sample
 
 type Result = {
   cardId: string
@@ -27,7 +32,7 @@ type Result = {
 }
 
 function simulate(cardId: string): Result {
-  const card = generateCard(cardId, 20)
+  const card = generateCard(cardId, 20, CARD_TYPE)
   const hits = new Set<number>([12]) // free cell
   let firstWinAtMs: number | null = null
   let firstWinClock: string | null = null
@@ -35,7 +40,7 @@ function simulate(cardId: string): Result {
   let bestPattern: WinPattern | null = null
   let bestMultiplier = 0
 
-  for (const te of SAMPLE_MATCH.timeline) {
+  for (const te of SAMPLE.timeline) {
     // Mark cells matching this event
     card.cells.forEach((cell, idx) => {
       if (cell.id === te.eventId) hits.add(idx)
@@ -64,7 +69,7 @@ function row(r: Result, bet = 20): string {
   const pat = r.firstWinPattern?.label ?? '—'
   const best = r.bestPattern ? `${r.bestPattern.label} (${r.bestMultiplier}×)` : '—'
   const payout = r.bestMultiplier > 0 ? `₱${(bet * r.bestMultiplier).toLocaleString()}` : '₱0'
-  const demoUrl = `${BASE_URL}/hits/${r.cardId}?bet=${bet}&speed=10`
+  const demoUrl = `${BASE_URL}/hits/${r.cardId}?bet=${bet}&type=${CARD_TYPE}&speed=10`
   return `| \`${r.cardId}\` | ${firstWin} | ${pat} | ${best} | ${payout} | ${demoUrl} |`
 }
 
@@ -73,7 +78,7 @@ function header() {
 }
 
 function main() {
-  console.log(`Simulating ${N} random card_ids against SAMPLE_MATCH...\n`)
+  console.log(`Simulating ${N} random card_ids against ${CARD_TYPE.toUpperCase()} timeline...\n`)
   const results: Result[] = []
   for (let i = 0; i < N; i++) {
     results.push(simulate(newCardId()))

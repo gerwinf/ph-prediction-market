@@ -2,9 +2,9 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { SAMPLE_MATCH } from '../../../lib/hits/sample-match'
 import { generateCard, isFreeCell } from '../../../lib/hits/card-generator'
 import { bestPayout, detectWins } from '../../../lib/hits/payouts'
+import { CARD_TYPES, resolveCardType } from '../../../lib/hits/card-types'
 import type { WinPattern } from '../../../lib/hits/types'
 
 /* ────────────────────────────────────────────────────────────────────────
@@ -28,8 +28,11 @@ export default function HitsCardPage({ params }: PageProps) {
   // can't break the page; cap at 20 because below ~4.5s total runtime the
   // cells flicker faster than the eye can register.
   const speed = Math.max(1, Math.min(20, Number(search?.get('speed') || '1')))
+  const cardType = resolveCardType(search?.get('type'))
+  const meta = CARD_TYPES[cardType]
+  const sample = meta.sample
 
-  const card = useMemo(() => generateCard(card_id, bet), [card_id, bet])
+  const card = useMemo(() => generateCard(card_id, bet, cardType), [card_id, bet, cardType])
 
   const [hitIndices, setHitIndices] = useState<Set<number>>(new Set([12])) // free cell always in
   const [justHitIdx, setJustHitIdx] = useState<number | null>(null)
@@ -43,7 +46,7 @@ export default function HitsCardPage({ params }: PageProps) {
     const t0 = Date.now()
     const timers: ReturnType<typeof setTimeout>[] = []
 
-    SAMPLE_MATCH.timeline.forEach((te) => {
+    sample.timeline.forEach((te) => {
       const fireAt = te.atMs / speed
       const timer = setTimeout(() => {
         const elapsedFromT0 = Date.now() - t0
@@ -87,7 +90,7 @@ export default function HitsCardPage({ params }: PageProps) {
     // Mark done after final event fires
     const endTimer = setTimeout(() => {
       setDone(true)
-    }, SAMPLE_MATCH.durationMs / speed + 500)
+    }, sample.durationMs / speed + 500)
     timers.push(endTimer)
 
     return () => {
@@ -105,7 +108,7 @@ export default function HitsCardPage({ params }: PageProps) {
       navigator
         .share({
           title: `Hula Hits card ${card_id}`,
-          text: `Watch my Hula hits card for ${SAMPLE_MATCH.home} vs ${SAMPLE_MATCH.away}`,
+          text: `Watch my Hula hits card for ${sample.home} vs ${sample.away}`,
           url: shareUrl,
         })
         .catch(() => {})
@@ -134,10 +137,10 @@ export default function HitsCardPage({ params }: PageProps) {
 
         <section className="hits-ticker">
           <span className="hits-ticker-clock">
-            {currentEvent ? currentEvent.clock : 'TIP-OFF'}
+            {currentEvent ? currentEvent.clock : (cardType === 'daily' ? '06:00 AM' : 'TIP-OFF')}
           </span>
           <span className="hits-ticker-event">
-            {currentEvent ? currentEvent.desc : `${SAMPLE_MATCH.home} vs ${SAMPLE_MATCH.away}`}
+            {currentEvent ? currentEvent.desc : `${sample.home} vs ${sample.away}`}
           </span>
           <span className="hits-ticker-score">
             {hitIndices.size - 1}/24

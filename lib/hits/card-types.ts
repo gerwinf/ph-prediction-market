@@ -1,0 +1,39 @@
+import type { GameEvent, Match } from './types'
+import { CANDIDATE_EVENTS } from './events'
+import { SAMPLE_MATCH } from './sample-match'
+import { DAILY_EVENTS } from './daily-events'
+import { DAILY_SAMPLE } from './daily-sample'
+
+export type CardType = 'sports' | 'daily'
+
+export type CardTypeMeta = {
+  type: CardType
+  label: string             // 'Sports card' / 'Daily card'
+  sublabel: string          // 'PBA Comm's Cup' / 'Manila today'
+  tagline: string           // 'Tonight · 7 PM' / 'Sunrise → Midnight'
+  pool: GameEvent[]
+  sample: Match
+}
+
+export const CARD_TYPES: Record<CardType, CardTypeMeta> = {
+  sports: {
+    type: 'sports',
+    label: 'Sports',
+    sublabel: SAMPLE_MATCH.league,
+    tagline: SAMPLE_MATCH.tipoff,
+    pool: CANDIDATE_EVENTS,
+    sample: SAMPLE_MATCH,
+  },
+  daily: {
+    type: 'daily',
+    label: 'Daily',
+    sublabel: DAILY_SAMPLE.league,
+    tagline: DAILY_SAMPLE.tipoff,
+    pool: DAILY_EVENTS,
+    sample: DAILY_SAMPLE,
+  },
+}
+
+export function resolveCardType(raw: string | null | undefined): CardType {
+  return raw === 'daily' ? 'daily' : 'sports'
+}

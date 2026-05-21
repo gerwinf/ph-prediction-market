@@ -1,4 +1,4 @@
-import { CANDIDATE_EVENTS } from './events'
+import { CARD_TYPES, type CardType } from './card-types'
 import type { Card, GameEvent } from './types'
 
 // FNV-1a → mulberry32. Deterministic PRNG seeded from card_id string.
@@ -39,16 +39,19 @@ const FREE_CELL: GameEvent = {
   rarity: 'common',
 }
 
-export function generateCard(cardId: string, pricePhp: number): Card {
-  const seed = seedFromString(cardId)
+export function generateCard(cardId: string, pricePhp: number, cardType: CardType = 'sports'): Card {
+  const pool = CARD_TYPES[cardType].pool
+  // Seed includes the card type so the same id on different types produces
+  // different cards — keeps share-links semantically distinct across types.
+  const seed = seedFromString(`${cardType}:${cardId}`)
   const rng = mulberry32(seed)
-  const picks = shuffle(CANDIDATE_EVENTS, rng).slice(0, 24)
+  const picks = shuffle(pool, rng).slice(0, 24)
   const cells: GameEvent[] = []
   for (let i = 0; i < 25; i++) {
     if (i === 12) cells.push(FREE_CELL)
     else cells.push(picks[i < 12 ? i : i - 1])
   }
-  return { id: cardId, cells, purchasedAt: Date.now(), pricePhp }
+  return { id: cardId, cells, purchasedAt: Date.now(), pricePhp, type: cardType }
 }
 
 // Generate a fresh shareable card_id: 6 chars from a Crockford-friendly alphabet.
