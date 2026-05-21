@@ -117,7 +117,7 @@ export default function BingoEntry() {
               ₱{session.spend}/₱{session.limit} today
             </span>
           ) : (
-            <span className="bingo-eyebrow">Prototype</span>
+            <span className="bingo-eyebrow">Demo</span>
           )}
         </header>
 
@@ -139,11 +139,11 @@ export default function BingoEntry() {
 
         <section className="bingo-purchase">
           <h1 className="bingo-purchase-h">
-            5×5 card.<br />Watch the game.<br /><em>Lines pay out.</em>
+            Bili ng card.<br />Panóorin ang laro.<br /><em>Manalo ng pera.</em>
           </h1>
           <p className="bingo-purchase-sub">
-            Each square is an event that can happen this game. Match a row, column,
-            diagonal, or the full card to win.
+            Every box is something that can happen in the game. Get 5 in a row and win.
+            Fill the whole card and win big.
           </p>
 
           <div className="bingo-price-row">
@@ -161,45 +161,45 @@ export default function BingoEntry() {
               onClick={() => setPrice(50)}
             >
               <span className="bingo-price-amt">₱50</span>
-              <span className="bingo-price-sub">2.5× upside</span>
+              <span className="bingo-price-sub">Bigger wins</span>
             </button>
           </div>
 
           {wouldExceedLimit ? (
             <button className="bingo-buy-btn" data-disabled="true" disabled>
-              Daily limit reached · see you tomorrow
+              Tigil muna · balik bukas
             </button>
           ) : (
             <button className="bingo-buy-btn" onClick={handleBuy}>
-              Buy ₱{price} card →
+              Bumili ng ₱{price} card →
             </button>
           )}
 
           <div className="bingo-buy-meta">
-            Prototype · BSP rails coming
+            Demo only · no real money yet
           </div>
         </section>
 
         <section className="bingo-payouts">
-          <div className="bingo-payouts-eyebrow">Payouts on a ₱{price} card</div>
+          <div className="bingo-payouts-eyebrow">What you can win on a ₱{price} card</div>
           <div className="bingo-payouts-list">
             <div className="bingo-payout-row">
-              <span className="bingo-payout-label">Row or column</span>
-              <span className="bingo-payout-mult">{MULTIPLIERS.row}× · ₱{(price * MULTIPLIERS.row).toLocaleString()}</span>
+              <span className="bingo-payout-label">5 in a row</span>
+              <span className="bingo-payout-mult">₱{(price * MULTIPLIERS.row).toLocaleString()}</span>
             </div>
             <div className="bingo-payout-row">
-              <span className="bingo-payout-label">Diagonal</span>
-              <span className="bingo-payout-mult">{MULTIPLIERS.diag}× · ₱{(price * MULTIPLIERS.diag).toLocaleString()}</span>
+              <span className="bingo-payout-label">Corner to corner</span>
+              <span className="bingo-payout-mult">₱{(price * MULTIPLIERS.diag).toLocaleString()}</span>
             </div>
             <div className="bingo-payout-row gold">
-              <span className="bingo-payout-label">Full card</span>
-              <span className="bingo-payout-mult">{MULTIPLIERS.full}× · ₱{(price * MULTIPLIERS.full).toLocaleString()}</span>
+              <span className="bingo-payout-label">All boxes (jackpot)</span>
+              <span className="bingo-payout-mult">₱{(price * MULTIPLIERS.full).toLocaleString()}</span>
             </div>
           </div>
         </section>
 
         <p className="bingo-foot">
-          21+ · <strong>Play within your means</strong> · PAGCOR Responsible Gaming · 8521-1542
+          21+ only · <strong>Play smart</strong> · Need help? Call 8521-1542
         </p>
       </div>
 
@@ -207,27 +207,27 @@ export default function BingoEntry() {
         <div className="bingo-limit-modal" onClick={(e) => e.target === e.currentTarget && skipLimit()}>
           <div className="bingo-limit-card">
             <h2 className="bingo-limit-h">
-              You&apos;ve spent ₱{session.spend} today. <em>Set a limit?</em>
+              Gumastos ka na ng ₱{session.spend} today. <em>Magtigil kailan?</em>
             </h2>
             <p className="bingo-limit-sub">
-              We&apos;ll lock the buy button when you hit it. You can always change this tomorrow.
+              Pick your stop. We&apos;ll block the buy button when you hit it. Resets tomorrow.
             </p>
             <div className="bingo-limit-opts">
               <button className="bingo-limit-opt" onClick={() => setLimit(100)}>
-                <span>₱100 / day</span>
+                <span>Tigil sa ₱100</span>
               </button>
               <button className="bingo-limit-opt bingo-limit-opt-rec" onClick={() => setLimit(300)}>
-                <span>₱300 / day</span>
+                <span>Tigil sa ₱300</span>
               </button>
               <button className="bingo-limit-opt" onClick={() => setLimit(500)}>
-                <span>₱500 / day</span>
+                <span>Tigil sa ₱500</span>
               </button>
               <button className="bingo-limit-opt" onClick={() => setLimit(1000)}>
-                <span>₱1,000 / day</span>
+                <span>Tigil sa ₱1,000</span>
               </button>
             </div>
             <button className="bingo-limit-skip" onClick={skipLimit}>
-              Skip for now
+              Saka na
             </button>
           </div>
         </div>

@@ -1813,7 +1813,7 @@ button:focus {
   border-color: var(--ink);
 }
 .hula-v2 .bingo-limit-opt-rec::after {
-  content: 'Recommended';
+  content: 'Safe';
   font-family: var(--ff-mono);
   font-size: 9px;
   background: var(--accent);

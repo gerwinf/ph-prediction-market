@@ -178,12 +178,12 @@ export default function BingoCardPage({ params }: PageProps) {
             Share card
           </button>
           <button className="bingo-replay-btn" onClick={handleReplay}>
-            {done ? 'Buy another →' : 'Replay sample'}
+            {done ? 'Buy another →' : 'Ulit'}
           </button>
         </section>
 
         <p className="bingo-foot">
-          Simulated match · 90-second timeline · <strong>real bingo runs on a real game</strong>
+          Demo. <strong>Real bingo follows a real game.</strong>
         </p>
       </div>
 
@@ -194,7 +194,7 @@ export default function BingoCardPage({ params }: PageProps) {
         >
           <div className="bingo-win-card">
             <span className="bingo-win-badge">
-              {winShown.kind === 'full' ? 'Jackpot' : 'Bingo'}
+              {winShown.kind === 'full' ? 'Jackpot!' : 'Panalo ka!'}
             </span>
             <h2 className="bingo-win-h">
               {winShown.kind === 'full' ? (
@@ -204,16 +204,16 @@ export default function BingoCardPage({ params }: PageProps) {
               )}
             </h2>
             <div className="bingo-win-pattern">
-              {winShown.multiplier}× your ₱{card.pricePhp} bet
+              {winShown.multiplier}× your bet
             </div>
             <div className="bingo-win-payout">
               <span className="bingo-win-payout-amt">
                 ₱{(card.pricePhp * winShown.multiplier).toLocaleString()}
               </span>
-              <span className="bingo-win-payout-mult">payout</span>
+              <span className="bingo-win-payout-mult">you win</span>
             </div>
             <button className="bingo-win-close" onClick={() => setWinShown(null)}>
-              Keep watching
+              Tuloy laro
             </button>
           </div>
         </div>
