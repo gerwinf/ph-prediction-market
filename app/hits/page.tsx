@@ -9,10 +9,14 @@ import { CARD_TYPES, type CardType } from '../../lib/hits/card-types'
 /* ────────────────────────────────────────────────────────────────────────
  * /hits — masa-tier live-event hits entry page
  *
- * One-tap purchase flow. ₱20 or ₱50 card → routes to /hits/[card_id].
- * No payment yet — purchase is fake. Tracks session spend in localStorage
- * so the responsible-bet-limit UX can fire after card #3.
- * Not linked from / — share URL manually for masa validation tests only.
+ * Fixture-aware. Queries /api/fixtures on mount and picks the entry
+ * mode based on schedule state:
+ *   - live fixture exists      → Buy routes to ?live=1&match=X (live mode)
+ *   - upcoming fixture within 8h → demo CTA + "next game" preview
+ *   - no fixtures in window    → demo only (legacy behavior)
+ *
+ * Demo mode stays accessible from a secondary "play demo" button when
+ * a fixture is upcoming. Share URLs without ?live still play the demo.
  * ──────────────────────────────────────────────────────────────────────── */
 
 const STORAGE = {
@@ -20,6 +24,15 @@ const STORAGE = {
   spend: 'hula-hits-session-spend',
   cards: 'hula-hits-session-cards',
   limit: 'hula-hits-daily-limit',
+}
+
+type Fixture = {
+  id: string
+  card_type: 'sports' | 'daily'
+  match_label: string
+  starts_at: string
+  ends_at: string | null
+  status: 'scheduled' | 'live' | 'final' | 'canceled'
 }
 
 function todayISO() {
@@ -52,6 +65,16 @@ function writeSession(s: { spend: number; cards: number; limit: number }) {
   if (s.limit > 0) localStorage.setItem(STORAGE.limit, String(s.limit))
 }
 
+function formatStartTime(iso: string): string {
+  const d = new Date(iso)
+  const now = new Date()
+  const sameDay = d.toDateString() === now.toDateString()
+  const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000).toDateString() === d.toDateString()
+  const day = sameDay ? 'Today' : tomorrow ? 'Tomorrow' : d.toLocaleDateString('en-PH', { weekday: 'short', month: 'short', day: 'numeric' })
+  const time = d.toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true })
+  return `${day} · ${time}`
+}
+
 export default function HitsEntry() {
   const router = useRouter()
   const [price, setPrice] = useState<20 | 50>(20)
@@ -59,10 +82,32 @@ export default function HitsEntry() {
   const [session, setSession] = useState({ spend: 0, cards: 0, limit: 0 })
   const [showLimitModal, setShowLimitModal] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [liveFixture, setLiveFixture] = useState<Fixture | null>(null)
+  const [upcomingFixture, setUpcomingFixture] = useState<Fixture | null>(null)
 
   useEffect(() => {
     setSession(readSession())
     setMounted(true)
+  }, [])
+
+  // Fetch fixtures on mount to determine mode.
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/fixtures')
+      .then((r) => r.json())
+      .then((j) => {
+        if (cancelled || !j.ok) return
+        const sportsLive = (j.live as Fixture[]).find((f) => f.card_type === 'sports')
+        const sportsNext = (j.upcoming as Fixture[]).find((f) => f.card_type === 'sports')
+        setLiveFixture(sportsLive ?? null)
+        setUpcomingFixture(sportsNext ?? null)
+      })
+      .catch(() => {
+        /* silent — page falls back to demo-only */
+      })
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   const wouldExceedLimit =
@@ -79,7 +124,7 @@ export default function HitsEntry() {
     completePurchase()
   }
 
-  async function completePurchase() {
+  async function completePurchase(opts: { forceDemo?: boolean } = {}) {
     const cardId = newCardId()
     const newSession = {
       spend: session.spend + price,
@@ -88,21 +133,28 @@ export default function HitsEntry() {
     }
     writeSession(newSession)
 
-    // Best-effort: persist the card in Supabase. If the call fails
-    // (transient backend outage, RLS misconfig, etc.) we still route
-    // to the active card page — the page generates cells from cardId
-    // deterministically so the demo still works without persistence.
+    // Decide mode: only sports cards can go live (daily card stays
+    // demo for now). Daily/forceDemo always stays demo.
+    const goLive = !opts.forceDemo && type === 'sports' && liveFixture !== null
+    const matchId = goLive ? liveFixture!.id : undefined
+
+    // Best-effort persistence.
     try {
       await fetch('/api/cards', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cardId, cardType: type, pricePhp: price }),
+        body: JSON.stringify({ cardId, cardType: type, pricePhp: price, matchId }),
       })
     } catch (err) {
       console.error('[hits] /api/cards POST failed:', err)
     }
 
-    router.push(`/hits/${cardId}?bet=${price}&type=${type}`)
+    const params = new URLSearchParams({ bet: String(price), type })
+    if (goLive && matchId) {
+      params.set('live', '1')
+      params.set('match', matchId)
+    }
+    router.push(`/hits/${cardId}?${params.toString()}`)
   }
 
   function setLimit(amount: number) {
@@ -114,11 +166,13 @@ export default function HitsEntry() {
   }
 
   function skipLimit() {
-    // Mark as "asked" so we don't immediately re-prompt; user opts out for today.
-    // We still respect spend tracking but no hard cap.
     setShowLimitModal(false)
     setTimeout(() => completePurchase(), 120)
   }
+
+  // Determine eyebrow + secondary CTA based on fixture state.
+  const isLive = liveFixture !== null && type === 'sports'
+  const isUpcoming = !isLive && upcomingFixture !== null && type === 'sports'
 
   return (
     <main className="hula-v2">
@@ -132,10 +186,30 @@ export default function HitsEntry() {
               <span className="hits-limit-chip-dot" />
               ₱{session.spend}/₱{session.limit} today
             </span>
+          ) : isLive ? (
+            <span className="hits-eyebrow hits-eyebrow-live">
+              <span className="hits-eyebrow-pulse" />
+              LIVE NOW
+            </span>
           ) : (
             <span className="hits-eyebrow">Demo</span>
           )}
         </header>
+
+        {isLive && (
+          <div className="hits-live-banner">
+            <div className="hits-live-banner-label">Laro ngayon</div>
+            <div className="hits-live-banner-title">{liveFixture!.match_label}</div>
+          </div>
+        )}
+
+        {isUpcoming && (
+          <div className="hits-upcoming-banner">
+            <div className="hits-upcoming-banner-label">Next game</div>
+            <div className="hits-upcoming-banner-title">{upcomingFixture!.match_label}</div>
+            <div className="hits-upcoming-banner-when">{formatStartTime(upcomingFixture!.starts_at)}</div>
+          </div>
+        )}
 
         <div className="hits-today-eyebrow">Ang laro ngayon</div>
         <section className="hits-type-row">
@@ -237,12 +311,23 @@ export default function HitsEntry() {
             </button>
           ) : (
             <button className="hits-buy-btn" onClick={handleBuy}>
-              Bumili ng ₱{price} card →
+              {isLive
+                ? `Sumali sa LIVE · ₱${price} →`
+                : `Bumili ng ₱${price} card →`}
+            </button>
+          )}
+
+          {isUpcoming && (
+            <button
+              className="hits-buy-secondary"
+              onClick={() => completePurchase({ forceDemo: true })}
+            >
+              Play demo while you wait
             </button>
           )}
 
           <div className="hits-buy-meta">
-            Demo only · no real money yet
+            {isLive ? 'Live game · cells light up as it happens' : 'Demo only · no real money yet'}
           </div>
         </section>
 
