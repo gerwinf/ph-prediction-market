@@ -1458,6 +1458,37 @@ button:focus {
   background-image: linear-gradient(90deg, var(--accent) 0%, var(--ink) 100%);
 }
 
+/* Daily-anchor body: single column, date-as-anchor, sun glyph + time window */
+.hula-v2 .hits-type-anchor-daily {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.hula-v2 .hits-type-daily-stripe {
+  height: 3px; border-radius: 2px;
+  background: linear-gradient(90deg, var(--accent) 0%, var(--ink) 100%);
+  margin: 2px 0 4px;
+}
+.hula-v2 .hits-type-daily-date {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+.hula-v2 .hits-type-daily-sun {
+  width: 18px; height: 18px;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.hula-v2 .hits-type-tile[data-selected='true'] .hits-type-daily-sun {
+  color: var(--accent);
+}
+.hula-v2 .hits-type-tile[data-selected='true'] .hits-type-daily-date {
+  color: inherit;
+}
+.hula-v2 .hits-type-tile[data-selected='true'] .hits-type-daily-stripe {
+  background: linear-gradient(90deg, var(--accent) 0%, rgba(255,248,231,0.2) 100%);
+}
+
 @media (max-width: 380px) {
   .hula-v2 .hits-type-tile { padding: 12px 10px; min-height: 144px; }
   .hula-v2 .hits-type-side-name { font-size: 11px; }

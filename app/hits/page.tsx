@@ -139,21 +139,50 @@ export default function HitsEntry() {
                 <div className="hits-type-label">
                   <span className="hits-type-dot" /> {meta.label}
                 </div>
-                <div className="hits-type-anchor">
-                  <div className="hits-type-anchor-head">{meta.sublabel}</div>
-                  <div className="hits-type-anchor-vs">
-                    <div className="hits-type-side">
-                      <div className="hits-team-stripe" style={{ background: m.homeColor }} />
-                      <div className="hits-type-side-name">{m.home}</div>
+                {t === 'sports' ? (
+                  <div className="hits-type-anchor">
+                    <div className="hits-type-anchor-head">{meta.sublabel}</div>
+                    <div className="hits-type-anchor-vs">
+                      <div className="hits-type-side">
+                        <div className="hits-team-stripe" style={{ background: m.homeColor }} />
+                        <div className="hits-type-side-name">{m.home}</div>
+                      </div>
+                      <span className="hits-type-vs">vs</span>
+                      <div className="hits-type-side">
+                        <div className="hits-team-stripe" style={{ background: m.awayColor }} />
+                        <div className="hits-type-side-name">{m.away}</div>
+                      </div>
                     </div>
-                    <span className="hits-type-vs">vs</span>
-                    <div className="hits-type-side">
-                      <div className="hits-team-stripe" style={{ background: m.awayColor }} />
-                      <div className="hits-type-side-name">{m.away}</div>
-                    </div>
+                    <div className="hits-type-when">{meta.tagline}</div>
                   </div>
-                  <div className="hits-type-when">{meta.tagline}</div>
-                </div>
+                ) : (
+                  <div className="hits-type-anchor hits-type-anchor-daily">
+                    <div className="hits-type-anchor-head">{meta.sublabel}</div>
+                    <div className="hits-type-daily-stripe" />
+                    <div className="hits-type-daily-date">
+                      <svg
+                        className="hits-type-daily-sun"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        aria-hidden="true"
+                      >
+                        <circle cx="12" cy="12" r="4" fill="currentColor" />
+                        <g stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+                          <line x1="12" y1="2" x2="12" y2="5" />
+                          <line x1="12" y1="19" x2="12" y2="22" />
+                          <line x1="2" y1="12" x2="5" y2="12" />
+                          <line x1="19" y1="12" x2="22" y2="12" />
+                          <line x1="4.9" y1="4.9" x2="6.9" y2="6.9" />
+                          <line x1="17.1" y1="17.1" x2="19.1" y2="19.1" />
+                          <line x1="4.9" y1="19.1" x2="6.9" y2="17.1" />
+                          <line x1="17.1" y1="6.9" x2="19.1" y2="4.9" />
+                        </g>
+                      </svg>
+                      <span>{meta.dateLabel}</span>
+                    </div>
+                    <div className="hits-type-when">{meta.windowLabel}</div>
+                  </div>
+                )}
               </button>
             )
           })}

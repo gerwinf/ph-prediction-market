@@ -8,11 +8,14 @@ export type CardType = 'sports' | 'daily'
 
 export type CardTypeMeta = {
   type: CardType
-  label: string             // 'Sports card' / 'Daily card'
-  sublabel: string          // 'PBA Comm's Cup' / 'Manila today'
-  tagline: string           // 'Tonight · 7 PM' / 'Sunrise → Midnight'
+  label: string             // 'Sports' / 'Daily'
+  sublabel: string          // 'PBA Comm's Cup' / 'MANILA · TODAY'
+  tagline: string           // 'Tonight · 7 PM' (sports) — daily uses dateLabel/windowLabel instead
   pool: GameEvent[]
   sample: Match
+  // Daily-anchor fields (only used when type === 'daily')
+  dateLabel?: string        // 'Wed · May 21'
+  windowLabel?: string      // '6 AM → MIDNIGHT'
 }
 
 export const CARD_TYPES: Record<CardType, CardTypeMeta> = {
@@ -31,6 +34,8 @@ export const CARD_TYPES: Record<CardType, CardTypeMeta> = {
     tagline: DAILY_SAMPLE.tipoff,
     pool: DAILY_EVENTS,
     sample: DAILY_SAMPLE,
+    dateLabel: 'Wed · May 21',
+    windowLabel: '6 AM → MIDNIGHT',
   },
 }
 

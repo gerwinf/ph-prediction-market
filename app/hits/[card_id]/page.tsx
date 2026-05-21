@@ -104,11 +104,15 @@ export default function HitsCardPage({ params }: PageProps) {
     typeof window !== 'undefined' ? `${window.location.origin}/hits/${card_id}?bet=${bet}` : ''
 
   function handleShare() {
+    const shareText =
+      cardType === 'daily'
+        ? `Watch my Hula Hits card for ${meta.dateLabel}`
+        : `Watch my Hula Hits card for ${sample.home} vs ${sample.away}`
     if (typeof navigator !== 'undefined' && navigator.share) {
       navigator
         .share({
           title: `Hula Hits card ${card_id}`,
-          text: `Watch my Hula hits card for ${sample.home} vs ${sample.away}`,
+          text: shareText,
           url: shareUrl,
         })
         .catch(() => {})
