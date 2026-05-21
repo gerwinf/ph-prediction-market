@@ -7,8 +7,8 @@ import type { Match } from './types'
 
 export const SAMPLE_MATCH: Match = {
   id: 'gin-smb-cc-semi-g1',
-  league: "PBA Comm's Cup · Semis Game 1",
-  home: 'Brgy. Ginebra',
+  league: "PBA Comm's Cup",
+  home: 'Ginebra',
   homeColor: '#c8102e',
   away: 'San Miguel',
   awayColor: '#0a3d8f',

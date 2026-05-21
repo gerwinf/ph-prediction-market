@@ -1408,7 +1408,6 @@ button:focus {
 .hula-v2 .hits-type-anchor-head {
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: -0.005em;
   color: var(--ink-2);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -1422,7 +1421,7 @@ button:focus {
   display: flex; flex-direction: column; gap: 4px;
 }
 .hula-v2 .hits-type-side-name {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: -0.015em;
   color: var(--ink);
@@ -1491,7 +1490,7 @@ button:focus {
 
 @media (max-width: 380px) {
   .hula-v2 .hits-type-tile { padding: 12px 10px; min-height: 144px; }
-  .hula-v2 .hits-type-side-name { font-size: 11px; }
+  /* hits-type-side-name base font (11px) already fits at this viewport */
 }
 
 /* ── Match preview card ───────────────────────────────────────────────── */
