@@ -28,7 +28,7 @@ export const dynamic = 'force-dynamic'
 // stopgap until the match-picker UI lands (Day 4). Both ids are seeded
 // in supabase/seed.sql.
 const DEFAULT_MATCH_BY_TYPE: Record<CardType, string> = {
-  sports: 'wc-opening-2026',
+  sports: 'pba-gin-ros-2026-05-24',
   daily: 'daily-2026-07-20',
 }
 

@@ -37,7 +37,7 @@ export default function HitsCardPage({ params }: PageProps) {
   // which match's events to poll.
   const live = search?.get('live') === '1'
   const matchId =
-    search?.get('match') || (cardType === 'sports' ? 'wc-opening-2026' : 'daily-2026-07-20')
+    search?.get('match') || (cardType === 'sports' ? 'pba-gin-ros-2026-05-24' : 'daily-2026-07-20')
 
   const card = useMemo(() => generateCard(card_id, bet, cardType), [card_id, bet, cardType])
 

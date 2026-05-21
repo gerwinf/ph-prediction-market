@@ -8,23 +8,20 @@
  *
  * Body: { matchId: string, eventKey: string, payload?: object }
  *
- * Auth: requires the caller to be a Supabase user with
- * raw_app_meta_data.ops = true. Set via SQL in the dashboard:
- *
- *   update auth.users set raw_app_meta_data = raw_app_meta_data || '{"ops": true}'
- *   where email = 'jade@...';
+ * Auth: shared secret in the X-Ops-Secret header. Secret is set via
+ * the OPS_SHARED_SECRET env var. Right tool for the closed-beta phase
+ * — Jade enters the secret once in /ops and it's sent with every fire.
+ * Swap back to Supabase-role gating for public launch.
  *
  * Response:
  *   200 { ok: true, event: { id, ... } }
- *   401 { ok: false, error: 'unauthorized' }
- *   403 { ok: false, error: 'not_ops' }
+ *   401 { ok: false, error: 'bad_secret' }
+ *   500 { ok: false, error: 'no_secret_configured' } — env var missing
  *   400 { ok: false, error: 'invalid_body' | 'unknown_match' }
  *   500 { ok: false, error: 'db_error', message: '...' }
  */
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '../../../../lib/supabase/admin'
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
 
 export const dynamic = 'force-dynamic'
 
@@ -35,30 +32,19 @@ type Body = {
 }
 
 export async function POST(req: Request) {
-  // 1) Identify the caller via the session cookie.
-  const jar = await cookies()
-  const supabaseServer = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-    {
-      cookies: {
-        getAll: () => jar.getAll(),
-        setAll: () => {
-          /* read-only here */
-        },
-      },
-    }
-  )
-  const { data: { user } } = await supabaseServer.auth.getUser()
-  if (!user) {
-    return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401 })
+  // 1) Shared-secret gate. OPS_SHARED_SECRET in env; header
+  //    X-Ops-Secret from the caller. Constant-time compare to avoid
+  //    timing-based secret extraction (defensive, low-stakes here).
+  const expected = process.env.OPS_SHARED_SECRET
+  if (!expected) {
+    return NextResponse.json(
+      { ok: false, error: 'no_secret_configured', message: 'Set OPS_SHARED_SECRET in env' },
+      { status: 500 }
+    )
   }
-
-  // 2) Check ops role. Stored in app_metadata (settable only by service
-  //    role, so users can't escalate themselves).
-  const isOps = (user.app_metadata as { ops?: boolean })?.ops === true
-  if (!isOps) {
-    return NextResponse.json({ ok: false, error: 'not_ops' }, { status: 403 })
+  const provided = req.headers.get('x-ops-secret') || ''
+  if (!constantTimeEqual(provided, expected)) {
+    return NextResponse.json({ ok: false, error: 'bad_secret' }, { status: 401 })
   }
 
   // 3) Parse + validate body.
@@ -103,4 +89,11 @@ export async function POST(req: Request) {
   }
 
   return NextResponse.json({ ok: true, event: data })
+}
+
+function constantTimeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false
+  let r = 0
+  for (let i = 0; i < a.length; i++) r |= a.charCodeAt(i) ^ b.charCodeAt(i)
+  return r === 0
 }

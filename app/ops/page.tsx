@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createClient } from '../../lib/supabase/client'
 import { CANDIDATE_EVENTS } from '../../lib/hits/events'
 import { DAILY_EVENTS } from '../../lib/hits/daily-events'
 
@@ -13,21 +12,13 @@ import { DAILY_EVENTS } from '../../lib/hits/daily-events'
  * a row to public.events — all active cards polling that match see
  * the new event within 3 seconds and light up matching cells.
  *
- * Auth: requires Supabase magic-link login + ops role on the user.
- * The role is set manually in the Supabase dashboard:
- *
- *   update auth.users
- *      set raw_app_meta_data = raw_app_meta_data || '{"ops": true}'
- *    where email = 'jade@...';
+ * Auth: shared secret entered once, stored in localStorage. Server
+ * checks X-Ops-Secret header against OPS_SHARED_SECRET env var. Right
+ * tool for the closed-beta phase. Swap back to Supabase-role gating
+ * for public launch when the auth flow has eyes on it.
  *
  * Mobile-friendly: Jade may operate from a phone at the venue.
  * ──────────────────────────────────────────────────────────────────── */
-
-type SessionState =
-  | { status: 'loading' }
-  | { status: 'anonymous' }
-  | { status: 'not_ops'; email: string }
-  | { status: 'ready'; email: string }
 
 type FiredEvent = {
   id: number
@@ -40,48 +31,36 @@ const POOLS = {
   daily: { label: 'Daily', events: DAILY_EVENTS },
 } as const
 
+// Quick-pick fixtures so Jade doesn't have to type the id. Add new ones
+// here as new games come up. "Custom" lets her type a one-off id.
+const QUICK_FIXTURES: Array<{ id: string; label: string; pool: 'sports' | 'daily' }> = [
+  { id: 'pba-gin-ros-2026-05-24', label: 'Ginebra vs Rain or Shine — Sun May 24', pool: 'sports' },
+  { id: 'pba-tnt-mer-2026-05-24', label: 'TNT vs Meralco — Sun May 24',         pool: 'sports' },
+  { id: 'daily-2026-07-20',       label: 'Daily — Jul 20',                       pool: 'daily'  },
+]
+
+const SECRET_KEY = 'hula-ops-secret'
+
 export default function OpsPage() {
-  const [session, setSession] = useState<SessionState>({ status: 'loading' })
+  const [secret, setSecret] = useState<string>('')
+  const [secretInput, setSecretInput] = useState('')
   const [poolKey, setPoolKey] = useState<'sports' | 'daily'>('sports')
-  const [matchId, setMatchId] = useState('wc-opening-2026')
+  const [matchId, setMatchId] = useState('pba-gin-ros-2026-05-24')
   const [fired, setFired] = useState<FiredEvent[]>([])
   const [busy, setBusy] = useState<string | null>(null)
   const [errMsg, setErrMsg] = useState<string | null>(null)
-  const [emailInput, setEmailInput] = useState('')
-  const [emailSent, setEmailSent] = useState(false)
 
-  // 1) Determine auth state on mount + listen for changes.
+  // Load secret from localStorage on mount.
   useEffect(() => {
-    const supabase = createClient()
-    let mounted = true
-
-    const check = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!mounted) return
-      if (!user) {
-        setSession({ status: 'anonymous' })
-        return
-      }
-      const isOps = (user.app_metadata as { ops?: boolean })?.ops === true
-      if (!isOps) {
-        setSession({ status: 'not_ops', email: user.email ?? '(no email)' })
-        return
-      }
-      setSession({ status: 'ready', email: user.email ?? '(no email)' })
-    }
-    check()
-
-    const { data: sub } = supabase.auth.onAuthStateChange(() => check())
-    return () => {
-      mounted = false
-      sub.subscription.unsubscribe()
-    }
+    if (typeof window === 'undefined') return
+    const stored = localStorage.getItem(SECRET_KEY) || ''
+    if (stored) setSecret(stored)
   }, [])
 
-  // 2) Poll the events I've already fired for this match (so refresh
-  //    doesn't lose state and so duplicate fires are visible).
+  // Poll the events I've already fired for this match (so refresh
+  // doesn't lose state and duplicate fires are visible).
   useEffect(() => {
-    if (session.status !== 'ready' || !matchId) return
+    if (!matchId) return
     let cancelled = false
 
     const tick = async () => {
@@ -90,7 +69,7 @@ export default function OpsPage() {
         const j = await res.json()
         if (!cancelled && j.ok) setFired(j.events)
       } catch {
-        /* swallow — next tick will retry */
+        /* swallow */
       }
     }
     tick()
@@ -99,22 +78,19 @@ export default function OpsPage() {
       cancelled = true
       clearInterval(t)
     }
-  }, [matchId, session.status])
+  }, [matchId])
 
-  async function sendMagicLink() {
+  function saveSecret() {
+    if (!secretInput) return
+    localStorage.setItem(SECRET_KEY, secretInput)
+    setSecret(secretInput)
     setErrMsg(null)
-    if (!emailInput.includes('@')) {
-      setErrMsg('Invalid email')
-      return
-    }
-    const res = await fetch('/api/auth/email/start', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: emailInput, redirectTo: '/ops' }),
-    })
-    const j = await res.json()
-    if (j.ok) setEmailSent(true)
-    else setErrMsg(j.message || j.error)
+  }
+
+  function clearSecret() {
+    localStorage.removeItem(SECRET_KEY)
+    setSecret('')
+    setSecretInput('')
   }
 
   async function fireEvent(eventKey: string) {
@@ -123,12 +99,19 @@ export default function OpsPage() {
     try {
       const res = await fetch('/api/ops/resolve', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Ops-Secret': secret,
+        },
         body: JSON.stringify({ matchId, eventKey }),
       })
       const j = await res.json()
       if (!j.ok) {
         setErrMsg(j.message || j.error)
+        // Bad secret: prompt for it again.
+        if (j.error === 'bad_secret') {
+          clearSecret()
+        }
       } else {
         setFired((prev) => [...prev, j.event])
       }
@@ -139,71 +122,78 @@ export default function OpsPage() {
 
   // ----- render branches -----
 
-  if (session.status === 'loading') {
-    return <div style={shell}>Loading…</div>
-  }
-
-  if (session.status === 'anonymous') {
+  if (!secret) {
     return (
-      <div style={shell}>
+      <main style={shell}>
         <h1 style={h1}>Ops console</h1>
-        <p style={muted}>Sign in with the ops email to continue.</p>
-        {emailSent ? (
-          <p style={ok}>Magic link sent to {emailInput}. Check your inbox.</p>
-        ) : (
-          <>
-            <input
-              type="email"
-              value={emailInput}
-              onChange={(e) => setEmailInput(e.target.value)}
-              placeholder="ops email"
-              style={input}
-            />
-            <button onClick={sendMagicLink} style={btnPrimary}>Send magic link</button>
-            {errMsg && <p style={err}>{errMsg}</p>}
-          </>
-        )}
-      </div>
+        <p style={muted}>Enter the ops secret to continue.</p>
+        <input
+          type="password"
+          value={secretInput}
+          onChange={(e) => setSecretInput(e.target.value)}
+          placeholder="ops secret"
+          style={input}
+          autoFocus
+          onKeyDown={(e) => e.key === 'Enter' && saveSecret()}
+        />
+        <button onClick={saveSecret} style={btnPrimary}>Continue</button>
+        {errMsg && <p style={err}>{errMsg}</p>}
+      </main>
     )
   }
 
-  if (session.status === 'not_ops') {
-    return (
-      <div style={shell}>
-        <h1 style={h1}>Ops console</h1>
-        <p style={err}>
-          {session.email} doesn't have ops access. Ask Gerwin to set
-          <code style={code}>raw_app_meta_data.ops = true</code> on this user.
-        </p>
-      </div>
-    )
-  }
-
-  // Ready.
   const pool = POOLS[poolKey].events
   const firedKeys = new Set(fired.map((e) => e.event_key))
 
   return (
-    <div style={shell}>
-      <h1 style={h1}>Ops console</h1>
-      <p style={muted}>Signed in as {session.email}</p>
+    <main style={shell}>
+      <header style={headerRow}>
+        <h1 style={h1}>Ops console</h1>
+        <button onClick={clearSecret} style={btnGhost}>Sign out</button>
+      </header>
 
       <div style={row}>
-        <label style={label}>Card type</label>
-        <select value={poolKey} onChange={(e) => setPoolKey(e.target.value as 'sports' | 'daily')} style={select}>
-          <option value="sports">PBA / Sports</option>
-          <option value="daily">Daily</option>
+        <label style={label}>Fixture</label>
+        <select
+          value={QUICK_FIXTURES.some((f) => f.id === matchId) ? matchId : '__custom__'}
+          onChange={(e) => {
+            const v = e.target.value
+            if (v === '__custom__') return
+            const f = QUICK_FIXTURES.find((x) => x.id === v)
+            if (f) {
+              setMatchId(f.id)
+              setPoolKey(f.pool)
+            }
+          }}
+          style={input}
+        >
+          {QUICK_FIXTURES.map((f) => (
+            <option key={f.id} value={f.id}>{f.label}</option>
+          ))}
+          <option value="__custom__">Custom (type below)</option>
         </select>
       </div>
 
       <div style={row}>
-        <label style={label}>Match ID</label>
+        <label style={label}>Match ID (override)</label>
         <input
           value={matchId}
           onChange={(e) => setMatchId(e.target.value)}
-          placeholder="wc-opening-2026"
+          placeholder="pba-gin-ros-2026-05-24"
           style={input}
         />
+      </div>
+
+      <div style={row}>
+        <label style={label}>Card type</label>
+        <select
+          value={poolKey}
+          onChange={(e) => setPoolKey(e.target.value as 'sports' | 'daily')}
+          style={input}
+        >
+          <option value="sports">PBA / Sports</option>
+          <option value="daily">Daily</option>
+        </select>
       </div>
 
       <p style={muted}>
@@ -236,7 +226,7 @@ export default function OpsPage() {
           )
         })}
       </div>
-    </div>
+    </main>
   )
 }
 
@@ -249,6 +239,7 @@ const shell: React.CSSProperties = {
   background: '#0a0a0a',
   minHeight: '100vh',
 }
+const headerRow: React.CSSProperties = { display: 'flex', justifyContent: 'space-between', alignItems: 'center' }
 const h1: React.CSSProperties = { fontSize: 22, fontWeight: 700, margin: '0 0 8px' }
 const muted: React.CSSProperties = { color: '#888', fontSize: 14, margin: '4px 0 16px' }
 const row: React.CSSProperties = { margin: '12px 0' }
@@ -261,8 +252,8 @@ const input: React.CSSProperties = {
   border: '1px solid #333',
   color: '#eee',
   borderRadius: 6,
+  boxSizing: 'border-box',
 }
-const select: React.CSSProperties = { ...input }
 const btnPrimary: React.CSSProperties = {
   padding: '10px 16px',
   background: '#2d9d57',
@@ -272,6 +263,15 @@ const btnPrimary: React.CSSProperties = {
   borderRadius: 6,
   cursor: 'pointer',
   marginTop: 8,
+}
+const btnGhost: React.CSSProperties = {
+  padding: '6px 10px',
+  background: 'transparent',
+  border: '1px solid #333',
+  color: '#888',
+  fontSize: 12,
+  borderRadius: 4,
+  cursor: 'pointer',
 }
 const grid: React.CSSProperties = {
   display: 'grid',
@@ -290,6 +290,4 @@ const tile: React.CSSProperties = {
 }
 const tileLabel: React.CSSProperties = { fontSize: 13, fontWeight: 600, lineHeight: 1.25 }
 const tileMeta: React.CSSProperties = { fontSize: 10, color: '#888', marginTop: 4 }
-const ok: React.CSSProperties = { color: '#2d9d57', fontSize: 14 }
 const err: React.CSSProperties = { color: '#e85a5a', fontSize: 14 }
-const code: React.CSSProperties = { background: '#1a1a1a', padding: '2px 6px', borderRadius: 3, margin: '0 4px' }
