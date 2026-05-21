@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { generateCard, isFreeCell } from '../../../lib/hits/card-generator'
 import { bestPayout, detectWins } from '../../../lib/hits/payouts'
@@ -32,6 +32,13 @@ export default function HitsCardPage({ params }: PageProps) {
   const meta = CARD_TYPES[cardType]
   const sample = meta.sample
 
+  // Live mode: ?live=1 means events come from /api/events (Jade firing
+  // from /ops) instead of the canned sample timeline. ?match=X tells us
+  // which match's events to poll.
+  const live = search?.get('live') === '1'
+  const matchId =
+    search?.get('match') || (cardType === 'sports' ? 'wc-opening-2026' : 'daily-2026-07-20')
+
   const card = useMemo(() => generateCard(card_id, bet, cardType), [card_id, bet, cardType])
 
   const [hitIndices, setHitIndices] = useState<Set<number>>(new Set([12])) // free cell always in
@@ -42,62 +49,107 @@ export default function HitsCardPage({ params }: PageProps) {
   const [done, setDone] = useState(false)
   const [flashPattern, setFlashPattern] = useState<Set<number>>(new Set())
 
+  // Shared "an event happened" handler. Used by both the demo timeline
+  // and the live poll. Lights matching cells, detects wins, drives the
+  // ticker. Pure on the prev state; safe to call from anywhere.
+  const resolveEventByKey = useCallback(
+    (eventKey: string, clockLabel: string, description: string) => {
+      setCurrentEvent({ clock: clockLabel, desc: description })
+
+      const matchingIndices: number[] = []
+      card.cells.forEach((cell, idx) => {
+        if (cell.id === eventKey) matchingIndices.push(idx)
+      })
+      if (matchingIndices.length === 0) return
+
+      setHitIndices((prev) => {
+        const next = new Set(prev)
+        matchingIndices.forEach((i) => next.add(i))
+        const wins = detectWins(next)
+        const newBest = wins.reduce((m, w) => Math.max(m, w.multiplier), 0)
+        if (newBest > highestWinMult) {
+          const winningPattern = wins.find((w) => w.multiplier === newBest)
+          if (winningPattern) {
+            setFlashPattern(new Set(winningPattern.cellIndices))
+            setHighestWinMult(newBest)
+            setTimeout(() => setWinShown(winningPattern), 700)
+            setTimeout(() => setFlashPattern(new Set()), 1100)
+          }
+        }
+        return next
+      })
+      setJustHitIdx(matchingIndices[0])
+      setTimeout(() => setJustHitIdx(null), 600)
+    },
+    [card.cells, highestWinMult]
+  )
+
+  // Demo timeline (only when not in live mode).
   useEffect(() => {
-    const t0 = Date.now()
+    if (live) return
     const timers: ReturnType<typeof setTimeout>[] = []
 
     sample.timeline.forEach((te) => {
       const fireAt = te.atMs / speed
-      const timer = setTimeout(() => {
-        const elapsedFromT0 = Date.now() - t0
-        if (elapsedFromT0 < 0) return
-
-        setCurrentEvent({ clock: te.gameClock, desc: te.description })
-
-        // Find cells matching this event id, light them up
-        const matchingIndices: number[] = []
-        card.cells.forEach((cell, idx) => {
-          if (cell.id === te.eventId) matchingIndices.push(idx)
-        })
-
-        if (matchingIndices.length > 0) {
-          setHitIndices((prev) => {
-            const next = new Set(prev)
-            matchingIndices.forEach((i) => next.add(i))
-            // Check wins on the new set
-            const wins = detectWins(next)
-            const previousWinMaxMult = highestWinMult
-            const newBest = wins.reduce((m, w) => Math.max(m, w.multiplier), 0)
-            if (newBest > previousWinMaxMult) {
-              const winningPattern = wins.find((w) => w.multiplier === newBest)
-              if (winningPattern) {
-                setFlashPattern(new Set(winningPattern.cellIndices))
-                setHighestWinMult(newBest)
-                setTimeout(() => setWinShown(winningPattern), 700)
-                setTimeout(() => setFlashPattern(new Set()), 1100)
-              }
-            }
-            return next
-          })
-          // Light the first matching cell with the pop animation
-          setJustHitIdx(matchingIndices[0])
-          setTimeout(() => setJustHitIdx(null), 600)
-        }
-      }, fireAt)
-      timers.push(timer)
+      timers.push(
+        setTimeout(() => {
+          resolveEventByKey(te.eventId, te.gameClock, te.description)
+        }, fireAt)
+      )
     })
 
-    // Mark done after final event fires
-    const endTimer = setTimeout(() => {
-      setDone(true)
-    }, sample.durationMs / speed + 500)
-    timers.push(endTimer)
+    timers.push(
+      setTimeout(() => {
+        setDone(true)
+      }, sample.durationMs / speed + 500)
+    )
 
     return () => {
       timers.forEach((t) => clearTimeout(t))
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [card_id])
+  }, [card_id, live])
+
+  // Live poll: when ?live=1, fetch /api/events every 3s and resolve any
+  // events we haven't seen yet. `since` cursor keeps the response small.
+  const sinceRef = useRef(0)
+  const seenIdsRef = useRef<Set<number>>(new Set())
+  useEffect(() => {
+    if (!live || !matchId) return
+    let cancelled = false
+
+    const tick = async () => {
+      try {
+        const res = await fetch(
+          `/api/events?match=${encodeURIComponent(matchId)}&since=${sinceRef.current}`,
+          { cache: 'no-store' }
+        )
+        const j = await res.json()
+        if (cancelled || !j.ok || !Array.isArray(j.events)) return
+        for (const ev of j.events as Array<{ id: number; event_key: string; resolved_at: string }>) {
+          if (seenIdsRef.current.has(ev.id)) continue
+          seenIdsRef.current.add(ev.id)
+          if (ev.id > sinceRef.current) sinceRef.current = ev.id
+
+          const t = new Date(ev.resolved_at)
+          const clockLabel = `${t.getHours().toString().padStart(2, '0')}:${t
+            .getMinutes()
+            .toString()
+            .padStart(2, '0')}`
+          resolveEventByKey(ev.event_key, clockLabel, ev.event_key)
+        }
+      } catch {
+        /* swallow — next tick will retry */
+      }
+    }
+    tick()
+    const interval = setInterval(tick, 3000)
+    return () => {
+      cancelled = true
+      clearInterval(interval)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [live, matchId])
 
   const payout = bestPayout(hitIndices, card.pricePhp)
   const shareUrl =
