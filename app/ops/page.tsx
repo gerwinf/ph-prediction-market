@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 import { CANDIDATE_EVENTS } from '../../lib/hits/events'
 import { DAILY_EVENTS } from '../../lib/hits/daily-events'
+import { SAKE_OKADA_2026_05_22 } from '../../lib/private-games/sake-okada-2026-05-22'
+import type { Square } from '../../lib/private-games/types'
 
 /* ────────────────────────────────────────────────────────────────────────
  * /ops — manual ops console for live event resolution
@@ -33,18 +35,26 @@ const POOLS = {
 
 // Quick-pick fixtures so Jade doesn't have to type the id. Add new ones
 // here as new games come up. "Custom" lets her type a one-off id.
-const QUICK_FIXTURES: Array<{ id: string; label: string; pool: 'sports' | 'daily' }> = [
+//
+// pool='private:<gameId>' loads from lib/private-games/registry.
+type FixturePool = 'sports' | 'daily' | `private:${string}`
+const QUICK_FIXTURES: Array<{ id: string; label: string; pool: FixturePool }> = [
+  { id: SAKE_OKADA_2026_05_22.id, label: 'Sake + Okada — May 22 (private)',     pool: `private:${SAKE_OKADA_2026_05_22.id}` },
   { id: 'pba-gin-ros-2026-05-24', label: 'Ginebra vs Rain or Shine — Sun May 24', pool: 'sports' },
   { id: 'pba-tnt-mer-2026-05-24', label: 'TNT vs Meralco — Sun May 24',         pool: 'sports' },
   { id: 'daily-2026-07-20',       label: 'Daily — Jul 20',                       pool: 'daily'  },
 ]
+
+const PRIVATE_GAMES: Record<string, typeof SAKE_OKADA_2026_05_22> = {
+  [SAKE_OKADA_2026_05_22.id]: SAKE_OKADA_2026_05_22,
+}
 
 const SECRET_KEY = 'hula-ops-secret'
 
 export default function OpsPage() {
   const [secret, setSecret] = useState<string>('')
   const [secretInput, setSecretInput] = useState('')
-  const [poolKey, setPoolKey] = useState<'sports' | 'daily'>('sports')
+  const [poolKey, setPoolKey] = useState<FixturePool>('sports')
   const [matchId, setMatchId] = useState('pba-gin-ros-2026-05-24')
   const [fired, setFired] = useState<FiredEvent[]>([])
   const [busy, setBusy] = useState<string | null>(null)
@@ -93,22 +103,23 @@ export default function OpsPage() {
     setSecretInput('')
   }
 
-  async function fireEvent(eventKey: string) {
+  async function fireEvent(eventKey: string, payload?: Record<string, unknown>) {
     setErrMsg(null)
     setBusy(eventKey)
     try {
+      const body: Record<string, unknown> = { matchId, eventKey }
+      if (payload) body.payload = payload
       const res = await fetch('/api/ops/resolve', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'X-Ops-Secret': secret,
         },
-        body: JSON.stringify({ matchId, eventKey }),
+        body: JSON.stringify(body),
       })
       const j = await res.json()
       if (!j.ok) {
         setErrMsg(j.message || j.error)
-        // Bad secret: prompt for it again.
         if (j.error === 'bad_secret') {
           clearSecret()
         }
@@ -118,6 +129,29 @@ export default function OpsPage() {
     } finally {
       setBusy(null)
     }
+  }
+
+  async function setPlayerPrediction(
+    gameId: string,
+    slug: string,
+    squareId: string,
+    answer: 'yes' | 'no'
+  ) {
+    setErrMsg(null)
+    const res = await fetch(`/api/private/${encodeURIComponent(gameId)}/${encodeURIComponent(slug)}/predict`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Ops-Secret': secret,
+      },
+      body: JSON.stringify({ squareId, answer }),
+    })
+    const j = await res.json()
+    if (!j.ok) {
+      setErrMsg(j.message || j.error)
+      if (j.error === 'bad_secret') clearSecret()
+    }
+    return j
   }
 
   // ----- render branches -----
@@ -142,8 +176,26 @@ export default function OpsPage() {
     )
   }
 
-  const pool = POOLS[poolKey].events
+  // Resolve the pool. For private games (poolKey === 'private:<gameId>'),
+  // pull squares from the registry; otherwise use the legacy POOLS map.
+  const isPrivate = poolKey.startsWith('private:')
+  const privateGame = isPrivate ? PRIVATE_GAMES[poolKey.slice('private:'.length)] : null
+  const pool: Array<{ id: string; label: string; category: string; rarity?: string }> = isPrivate && privateGame
+    ? privateGame.squarePool.map((s) => ({
+        id: s.id,
+        label: s.label,
+        category: s.category,
+        rarity: s.type === 'predictive' ? 'predictive' : 'observational',
+      }))
+    : POOLS[poolKey as 'sports' | 'daily'].events as unknown as Array<{ id: string; label: string; category: string; rarity?: string }>
   const firedKeys = new Set(fired.map((e) => e.event_key))
+
+  // For private games, ops can fire a predictive event with YES or NO
+  // payload to resolve it at end of night. We surface this as a two-tap
+  // workflow: tap the predictive tile → modal-less prompt right there.
+  async function firePredictiveResolution(squareId: string, answer: 'yes' | 'no') {
+    await fireEvent(squareId, { answer })
+  }
 
   return (
     <main style={shell}>
@@ -184,17 +236,19 @@ export default function OpsPage() {
         />
       </div>
 
-      <div style={row}>
-        <label style={label}>Card type</label>
-        <select
-          value={poolKey}
-          onChange={(e) => setPoolKey(e.target.value as 'sports' | 'daily')}
-          style={input}
-        >
-          <option value="sports">PBA / Sports</option>
-          <option value="daily">Daily</option>
-        </select>
-      </div>
+      {!isPrivate && (
+        <div style={row}>
+          <label style={label}>Card type</label>
+          <select
+            value={poolKey}
+            onChange={(e) => setPoolKey(e.target.value as FixturePool)}
+            style={input}
+          >
+            <option value="sports">PBA / Sports</option>
+            <option value="daily">Daily</option>
+          </select>
+        </div>
+      )}
 
       <p style={muted}>
         Fired this match: <b>{fired.length}</b> event{fired.length === 1 ? '' : 's'}
@@ -205,6 +259,38 @@ export default function OpsPage() {
       <div style={grid}>
         {pool.map((ev) => {
           const lit = firedKeys.has(ev.id)
+          const isPredictive = ev.rarity === 'predictive'
+          if (isPredictive) {
+            // Two-tap workflow: tile shows the label + YES/NO buttons.
+            return (
+              <div
+                key={ev.id}
+                style={{
+                  ...tile,
+                  background: lit ? '#3b2410' : '#1a1a1a',
+                  borderColor: lit ? '#d97706' : '#f59e0b',
+                  cursor: 'default',
+                }}
+              >
+                <div style={tileLabel}>{ev.label}</div>
+                <div style={{ ...tileMeta, color: '#fbbf24' }}>
+                  PREDICTIVE · {ev.category}{lit && ' · ✓ fired'}
+                </div>
+                <div style={{ display: 'flex', gap: 4, marginTop: 6 }}>
+                  <button
+                    onClick={() => firePredictiveResolution(ev.id, 'yes')}
+                    disabled={busy === ev.id || lit}
+                    style={{ ...predBtn, background: '#065f46', color: '#d1fae5' }}
+                  >YES</button>
+                  <button
+                    onClick={() => firePredictiveResolution(ev.id, 'no')}
+                    disabled={busy === ev.id || lit}
+                    style={{ ...predBtn, background: '#7f1d1d', color: '#fee2e2' }}
+                  >NO</button>
+                </div>
+              </div>
+            )
+          }
           return (
             <button
               key={ev.id}
@@ -226,6 +312,13 @@ export default function OpsPage() {
           )
         })}
       </div>
+
+      {isPrivate && privateGame && (
+        <PrivatePredictionsEditor
+          game={privateGame}
+          onSet={setPlayerPrediction}
+        />
+      )}
     </main>
   )
 }
@@ -291,3 +384,130 @@ const tile: React.CSSProperties = {
 const tileLabel: React.CSSProperties = { fontSize: 13, fontWeight: 600, lineHeight: 1.25 }
 const tileMeta: React.CSSProperties = { fontSize: 10, color: '#888', marginTop: 4 }
 const err: React.CSSProperties = { color: '#e85a5a', fontSize: 14 }
+const predBtn: React.CSSProperties = {
+  flex: 1,
+  padding: '6px 8px',
+  border: 'none',
+  borderRadius: 4,
+  fontSize: 11,
+  fontWeight: 700,
+  letterSpacing: '0.08em',
+  cursor: 'pointer',
+}
+
+/* ───────────────────────────────────────────────────────────────────
+ * Per-player predictions editor (private games only).
+ * ─────────────────────────────────────────────────────────────────── */
+function PrivatePredictionsEditor({
+  game,
+  onSet,
+}: {
+  game: typeof SAKE_OKADA_2026_05_22
+  onSet: (gameId: string, slug: string, squareId: string, answer: 'yes' | 'no') => Promise<{ ok: boolean }>
+}) {
+  // Pull each player's prediction_answers from the cards endpoint once
+  // on mount, then update optimistically as ops toggles them.
+  const [answers, setAnswers] = useState<Record<string, Record<string, 'yes' | 'no'>>>({})
+  const [pending, setPending] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      const next: Record<string, Record<string, 'yes' | 'no'>> = {}
+      for (const player of game.players) {
+        try {
+          const res = await fetch(`/api/cards/priv-sake-okada-${player.slug}`, { cache: 'no-store' })
+          const j = await res.json()
+          if (j.ok) next[player.slug] = (j.card?.prediction_answers as Record<string, 'yes' | 'no'>) ?? {}
+        } catch {
+          /* swallow */
+        }
+      }
+      if (!cancelled) setAnswers(next)
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [game])
+
+  const predictiveSquares = game.squarePool.filter((s) => s.type === 'predictive')
+
+  async function toggle(slug: string, squareId: string, answer: 'yes' | 'no') {
+    const key = `${slug}:${squareId}`
+    setPending(key)
+    setAnswers((prev) => ({
+      ...prev,
+      [slug]: { ...(prev[slug] ?? {}), [squareId]: answer },
+    }))
+    await onSet(game.id, slug, squareId, answer)
+    setPending(null)
+  }
+
+  return (
+    <section style={{ marginTop: 28 }}>
+      <h2 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px' }}>Predictions editor</h2>
+      <p style={{ ...tileMeta, fontSize: 11, marginBottom: 12 }}>
+        Set each player's prediction. Default is YES. Tap to flip. Only applies to squares on their card.
+      </p>
+      {game.players.map((player) => {
+        const playerAnswers = answers[player.slug] ?? {}
+        const playerPredictiveIds = player.cardSquareIds.filter((id) =>
+          predictiveSquares.some((s) => s.id === id)
+        )
+        if (playerPredictiveIds.length === 0) return null
+        return (
+          <div key={player.slug} style={{ marginBottom: 16 }}>
+            <h3 style={{ fontSize: 13, fontWeight: 700, color: '#fbbf24', margin: '0 0 6px' }}>
+              {player.displayName}
+            </h3>
+            <div style={{ display: 'grid', gap: 4 }}>
+              {playerPredictiveIds.map((squareId) => {
+                const sq = predictiveSquares.find((s) => s.id === squareId)
+                if (!sq) return null
+                const current = playerAnswers[squareId] ?? 'yes'
+                const key = `${player.slug}:${squareId}`
+                return (
+                  <div
+                    key={squareId}
+                    style={{
+                      display: 'flex',
+                      gap: 6,
+                      padding: '6px 8px',
+                      background: '#0f0f0f',
+                      borderRadius: 6,
+                      border: '1px solid #1f1f1f',
+                      alignItems: 'center',
+                      opacity: pending === key ? 0.6 : 1,
+                    }}
+                  >
+                    <div style={{ flex: 1, fontSize: 11, lineHeight: 1.3 }}>{sq.label}</div>
+                    <button
+                      onClick={() => toggle(player.slug, squareId, 'yes')}
+                      style={{
+                        ...predBtn,
+                        background: current === 'yes' ? '#065f46' : '#1a1a1a',
+                        color: current === 'yes' ? '#d1fae5' : '#888',
+                        flex: 'none',
+                        padding: '4px 8px',
+                      }}
+                    >YES</button>
+                    <button
+                      onClick={() => toggle(player.slug, squareId, 'no')}
+                      style={{
+                        ...predBtn,
+                        background: current === 'no' ? '#7f1d1d' : '#1a1a1a',
+                        color: current === 'no' ? '#fee2e2' : '#888',
+                        flex: 'none',
+                        padding: '4px 8px',
+                      }}
+                    >NO</button>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )
+      })}
+    </section>
+  )
+}

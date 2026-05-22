@@ -1480,6 +1480,73 @@ button:focus {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ── /private/[gameId]/[playerSlug] additions ──────────────────────── */
+.hula-v2 .private-header {
+  margin: 8px 0 14px;
+}
+.hula-v2 .private-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 4px;
+  line-height: 1.25;
+}
+.hula-v2 .private-player {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 0;
+  font-size: 14px;
+  color: var(--ink-2);
+}
+.hula-v2 .private-player-name {
+  font-weight: 600;
+  color: var(--ink);
+}
+.hula-v2 .private-player-score {
+  font-family: var(--ff-mono);
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.hula-v2 .private-cell {
+  position: relative;
+}
+.hula-v2 .private-cell-label {
+  font-size: 11px;
+  line-height: 1.2;
+  text-align: center;
+  padding: 4px 2px;
+}
+.hula-v2 .private-cell[data-predictive] {
+  border-color: #f59e0b;
+  background: #fffbeb;
+}
+.hula-v2 .private-cell[data-predictive][data-state='hit'] {
+  background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%);
+  border-color: #d97706;
+}
+.hula-v2 .private-cell-pred-pill {
+  font-family: var(--ff-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 2px 5px;
+  margin-top: 3px;
+  border-radius: 3px;
+  display: inline-block;
+}
+.hula-v2 .private-cell-pred-pill[data-answer='yes'] {
+  background: #d1fae5;
+  color: #065f46;
+}
+.hula-v2 .private-cell-pred-pill[data-answer='no'] {
+  background: #fee2e2;
+  color: #7f1d1d;
+}
+.hula-v2 .private-cell-pred-pill[data-answer='none'] {
+  background: #f3f4f6;
+  color: #6b7280;
+}
 .hula-v2 .hits-back {
   font-family: var(--ff-mono);
   font-size: 11px;
