@@ -55,7 +55,7 @@ export async function GET(req: Request) {
   // win against Vercel's edge cache for SSR'd API routes — we observed
   // stale event lists in /ops + player cards. Belt + suspenders.
   return NextResponse.json(
-    { ok: true, events: data ?? [] },
+    { ok: true, events: data ?? [], _build: 'a48bdb2-debug', _time: new Date().toISOString() },
     {
       headers: {
         'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
