@@ -29,8 +29,8 @@ export const SAKE_OKADA_2026_05_22: PrivateGame = {
     { id: 'first_round_10min', type: 'observational', label: 'First round arrives under 10 min', category: 'sake_bar', isShared: true },
     { id: 'sake_spill', type: 'observational', label: 'Someone spills sake', category: 'sake_bar', isShared: true },
     { id: 'meet_someone', type: 'observational', label: 'We meet someone we know', category: 'either', isShared: true },
-    { id: 'bump_before_dinner', type: 'observational', label: 'Someone takes a bump before dinner', category: 'sake_bar', isShared: true },
-    { id: 'tollo_double_bump', type: 'observational', label: 'Tollo takes a double bump', category: 'either', isShared: true },
+    { id: 'multi_drug', type: 'observational', label: 'More than one drug consumed', category: 'either', isShared: true },
+    { id: 'escorts_2plus', type: 'observational', label: '2+ escorts ordered', category: 'either', isShared: true },
     { id: 'group_photo', type: 'observational', label: 'Group photo before second course', category: 'sake_bar', isShared: true },
     { id: 'anyone_blackjack', type: 'observational', label: 'Anyone gets blackjack', category: 'casino', isShared: true },
     { id: 'toilet_before_okada', type: 'observational', label: 'Toilet break before Okada', category: 'either', isShared: true },
@@ -66,8 +66,8 @@ export const SAKE_OKADA_2026_05_22: PrivateGame = {
     { id: 'anyone_three_streak', type: 'observational', label: 'Anyone wins three hands in a row', category: 'casino', isShared: false },
 
     // Matt
-    { id: 'matt_spicy', type: 'observational', label: 'Matt orders something extra-spicy', category: 'sake_bar', isShared: false },
-    { id: 'matt_specific_sake', type: 'observational', label: 'Matt insists on a specific sake', category: 'sake_bar', isShared: false },
+    { id: 'matt_3drinks', type: 'observational', label: 'Matt has 3+ drinks', category: 'sake_bar', isShared: false },
+    { id: 'matt_stallone', type: 'observational', label: 'Matt goes full Stallone', category: 'either', isShared: false },
     { id: 'matt_lets_go', type: 'observational', label: 'Matt says "let\'s go" before everyone\'s ready', category: 'either', isShared: false },
     { id: 'matt_long_table', type: 'observational', label: 'Matt at a card table >30 min', category: 'casino', isShared: false },
     { id: 'matt_blackjack', type: 'observational', label: 'Matt gets blackjack himself', category: 'casino', isShared: false },
@@ -102,7 +102,7 @@ export const SAKE_OKADA_2026_05_22: PrivateGame = {
       slug: 'tonio',
       displayName: 'Tonio',
       cardSquareIds: [
-        'first_round_10min', 'sake_spill', 'meet_someone', 'bump_before_dinner', 'tollo_double_bump',
+        'first_round_10min', 'sake_spill', 'meet_someone', 'multi_drug', 'escorts_2plus',
         'tonio_omakase', 'group_photo', 'anyone_blackjack', 'toilet_before_okada', 'tollo_wine_list',
         'anyone_red', 'predict_okada_before_1030', '__hula__', 'tonio_tokyo_rec', 'predict_winnings_100k',
         'free_drink_casino', '10k_hand', 'dealer_recognizes', 'tonio_roulette', 'matt_poker_pitch',
@@ -113,7 +113,7 @@ export const SAKE_OKADA_2026_05_22: PrivateGame = {
       slug: 'gerwin',
       displayName: 'Gerwin',
       cardSquareIds: [
-        'first_round_10min', 'sake_spill', 'meet_someone', 'bump_before_dinner', 'tollo_double_bump',
+        'first_round_10min', 'sake_spill', 'meet_someone', 'multi_drug', 'escorts_2plus',
         'gerwin_spicy', 'group_photo', 'anyone_blackjack', 'toilet_before_okada', 'tonio_tokyo_rec',
         'anyone_red', 'predict_tollo_biggest_win', '__hula__', 'gerwin_disappears', 'predict_instagram_story',
         'free_drink_casino', '10k_hand', 'dealer_recognizes', 'gerwin_double_11', 'matt_poker_pitch',
@@ -124,7 +124,7 @@ export const SAKE_OKADA_2026_05_22: PrivateGame = {
       slug: 'tollo',
       displayName: 'Tollo',
       cardSquareIds: [
-        'first_round_10min', 'sake_spill', 'meet_someone', 'bump_before_dinner', 'tollo_double_bump',
+        'first_round_10min', 'sake_spill', 'meet_someone', 'multi_drug', 'escorts_2plus',
         'tollo_wine_list', 'group_photo', 'anyone_blackjack', 'toilet_before_okada', 'tonio_omakase',
         'anyone_black', 'predict_2hrs_sake_bar', '__hula__', 'tollo_wager', 'predict_50k_hand',
         'free_drink_casino', '10k_hand', 'dealer_recognizes', 'tollo_high_limit', 'matt_poker_pitch',
@@ -135,8 +135,8 @@ export const SAKE_OKADA_2026_05_22: PrivateGame = {
       slug: 'matt',
       displayName: 'Matt',
       cardSquareIds: [
-        'first_round_10min', 'sake_spill', 'meet_someone', 'bump_before_dinner', 'tollo_double_bump',
-        'matt_spicy', 'group_photo', 'anyone_blackjack', 'toilet_before_okada', 'matt_specific_sake',
+        'first_round_10min', 'sake_spill', 'meet_someone', 'multi_drug', 'escorts_2plus',
+        'matt_3drinks', 'group_photo', 'anyone_blackjack', 'toilet_before_okada', 'matt_stallone',
         'anyone_red', 'predict_4plus_drinks_predinner', '__hula__', 'matt_lets_go', 'predict_matt_3_games',
         'free_drink_casino', '10k_hand', 'dealer_recognizes', 'matt_poker_pitch', 'gerwin_disappears',
         'matt_blackjack', 'anyone_tips_dealer', 'predict_matts_color_hits', 'matt_long_table', 'predict_tonio_positive',
