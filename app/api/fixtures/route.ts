@@ -52,5 +52,14 @@ export async function GET() {
     else if (row.status === 'final') finished.push(row)
   }
 
-  return NextResponse.json({ ok: true, live, upcoming, finished })
+  return NextResponse.json(
+    { ok: true, live, upcoming, finished },
+    {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+        'CDN-Cache-Control': 'no-store',
+        'Vercel-CDN-Cache-Control': 'no-store',
+      },
+    }
+  )
 }

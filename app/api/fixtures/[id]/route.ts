@@ -37,5 +37,14 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
     return NextResponse.json({ ok: false, error: 'not_found' }, { status: 404 })
   }
 
-  return NextResponse.json({ ok: true, fixture: data })
+  return NextResponse.json(
+    { ok: true, fixture: data },
+    {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+        'CDN-Cache-Control': 'no-store',
+        'Vercel-CDN-Cache-Control': 'no-store',
+      },
+    }
+  )
 }

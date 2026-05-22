@@ -41,5 +41,14 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
   const deviceId = await readDeviceId()
   const ownedByThisDevice = !!deviceId && deviceId === data.device_id
 
-  return NextResponse.json({ ok: true, card: data, ownedByThisDevice })
+  return NextResponse.json(
+    { ok: true, card: data, ownedByThisDevice },
+    {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+        'CDN-Cache-Control': 'no-store',
+        'Vercel-CDN-Cache-Control': 'no-store',
+      },
+    }
+  )
 }

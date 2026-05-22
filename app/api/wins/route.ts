@@ -60,5 +60,14 @@ export async function GET(req: Request) {
     won_at: c.claimed_at ?? c.created_at,
   }))
 
-  return NextResponse.json({ ok: true, wins })
+  return NextResponse.json(
+    { ok: true, wins },
+    {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+        'CDN-Cache-Control': 'no-store',
+        'Vercel-CDN-Cache-Control': 'no-store',
+      },
+    }
+  )
 }
