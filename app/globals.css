@@ -1556,6 +1556,55 @@ button:focus {
   background: #f3f4f6;
   color: #6b7280;
 }
+
+/* ── /private payouts panel ───────────────────────────────────────── */
+.hula-v2 .private-payouts {
+  margin: 18px 0 14px;
+  padding: 14px 16px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+.hula-v2 .private-payouts-title {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 10px;
+}
+.hula-v2 .private-payouts-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+  font-size: 13px;
+}
+.hula-v2 .private-payouts-row:last-of-type {
+  border-bottom: none;
+}
+.hula-v2 .private-payouts-label {
+  color: var(--ink-2);
+}
+.hula-v2 .private-payouts-amt {
+  font-family: var(--ff-mono);
+  font-weight: 600;
+  color: var(--ink);
+}
+.hula-v2 .private-payouts-row-rollover .private-payouts-amt {
+  font-style: italic;
+  font-weight: 500;
+  color: var(--ink-3);
+}
+.hula-v2 .private-payouts-note {
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--ink-3);
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--line-2);
+}
 .hula-v2 .hits-back {
   font-family: var(--ff-mono);
   font-size: 11px;

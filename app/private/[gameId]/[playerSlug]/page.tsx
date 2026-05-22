@@ -249,6 +249,31 @@ export default function PrivateCardPage({ params }: Props) {
           })}
         </section>
 
+        <section className="private-payouts">
+          <div className="private-payouts-title">
+            Premyo · ₱{game.kittyTotalPhp.toLocaleString()} kitty
+          </div>
+          <div className="private-payouts-row">
+            <span className="private-payouts-label">🏆 1st Bingo</span>
+            <span className="private-payouts-amt">₱{game.payouts.firstBingoPhp.toLocaleString()}</span>
+          </div>
+          <div className="private-payouts-row">
+            <span className="private-payouts-label">🥈 2nd Bingo</span>
+            <span className="private-payouts-amt">₱{game.payouts.secondBingoPhp.toLocaleString()}</span>
+          </div>
+          <div className="private-payouts-row">
+            <span className="private-payouts-label">🔮 Prediction King</span>
+            <span className="private-payouts-amt">₱{game.payouts.predictionKingPhp.toLocaleString()}</span>
+          </div>
+          <div className="private-payouts-row private-payouts-row-rollover">
+            <span className="private-payouts-label">💰 Full Card jackpot</span>
+            <span className="private-payouts-amt">rollover</span>
+          </div>
+          <div className="private-payouts-note">
+            {game.payouts.rolloverNote}
+          </div>
+        </section>
+
         <p className="hits-foot">
           Dry run · ops drives the cells · score sa bar
         </p>
