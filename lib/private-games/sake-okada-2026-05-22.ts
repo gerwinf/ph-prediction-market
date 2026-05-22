@@ -49,7 +49,7 @@ export const SAKE_OKADA_2026_05_22: PrivateGame = {
 
     // ── Personalized observational squares per player ────────────────
     // Tonio
-    { id: 'tonio_omakase', type: 'observational', label: 'Tonio orders the omakase', category: 'sake_bar', isShared: false },
+    { id: 'matt_home_first', type: 'observational', label: 'Matt home before Tollo', category: 'either', isShared: false },
     { id: 'tonio_tokyo_rec', type: 'observational', label: 'Tonio recommends a Tokyo restaurant', category: 'sake_bar', isShared: false },
     { id: 'tonio_leaves_call', type: 'observational', label: 'Tonio leaves to take a call', category: 'either', isShared: false },
     { id: 'tonio_roulette', type: 'observational', label: 'Tonio plays roulette', category: 'casino', isShared: false },
@@ -63,7 +63,7 @@ export const SAKE_OKADA_2026_05_22: PrivateGame = {
     { id: 'tollo_cashes_midnight', type: 'observational', label: 'Tollo cashes out before midnight', category: 'casino', isShared: false },
 
     // Gerwin
-    { id: 'gerwin_spicy', type: 'observational', label: 'Gerwin orders the spiciest thing on the menu', category: 'sake_bar', isShared: false },
+    { id: 'tollo_home_first', type: 'observational', label: 'Tollo home before Matt', category: 'either', isShared: false },
     { id: 'gerwin_disappears', type: 'observational', label: 'Gerwin disappears for 5+ min unannounced', category: 'either', isShared: false },
     { id: 'gerwin_double_11', type: 'observational', label: 'Gerwin doubles down on 11', category: 'casino', isShared: false },
     { id: 'gerwin_loses_first', type: 'observational', label: 'Gerwin loses on his first bet', category: 'casino', isShared: false },
@@ -107,7 +107,7 @@ export const SAKE_OKADA_2026_05_22: PrivateGame = {
       displayName: 'Tonio',
       cardSquareIds: [
         'first_round_10min', 'sake_spill', 'meet_someone', 'multi_drug', 'escorts_2plus',
-        'tonio_omakase', 'group_photo', 'anyone_blackjack', 'toilet_before_okada', 'tollo_wine_list',
+        'matt_home_first', 'group_photo', 'anyone_blackjack', 'toilet_before_okada', 'tollo_wine_list',
         'anyone_red', 'predict_okada_before_1030', '__hula__', 'tonio_tokyo_rec', 'predict_winnings_100k',
         'free_drink_casino', '10k_hand', 'dealer_recognizes', 'tonio_roulette', 'matt_poker_pitch',
         'predict_tonio_positive', 'anyone_tips_dealer', 'predict_3plus_leave_early', 'tonio_straight_up', 'predict_3plus_blackjacks',
@@ -118,7 +118,7 @@ export const SAKE_OKADA_2026_05_22: PrivateGame = {
       displayName: 'Gerwin',
       cardSquareIds: [
         'first_round_10min', 'sake_spill', 'meet_someone', 'multi_drug', 'escorts_2plus',
-        'gerwin_spicy', 'group_photo', 'anyone_blackjack', 'toilet_before_okada', 'tonio_tokyo_rec',
+        'tollo_home_first', 'group_photo', 'anyone_blackjack', 'toilet_before_okada', 'tonio_tokyo_rec',
         'anyone_red', 'predict_tollo_biggest_win', '__hula__', 'gerwin_disappears', 'predict_instagram_story',
         'free_drink_casino', '10k_hand', 'dealer_recognizes', 'gerwin_double_11', 'matt_poker_pitch',
         'predict_gerwin_negative', 'anyone_three_streak', 'predict_meet_2plus_known', 'gerwin_loses_first', 'predict_matt_last',
@@ -129,7 +129,7 @@ export const SAKE_OKADA_2026_05_22: PrivateGame = {
       displayName: 'Tollo',
       cardSquareIds: [
         'first_round_10min', 'sake_spill', 'meet_someone', 'multi_drug', 'escorts_2plus',
-        'tollo_wine_list', 'group_photo', 'anyone_blackjack', 'toilet_before_okada', 'tonio_omakase',
+        'tollo_wine_list', 'group_photo', 'anyone_blackjack', 'toilet_before_okada', 'matt_home_first',
         'anyone_black', 'predict_2hrs_sake_bar', '__hula__', 'tollo_wager', 'predict_50k_hand',
         'free_drink_casino', '10k_hand', 'dealer_recognizes', 'tollo_high_limit', 'matt_poker_pitch',
         'predict_group_net_positive', 'tollo_wins_walks', 'predict_tollo_highest_bet', 'tollo_cashes_midnight', 'predict_tonio_expensive_order',
