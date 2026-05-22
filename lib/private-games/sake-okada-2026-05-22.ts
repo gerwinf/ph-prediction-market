@@ -78,7 +78,7 @@ export const SAKE_OKADA_2026_05_22: PrivateGame = {
     { id: 'high_roller_chips', type: 'observational', label: 'A high-roller chip stack appears', category: 'casino', isShared: false },
 
     // ── Predictive squares (resolved at end of night) ─────────────────
-    { id: 'predict_okada_before_1030', type: 'predictive', label: 'Group arrives at Okada before 10:30 PM', category: 'prediction', isShared: false },
+    { id: 'predict_okada_before_1030', type: 'predictive', label: 'Group leaves Okada before 10:30 PM', category: 'prediction', isShared: false },
     { id: 'predict_winnings_100k', type: 'predictive', label: 'Total group winnings exceed ₱100K', category: 'prediction', isShared: false },
     { id: 'predict_tonio_positive', type: 'predictive', label: "Tonio's casino net is positive", category: 'prediction', isShared: false },
     { id: 'predict_3plus_leave_early', type: 'predictive', label: 'More than 3 people leave before 2 AM', category: 'prediction', isShared: false },
