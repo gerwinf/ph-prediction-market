@@ -33,7 +33,7 @@ export const SAKE_OKADA_2026_05_22: PrivateGame = {
     { id: 'escorts_2plus', type: 'observational', label: '2+ escorts ordered', category: 'either', isShared: true },
     { id: 'group_photo', type: 'observational', label: 'Group photo before second course', category: 'sake_bar', isShared: true },
     { id: 'anyone_blackjack', type: 'observational', label: 'Anyone gets blackjack', category: 'casino', isShared: true },
-    { id: 'toilet_before_okada', type: 'observational', label: 'Toilet break before Okada', category: 'either', isShared: true },
+    { id: 'toilet_before_okada', type: 'observational', label: 'First bump before dinner', category: 'sake_bar', isShared: true },
     { id: 'first_slot_15min', type: 'observational', label: 'First slot pulled <15 min after arrival', category: 'casino', isShared: true },
     { id: 'walk_to_okada', type: 'observational', label: 'Group walks instead of Grab', category: 'either', isShared: true },
     { id: 'free_drink_casino', type: 'observational', label: 'Free drink from casino floor', category: 'casino', isShared: true },
