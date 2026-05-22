@@ -33,6 +33,7 @@ export async function GET() {
     .or(
       `status.eq.live,and(status.eq.scheduled,starts_at.lte.${upcomingMax}),and(status.eq.final,starts_at.gte.${finishedMin})`
     )
+    .not('id', 'like', 'private-%')  // hide private dry-run games from public picker
     .order('starts_at', { ascending: true })
 
   if (error) {

@@ -131,6 +131,32 @@ export default function OpsPage() {
     }
   }
 
+  async function unfireEvent(eventKey: string) {
+    // Delete every event row in `fired` matching this key (covers
+    // duplicates and predictive YES+NO toggles). On success we drop
+    // them from the local state so the tile re-arms.
+    setErrMsg(null)
+    setBusy(eventKey)
+    const matching = fired.filter((e) => e.event_key === eventKey)
+    try {
+      for (const ev of matching) {
+        const res = await fetch(`/api/ops/events/${ev.id}`, {
+          method: 'DELETE',
+          headers: { 'X-Ops-Secret': secret },
+        })
+        const j = await res.json()
+        if (!j.ok && j.error !== 'not_found') {
+          setErrMsg(j.message || j.error)
+          if (j.error === 'bad_secret') clearSecret()
+          return
+        }
+      }
+      setFired((prev) => prev.filter((e) => e.event_key !== eventKey))
+    } finally {
+      setBusy(null)
+    }
+  }
+
   async function setPlayerPrediction(
     gameId: string,
     slug: string,
@@ -261,7 +287,6 @@ export default function OpsPage() {
           const lit = firedKeys.has(ev.id)
           const isPredictive = ev.rarity === 'predictive'
           if (isPredictive) {
-            // Two-tap workflow: tile shows the label + YES/NO buttons.
             return (
               <div
                 key={ev.id}
@@ -277,16 +302,26 @@ export default function OpsPage() {
                   PREDICTIVE · {ev.category}{lit && ' · ✓ fired'}
                 </div>
                 <div style={{ display: 'flex', gap: 4, marginTop: 6 }}>
-                  <button
-                    onClick={() => firePredictiveResolution(ev.id, 'yes')}
-                    disabled={busy === ev.id || lit}
-                    style={{ ...predBtn, background: '#065f46', color: '#d1fae5' }}
-                  >YES</button>
-                  <button
-                    onClick={() => firePredictiveResolution(ev.id, 'no')}
-                    disabled={busy === ev.id || lit}
-                    style={{ ...predBtn, background: '#7f1d1d', color: '#fee2e2' }}
-                  >NO</button>
+                  {lit ? (
+                    <button
+                      onClick={() => unfireEvent(ev.id)}
+                      disabled={busy === ev.id}
+                      style={{ ...predBtn, background: '#3b2410', color: '#fcd34d', flex: 1, border: '1px solid #d97706' }}
+                    >↶ UN-FIRE</button>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => firePredictiveResolution(ev.id, 'yes')}
+                        disabled={busy === ev.id}
+                        style={{ ...predBtn, background: '#065f46', color: '#d1fae5' }}
+                      >YES</button>
+                      <button
+                        onClick={() => firePredictiveResolution(ev.id, 'no')}
+                        disabled={busy === ev.id}
+                        style={{ ...predBtn, background: '#7f1d1d', color: '#fee2e2' }}
+                      >NO</button>
+                    </>
+                  )}
                 </div>
               </div>
             )
@@ -294,19 +329,20 @@ export default function OpsPage() {
           return (
             <button
               key={ev.id}
-              onClick={() => fireEvent(ev.id)}
-              disabled={busy === ev.id || lit}
+              onClick={() => (lit ? unfireEvent(ev.id) : fireEvent(ev.id))}
+              disabled={busy === ev.id}
               style={{
                 ...tile,
                 background: lit ? '#1b4332' : '#1a1a1a',
                 borderColor: lit ? '#2d9d57' : '#333',
                 opacity: busy === ev.id ? 0.5 : 1,
               }}
+              title={lit ? 'Click to un-fire' : 'Click to fire'}
             >
               <div style={tileLabel}>{ev.label}</div>
               <div style={tileMeta}>
                 {ev.category} · {ev.rarity}
-                {lit && ' · ✓ fired'}
+                {lit && ' · ✓ fired (tap to undo)'}
               </div>
             </button>
           )

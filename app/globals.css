@@ -1510,12 +1510,20 @@ button:focus {
 }
 .hula-v2 .private-cell {
   position: relative;
+  /* Override .hits-cell's centered single-line flex so label + pill
+     stack vertically and the label wraps. */
+  flex-direction: column;
+  padding: 3px 2px;
 }
 .hula-v2 .private-cell-label {
-  font-size: 11px;
-  line-height: 1.2;
+  font-size: 9.5px;
+  line-height: 1.1;
   text-align: center;
-  padding: 4px 2px;
+  padding: 0;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+  width: 100%;
 }
 .hula-v2 .private-cell[data-predictive] {
   border-color: #f59e0b;
@@ -1527,13 +1535,14 @@ button:focus {
 }
 .hula-v2 .private-cell-pred-pill {
   font-family: var(--ff-mono);
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  padding: 2px 5px;
-  margin-top: 3px;
+  letter-spacing: 0.06em;
+  padding: 1px 4px;
+  margin-top: 2px;
   border-radius: 3px;
   display: inline-block;
+  flex-shrink: 0;
 }
 .hula-v2 .private-cell-pred-pill[data-answer='yes'] {
   background: #d1fae5;
@@ -2330,4 +2339,7 @@ button:focus {
   .hula-v2 .hits-win-payout-amt { font-size: 28px; }
   .hula-v2 .hits-limit-h { font-size: 22px; }
   .hula-v2 .hits-brand { font-size: 22px; }
+  /* Private-cell labels need to shrink even further; cells are ~58px wide. */
+  .hula-v2 .private-cell-label { font-size: 8.5px; line-height: 1.05; }
+  .hula-v2 .private-cell-pred-pill { font-size: 7px; padding: 1px 3px; }
 }
