@@ -9,6 +9,8 @@ import {
 } from '../../../../lib/private-games/registry'
 import { HULA_FREE_ID } from '../../../../lib/private-games/types'
 import type { Square } from '../../../../lib/private-games/types'
+import { detectWins } from '../../../../lib/hits/payouts'
+import type { WinPattern } from '../../../../lib/hits/types'
 
 /* ────────────────────────────────────────────────────────────────────────
  * /private/[gameId]/[playerSlug] — founding-team dry-run card view
@@ -43,6 +45,11 @@ export default function PrivateCardPage({ params }: Props) {
   const [hitIndices, setHitIndices] = useState<Set<number>>(() => new Set(freeIdx >= 0 ? [freeIdx] : []))
   const [justHitIdx, setJustHitIdx] = useState<number | null>(null)
   const [lastEvent, setLastEvent] = useState<{ key: string; ts: string } | null>(null)
+  const [winShown, setWinShown] = useState<WinPattern | null>(null)
+  const [highestWinMult, setHighestWinMult] = useState(0)
+  const [flashPattern, setFlashPattern] = useState<Set<number>>(new Set())
+  // Persistent "you have a win!" badge in the ticker once first achieved.
+  const [bestWin, setBestWin] = useState<WinPattern | null>(null)
 
   // Fetch the card row (for prediction_answers).
   useEffect(() => {
@@ -127,6 +134,19 @@ export default function PrivateCardPage({ params }: Props) {
           setTimeout(() => setJustHitIdx(null), 600)
         }
         if (latest) setLastEvent(latest)
+
+        // Win detection: highest-multiplier completed pattern.
+        const wins = detectWins(nextHits)
+        if (wins.length > 0) {
+          const best = wins.reduce((a, b) => (a.multiplier >= b.multiplier ? a : b))
+          setBestWin(best)
+          if (best.multiplier > highestWinMult) {
+            setHighestWinMult(best.multiplier)
+            setFlashPattern(new Set(best.cellIndices))
+            setTimeout(() => setWinShown(best), 700)
+            setTimeout(() => setFlashPattern(new Set()), 1100)
+          }
+        }
       } catch {
         /* swallow — next tick retries */
       }
@@ -181,10 +201,16 @@ export default function PrivateCardPage({ params }: Props) {
         </section>
 
         <section className="hits-ticker">
-          <span className="hits-mode-badge" data-status="live">
-            <span className="hits-mode-pulse" />
-            PRIVATE
-          </span>
+          {bestWin ? (
+            <span className="hits-mode-badge" data-status="live" style={{ background: '#d97706' }} onClick={() => setWinShown(bestWin)} title="Tap to view your win">
+              🏆 {bestWin.kind === 'full' ? 'JACKPOT' : bestWin.kind === 'diag' ? 'CORNERS' : 'BINGO'}
+            </span>
+          ) : (
+            <span className="hits-mode-badge" data-status="live">
+              <span className="hits-mode-pulse" />
+              PRIVATE
+            </span>
+          )}
           <span className="hits-ticker-clock">
             {lastEvent ? lastEvent.ts : '—'}
           </span>
@@ -206,6 +232,7 @@ export default function PrivateCardPage({ params }: Props) {
                 className="hits-cell private-cell"
                 data-state={state}
                 data-just-hit={justHitIdx === idx}
+                data-pattern-flash={flashPattern.has(idx)}
                 data-predictive={isPredictive || undefined}
               >
                 <div className="private-cell-label">{cell.label}</div>
@@ -226,6 +253,42 @@ export default function PrivateCardPage({ params }: Props) {
           Dry run · ops drives the cells · score sa bar
         </p>
       </div>
+
+      {winShown && (
+        <div
+          className="hits-win-backdrop"
+          onClick={(e) => e.target === e.currentTarget && setWinShown(null)}
+        >
+          <div className="hits-win-card">
+            <span className="hits-win-badge">
+              {winShown.kind === 'full' ? 'Jackpot!' : 'Panalo!'}
+            </span>
+            <h2 className="hits-win-h">
+              {winShown.kind === 'full' ? (
+                <><em>Full card.</em></>
+              ) : (
+                <>{winShown.label}<em>.</em></>
+              )}
+            </h2>
+            <div className="hits-win-pattern">
+              {player.displayName}, you got it first
+            </div>
+            <div className="hits-win-payout">
+              <span className="hits-win-payout-amt">
+                {winShown.kind === 'full'
+                  ? `₱${game.payouts.fullCardPhp.toLocaleString()}`
+                  : winShown.kind === 'diag'
+                  ? `₱${game.payouts.cornerToCornerPhp.toLocaleString()}`
+                  : `₱${game.payouts.fiveInRowPhp.toLocaleString()}`}
+              </span>
+              <span className="hits-win-payout-mult">collect at the bar</span>
+            </div>
+            <button className="hits-win-close" onClick={() => setWinShown(null)}>
+              Tuloy laro
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   )
 }
