@@ -2,10 +2,20 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { generateCard, isFreeCell } from '../../../lib/hits/card-generator'
+import { generateCard, isFreeCell, newCardId } from '../../../lib/hits/card-generator'
 import { bestPayout, detectWins } from '../../../lib/hits/payouts'
 import { CARD_TYPES, resolveCardType } from '../../../lib/hits/card-types'
 import type { WinPattern } from '../../../lib/hits/types'
+import { readBalance, credit, debit } from '../../../lib/identity/token-balance'
+
+function timeAgo(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime()
+  const m = Math.round(diff / 60000)
+  if (m < 1) return 'just now'
+  if (m < 60) return `${m}m ago`
+  const h = Math.round(m / 60)
+  return `${h}h ago`
+}
 
 /* ────────────────────────────────────────────────────────────────────────
  * /hits/[card_id] — active card watching the simulated match
@@ -52,6 +62,16 @@ export default function HitsCardPage({ params }: PageProps) {
   // poll keeps running after catch-up.
   type MatchStatus = 'scheduled' | 'live' | 'final' | 'canceled' | 'unknown'
   const [matchStatus, setMatchStatus] = useState<MatchStatus>(live ? 'unknown' : 'scheduled')
+
+  // Token balance + live wins ticker state.
+  const [balance, setBalance] = useState(0)
+  type LiveWin = { id: string; win_pattern: string; score: number; won_at: string }
+  const [liveWins, setLiveWins] = useState<LiveWin[]>([])
+  const wonPostedRef = useRef(false)
+
+  useEffect(() => {
+    setBalance(readBalance())
+  }, [])
 
   // Fetch fixture once when in live mode to drive the badge + final-stop.
   useEffect(() => {
@@ -105,6 +125,87 @@ export default function HitsCardPage({ params }: PageProps) {
     },
     [card.cells, highestWinMult]
   )
+
+  // When a win pattern is shown, credit the balance + persist to DB.
+  // Idempotent via wonPostedRef so re-renders don't double-credit.
+  useEffect(() => {
+    if (!winShown || wonPostedRef.current) return
+    wonPostedRef.current = true
+
+    const payoutPhp = card.pricePhp * winShown.multiplier
+    setBalance(credit(payoutPhp))
+
+    // Best-effort POST to record the win. Silent fail OK — the
+    // client-side balance update is the source of truth for the user.
+    fetch(`/api/cards/${encodeURIComponent(card_id)}/won`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pattern: winShown.kind, payoutPhp }),
+    }).catch(() => {
+      /* swallow */
+    })
+  }, [winShown, card.pricePhp, card_id])
+
+  // Live wins ticker: poll /api/wins for other players' wins on this
+  // match. Only in live mode. 5s cadence — wins are rarer than events.
+  useEffect(() => {
+    if (!live || !matchId) return
+    let cancelled = false
+    const tick = async () => {
+      try {
+        const res = await fetch(
+          `/api/wins?match=${encodeURIComponent(matchId)}`,
+          { cache: 'no-store', credentials: 'include' }
+        )
+        const j = await res.json()
+        if (!cancelled && j.ok && Array.isArray(j.wins)) setLiveWins(j.wins)
+      } catch {
+        /* swallow */
+      }
+    }
+    tick()
+    const interval = setInterval(tick, 5000)
+    return () => {
+      cancelled = true
+      clearInterval(interval)
+    }
+  }, [live, matchId])
+
+  // Pay-to-shuffle: re-roll the card for half the price. Only allowed
+  // before any event has lit a non-free cell (hitIndices.size === 1
+  // means only the free cell at index 12).
+  const canShuffle = hitIndices.size === 1
+  const shuffleCost = Math.round(card.pricePhp / 2)
+
+  async function handleShuffle() {
+    if (!canShuffle) return
+    const result = debit(shuffleCost)
+    if (!result.ok) return
+    setBalance(result.newBalance)
+
+    const newId = newCardId()
+    try {
+      await fetch('/api/cards', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cardId: newId,
+          cardType,
+          pricePhp: card.pricePhp,
+          matchId: live ? matchId : undefined,
+        }),
+      })
+    } catch {
+      /* swallow */
+    }
+
+    const params = new URLSearchParams({ bet: String(card.pricePhp), type: cardType })
+    if (live) {
+      params.set('live', '1')
+      params.set('match', matchId)
+    }
+    router.replace(`/hits/${newId}?${params.toString()}`)
+  }
 
   // Demo timeline (only when not in live mode).
   useEffect(() => {
@@ -247,10 +348,26 @@ export default function HitsCardPage({ params }: PageProps) {
           <div className="hits-brand">
             Hula <em>Hits</em>
           </div>
-          <button className="hits-back" onClick={() => router.push('/hits')}>
-            ← New card
-          </button>
+          <div className="hits-header-right">
+            <span className="hits-token-chip" data-low={balance < 100}>
+              <span className="hits-token-chip-coin">₱</span>
+              {balance.toLocaleString()}
+            </span>
+            <button className="hits-back" onClick={() => router.push('/hits')}>
+              ← New
+            </button>
+          </div>
         </header>
+
+        {live && liveWins.length > 0 && (
+          <section className="hits-wins-ticker">
+            {liveWins.slice(0, 5).map((w) => (
+              <span key={w.id} className="hits-wins-chip">
+                🎉 player won ₱{w.score.toLocaleString()} · {timeAgo(w.won_at)}
+              </span>
+            ))}
+          </section>
+        )}
 
         <section className="hits-ticker">
           {live ? (
@@ -308,6 +425,21 @@ export default function HitsCardPage({ params }: PageProps) {
             )
           })}
         </section>
+
+        {canShuffle && (
+          <section className="hits-shuffle-row">
+            <button
+              className="hits-shuffle-btn"
+              onClick={handleShuffle}
+              disabled={balance < shuffleCost}
+              title="Generate a fresh card. Available only before any event lights up."
+            >
+              {balance < shuffleCost
+                ? `Walang ₱${shuffleCost} para sa shuffle`
+                : `Iba ang card · ₱${shuffleCost} tokens`}
+            </button>
+          </section>
+        )}
 
         <section className="hits-active-actions">
           <button className="hits-share-btn" onClick={handleShare}>

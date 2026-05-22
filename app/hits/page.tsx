@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { newCardId } from '../../lib/hits/card-generator'
 import { MULTIPLIERS } from '../../lib/hits/payouts'
 import { CARD_TYPES, type CardType } from '../../lib/hits/card-types'
+import { readBalance, debit } from '../../lib/identity/token-balance'
 
 /* ────────────────────────────────────────────────────────────────────────
  * /hits — masa-tier live-event hits entry page
@@ -84,9 +85,11 @@ export default function HitsEntry() {
   const [mounted, setMounted] = useState(false)
   const [liveFixture, setLiveFixture] = useState<Fixture | null>(null)
   const [upcomingFixture, setUpcomingFixture] = useState<Fixture | null>(null)
+  const [balance, setBalance] = useState(0)
 
   useEffect(() => {
     setSession(readSession())
+    setBalance(readBalance())
     setMounted(true)
   }, [])
 
@@ -112,11 +115,12 @@ export default function HitsEntry() {
 
   const wouldExceedLimit =
     session.limit > 0 && session.spend + price > session.limit
+  const wouldExceedBalance = balance < price
 
   const shouldOfferLimit = session.cards >= 2 && session.limit === 0
 
   function handleBuy() {
-    if (wouldExceedLimit) return
+    if (wouldExceedLimit || wouldExceedBalance) return
     if (shouldOfferLimit) {
       setShowLimitModal(true)
       return
@@ -125,6 +129,12 @@ export default function HitsEntry() {
   }
 
   async function completePurchase(opts: { forceDemo?: boolean } = {}) {
+    // Debit token balance first. If insufficient, bail (button should
+    // already be disabled but this is defense in depth).
+    const result = debit(price)
+    if (!result.ok) return
+    setBalance(result.newBalance)
+
     const cardId = newCardId()
     const newSession = {
       spend: session.spend + price,
@@ -181,15 +191,10 @@ export default function HitsEntry() {
           <div className="hits-brand">
             Hula <em>Hits</em>
           </div>
-          {mounted && session.limit > 0 ? (
-            <span className="hits-limit-chip">
-              <span className="hits-limit-chip-dot" />
-              ₱{session.spend}/₱{session.limit} today
-            </span>
-          ) : isLive ? (
-            <span className="hits-eyebrow hits-eyebrow-live">
-              <span className="hits-eyebrow-pulse" />
-              LIVE NOW
+          {mounted ? (
+            <span className="hits-token-chip" data-low={balance < 100}>
+              <span className="hits-token-chip-coin">₱</span>
+              {balance.toLocaleString()}
             </span>
           ) : (
             <span className="hits-eyebrow">Demo</span>
@@ -305,7 +310,11 @@ export default function HitsEntry() {
             </button>
           </div>
 
-          {wouldExceedLimit ? (
+          {wouldExceedBalance ? (
+            <button className="hits-buy-btn" data-disabled="true" disabled>
+              Walang tokens · balik bukas
+            </button>
+          ) : wouldExceedLimit ? (
             <button className="hits-buy-btn" data-disabled="true" disabled>
               Tigil muna · balik bukas
             </button>

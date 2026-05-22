@@ -1405,6 +1405,81 @@ button:focus {
   color: #fff;
   border-color: var(--ink);
 }
+
+/* ── Virtual token balance chip + wins ticker + shuffle button ─────── */
+.hula-v2 .hits-token-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: var(--ff-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%);
+  color: #78350f;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid #f59e0b;
+  box-shadow: 0 1px 2px rgba(120, 53, 15, 0.15);
+}
+.hula-v2 .hits-token-chip[data-low='true'] {
+  background: linear-gradient(135deg, #fee2e2 0%, #fca5a5 100%);
+  color: #7f1d1d;
+  border-color: #dc2626;
+}
+.hula-v2 .hits-token-chip-coin {
+  font-weight: 700;
+  font-size: 11px;
+  opacity: 0.7;
+}
+.hula-v2 .hits-header-right {
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.hula-v2 .hits-wins-ticker {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  margin-bottom: 8px;
+  padding: 2px;
+  scrollbar-width: none;
+}
+.hula-v2 .hits-wins-ticker::-webkit-scrollbar { display: none; }
+.hula-v2 .hits-wins-chip {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  background: rgba(45, 157, 87, 0.10);
+  color: #1f3a2e;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+  border: 1px solid rgba(45, 157, 87, 0.20);
+  flex-shrink: 0;
+}
+.hula-v2 .hits-shuffle-row {
+  margin: 12px 0;
+}
+.hula-v2 .hits-shuffle-btn {
+  display: block;
+  width: 100%;
+  padding: 11px 16px;
+  background: transparent;
+  border: 1.5px dashed var(--line-2);
+  border-radius: 12px;
+  color: var(--ink-2);
+  font-family: var(--ff-mono);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+}
+.hula-v2 .hits-shuffle-btn:hover:not(:disabled) {
+  background: var(--ink);
+  color: #fff;
+  border-color: var(--ink);
+  border-style: solid;
+}
+.hula-v2 .hits-shuffle-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 .hula-v2 .hits-back {
   font-family: var(--ff-mono);
   font-size: 11px;
