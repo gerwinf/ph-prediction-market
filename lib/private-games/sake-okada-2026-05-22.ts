@@ -52,7 +52,7 @@ export const SAKE_OKADA_2026_05_22: PrivateGame = {
     { id: 'matt_home_first', type: 'observational', label: 'Matt home before Tollo', category: 'either', isShared: false },
     { id: 'tonio_tokyo_rec', type: 'observational', label: 'Tonio recommends a Tokyo restaurant', category: 'sake_bar', isShared: false },
     { id: 'tonio_leaves_call', type: 'observational', label: 'Tonio leaves to take a call', category: 'either', isShared: false },
-    { id: 'tonio_roulette', type: 'observational', label: 'Tonio plays roulette', category: 'casino', isShared: false },
+    { id: 'tonio_roulette', type: 'observational', label: 'Tonio wins big at craps', category: 'casino', isShared: false },
     { id: 'tonio_straight_up', type: 'observational', label: 'Tonio bets a single number straight up', category: 'casino', isShared: false },
 
     // Tollo
