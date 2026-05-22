@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   getPrivateGame,
@@ -69,38 +69,14 @@ export default function PrivateCardPage({ params }: Props) {
     }
   }, [game, player])
 
-  // Process an event firing — light matching cells. Observational
-  // squares: light any cell where cell.id === event_key. Predictive
-  // squares: only light if the player's stored answer matches the
-  // payload.answer.
-  const resolveEvent = useCallback(
-    (eventKey: string, payload: Record<string, unknown> | null, ts: string) => {
-      setLastEvent({ key: eventKey, ts })
-      const matching: number[] = []
-      cells.forEach((cell, idx) => {
-        if (cell.id !== eventKey) return
-        if (cell.type === 'predictive') {
-          const truth = (payload?.answer as 'yes' | 'no' | undefined) ?? null
-          const guess = predictionAnswers[cell.id]
-          if (!truth || !guess || truth !== guess) return
-        }
-        matching.push(idx)
-      })
-      if (matching.length === 0) return
-      setHitIndices((prev) => {
-        const next = new Set(prev)
-        matching.forEach((i) => next.add(i))
-        return next
-      })
-      setJustHitIdx(matching[0])
-      setTimeout(() => setJustHitIdx(null), 600)
-    },
-    [cells, predictionAnswers]
-  )
-
-  // Live events poll. 3s cadence matching /hits/[id].
-  const sinceRef = useRef(0)
-  const seenIdsRef = useRef<Set<number>>(new Set())
+  // Live events poll. Full-list mode: each tick recomputes hitIndices
+  // from scratch based on the current event list + prediction answers.
+  // This means ops un-fire (DELETE /api/ops/events/:id) takes effect on
+  // open player cards within ~3s — the deleted event drops out of the
+  // poll response, and the cell un-lights on the next tick. Tracking
+  // `prevHitsRef` lets us still trigger the pop animation when a NEW
+  // cell appears.
+  const prevHitsRef = useRef<Set<number>>(new Set())
   useEffect(() => {
     if (!game) return
     let cancelled = false
@@ -113,17 +89,44 @@ export default function PrivateCardPage({ params }: Props) {
     const tick = async () => {
       try {
         const res = await fetch(
-          `/api/events?match=${encodeURIComponent(game.id)}&since=${sinceRef.current}`,
+          `/api/events?match=${encodeURIComponent(game.id)}`,
           { cache: 'no-store' }
         )
         const j = await res.json()
         if (cancelled || !j.ok || !Array.isArray(j.events)) return
+
+        // Recompute the lit set from the FULL event list. Free cell
+        // always in. Predictive cells require the player's stored
+        // answer to match the event payload.answer.
+        const nextHits = new Set<number>()
+        if (freeIdx >= 0) nextHits.add(freeIdx)
+        let latest: { key: string; ts: string } | null = null
         for (const ev of j.events as EventRow[]) {
-          if (seenIdsRef.current.has(ev.id)) continue
-          seenIdsRef.current.add(ev.id)
-          if (ev.id > sinceRef.current) sinceRef.current = ev.id
-          resolveEvent(ev.event_key, ev.payload, fmtClock(ev.resolved_at))
+          cells.forEach((cell, idx) => {
+            if (cell.id !== ev.event_key) return
+            if (cell.type === 'predictive') {
+              const truth = (ev.payload?.answer as 'yes' | 'no' | undefined) ?? null
+              const guess = predictionAnswers[cell.id]
+              if (!truth || !guess || truth !== guess) return
+            }
+            nextHits.add(idx)
+          })
+          latest = { key: ev.event_key, ts: fmtClock(ev.resolved_at) }
         }
+
+        // Pop-animate cells that are newly lit since last tick.
+        const newlyLit: number[] = []
+        nextHits.forEach((i) => {
+          if (!prevHitsRef.current.has(i)) newlyLit.push(i)
+        })
+        prevHitsRef.current = nextHits
+
+        setHitIndices(nextHits)
+        if (newlyLit.length > 0) {
+          setJustHitIdx(newlyLit[0])
+          setTimeout(() => setJustHitIdx(null), 600)
+        }
+        if (latest) setLastEvent(latest)
       } catch {
         /* swallow — next tick retries */
       }
@@ -134,19 +137,8 @@ export default function PrivateCardPage({ params }: Props) {
       cancelled = true
       clearInterval(interval)
     }
-  }, [game, resolveEvent])
-
-  // Re-run resolve when predictionAnswers updates — any past predictive
-  // events that the player's new answer matches should light. We do
-  // this by resetting seen-ids + the since cursor, then the next poll
-  // re-fetches and replays.
-  useEffect(() => {
-    sinceRef.current = 0
-    seenIdsRef.current = new Set()
-    // hitIndices for the free cell stays; predictive lights re-derive
-    // on the next poll cycle.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(predictionAnswers)])
+  }, [game, JSON.stringify(predictionAnswers), freeIdx])
 
   if (!game || !player) {
     return (
