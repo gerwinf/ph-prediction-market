@@ -261,7 +261,7 @@ export default function PrivateCardPage({ params }: Props) {
         >
           <div className="hits-win-card">
             <span className="hits-win-badge">
-              {winShown.kind === 'full' ? 'Jackpot!' : 'Panalo!'}
+              {winShown.kind === 'full' ? 'Jackpot!' : 'Bingo!'}
             </span>
             <h2 className="hits-win-h">
               {winShown.kind === 'full' ? (
@@ -271,17 +271,26 @@ export default function PrivateCardPage({ params }: Props) {
               )}
             </h2>
             <div className="hits-win-pattern">
-              {player.displayName}, you got it first
+              {player.displayName}, claim it sa bar
             </div>
             <div className="hits-win-payout">
-              <span className="hits-win-payout-amt">
-                {winShown.kind === 'full'
-                  ? `₱${game.payouts.fullCardPhp.toLocaleString()}`
-                  : winShown.kind === 'diag'
-                  ? `₱${game.payouts.cornerToCornerPhp.toLocaleString()}`
-                  : `₱${game.payouts.fiveInRowPhp.toLocaleString()}`}
-              </span>
-              <span className="hits-win-payout-mult">collect at the bar</span>
+              {winShown.kind === 'full' ? (
+                <>
+                  <span className="hits-win-payout-amt">Jackpot rollover</span>
+                  <span className="hits-win-payout-mult">
+                    final amount calculated at the bar
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="hits-win-payout-amt">
+                    ₱{game.payouts.firstBingoPhp.toLocaleString()} <em style={{ fontStyle: 'normal', opacity: 0.65 }}>/ ₱{game.payouts.secondBingoPhp.toLocaleString()}</em>
+                  </span>
+                  <span className="hits-win-payout-mult">
+                    1st bingo / 2nd bingo · group decides at the bar
+                  </span>
+                </>
+              )}
             </div>
             <button className="hits-win-close" onClick={() => setWinShown(null)}>
               Tuloy laro

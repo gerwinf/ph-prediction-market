@@ -16,12 +16,16 @@ export const SAKE_OKADA_2026_05_22: PrivateGame = {
   description: 'Founding-team dry run. Observe + predict. Score at the bar.',
   startsAt: '2026-05-22T18:00:00+08:00',
   endsAt: '2026-05-23T03:00:00+08:00',
-  kittyTotalPhp: 2000,
+  kittyTotalPhp: 4000,
   payouts: {
-    fiveInRowPhp: 400,
-    cornerToCornerPhp: 150,
-    fullCardPhp: 1050,
-    predictionAccuracyPhp: 400,
+    firstBingoPhp: 2500,
+    secondBingoPhp: 500,
+    predictionKingPhp: 1000,
+    fullCardBasePhp: 0,
+    rolloverNote:
+      'Unclaimed bingo prizes roll into the Full Card jackpot. ' +
+      'If Full Card stays unclaimed at end of night, it rolls to the player with the most observational cells marked. ' +
+      'Prediction King is independent and always pays.',
     observationalTiebreaker: 'most_marked',
   },
   squarePool: [

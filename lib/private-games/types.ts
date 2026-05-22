@@ -41,10 +41,20 @@ export type PrivateGame = {
   endsAt: string
   kittyTotalPhp: number
   payouts: {
-    fiveInRowPhp: number
-    cornerToCornerPhp: number
-    fullCardPhp: number
-    predictionAccuracyPhp: number
+    /** First player to complete any 5-in-a-row (rows / cols / diagonals all count). */
+    firstBingoPhp: number
+    /** Second player to bingo. Must be a different player from 1st. */
+    secondBingoPhp: number
+    /** End-of-night: most correct YES/NO predictions. Ties split. Independent prize. */
+    predictionKingPhp: number
+    /**
+     * Full Card jackpot starts at this amount, then accumulates any
+     * unclaimed bingo prizes during the night. If still unclaimed at
+     * end-of-night, rolls to the most-marked observational tiebreaker.
+     */
+    fullCardBasePhp: number
+    /** Human-readable description of the rollover chain. */
+    rolloverNote: string
     observationalTiebreaker: 'most_marked' | 'first_to_claim'
   }
   players: PrivatePlayer[]
