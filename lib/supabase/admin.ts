@@ -34,6 +34,16 @@ export function createAdminClient() {
         autoRefreshToken: false,
         persistSession: false,
       },
+      global: {
+        // Disable Next.js's extended fetch caching. Without this, the
+        // Supabase REST GET calls inside route handlers get cached at
+        // the Next.js data layer (even with dynamic='force-dynamic' on
+        // the route), and writes elsewhere don't invalidate them.
+        // Observed: prod /api/events returned stale event ids 6-7
+        // after the DB had been cleared.
+        fetch: (input: RequestInfo | URL, init?: RequestInit) =>
+          fetch(input, { ...init, cache: 'no-store' }),
+      },
     }
   )
 }
