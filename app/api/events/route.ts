@@ -14,11 +14,15 @@
  *   500 { ok: false, error: 'db_error', message: '...' }
  */
 import { NextResponse } from 'next/server'
+import { unstable_noStore as noStore } from 'next/cache'
 import { createAdminClient } from '../../../lib/supabase/admin'
 
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
+export const fetchCache = 'force-no-store'
 
 export async function GET(req: Request) {
+  noStore()
   const url = new URL(req.url)
   const matchId = url.searchParams.get('match')
   const sinceRaw = url.searchParams.get('since')

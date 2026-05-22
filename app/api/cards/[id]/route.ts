@@ -10,12 +10,16 @@
  *   500 { ok: false, error: 'db_error', message: '...' }
  */
 import { NextResponse } from 'next/server'
+import { unstable_noStore as noStore } from 'next/cache'
 import { createAdminClient } from '../../../../lib/supabase/admin'
 import { readDeviceId } from '../../../../lib/identity/device-id'
 
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
+export const fetchCache = 'force-no-store'
 
 export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> }) {
+  noStore()
   const { id } = await ctx.params
   if (!id) {
     return NextResponse.json({ ok: false, error: 'card_id_required' }, { status: 400 })

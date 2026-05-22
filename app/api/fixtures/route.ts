@@ -13,15 +13,19 @@
  *   500 { ok: false, error: 'db_error', message }
  */
 import { NextResponse } from 'next/server'
+import { unstable_noStore as noStore } from 'next/cache'
 import { createAdminClient } from '../../../lib/supabase/admin'
 
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
+export const fetchCache = 'force-no-store'
 
 const HOURS = 60 * 60 * 1000
 const UPCOMING_WINDOW_MS = 8 * HOURS
 const FINISHED_WINDOW_MS = 4 * HOURS
 
 export async function GET() {
+  noStore()
   const admin = createAdminClient()
   const now = new Date()
   const upcomingMax = new Date(now.getTime() + UPCOMING_WINDOW_MS).toISOString()
