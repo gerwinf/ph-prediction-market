@@ -68,7 +68,7 @@ export const SAKE_OKADA_2026_05_22: PrivateGame = {
     // Matt
     { id: 'matt_3drinks', type: 'observational', label: 'Matt has 3+ drinks', category: 'sake_bar', isShared: false },
     { id: 'matt_stallone', type: 'observational', label: 'Matt goes full Stallone', category: 'either', isShared: false },
-    { id: 'matt_lets_go', type: 'observational', label: 'Matt says "let\'s go" before everyone\'s ready', category: 'either', isShared: false },
+    { id: 'matt_lets_go', type: 'observational', label: 'Matt stays after 2 AM', category: 'either', isShared: false },
     { id: 'matt_long_table', type: 'observational', label: 'Matt at a card table >30 min', category: 'casino', isShared: false },
     { id: 'matt_blackjack', type: 'observational', label: 'Matt gets blackjack himself', category: 'casino', isShared: false },
 
