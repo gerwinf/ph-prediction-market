@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { generateCard, isFreeCell, newCardId } from '../../../lib/hits/card-generator'
-import { bestPayout, detectWins } from '../../../lib/hits/payouts'
+import { bestPayout, detectWins, MULTIPLIERS } from '../../../lib/hits/payouts'
 import { CARD_TYPES, resolveCardType } from '../../../lib/hits/card-types'
 import type { WinPattern } from '../../../lib/hits/types'
 import { readBalance, credit, debit } from '../../../lib/identity/token-balance'
@@ -440,6 +440,33 @@ export default function HitsCardPage({ params }: PageProps) {
             </button>
           </section>
         )}
+
+        <section className="private-payouts">
+          <div className="private-payouts-title">
+            Premyo · ₱{card.pricePhp} bet
+          </div>
+          <div className="private-payouts-row">
+            <span className="private-payouts-label">📏 Row / Column</span>
+            <span className="private-payouts-amt">
+              ₱{(card.pricePhp * MULTIPLIERS.row).toLocaleString()} <em style={{ fontStyle: 'normal', opacity: 0.55 }}>· {MULTIPLIERS.row}×</em>
+            </span>
+          </div>
+          <div className="private-payouts-row">
+            <span className="private-payouts-label">↘ Diagonal</span>
+            <span className="private-payouts-amt">
+              ₱{(card.pricePhp * MULTIPLIERS.diag).toLocaleString()} <em style={{ fontStyle: 'normal', opacity: 0.55 }}>· {MULTIPLIERS.diag}×</em>
+            </span>
+          </div>
+          <div className="private-payouts-row private-payouts-row-rollover">
+            <span className="private-payouts-label">💰 Full card jackpot</span>
+            <span className="private-payouts-amt">
+              ₱{(card.pricePhp * MULTIPLIERS.full).toLocaleString()} <em style={{ fontStyle: 'normal', opacity: 0.55 }}>· {MULTIPLIERS.full}×</em>
+            </span>
+          </div>
+          <div className="private-payouts-note">
+            Highest pattern pays. Free cell ay laging in. Wins credit your token balance instantly.
+          </div>
+        </section>
 
         <section className="hits-active-actions">
           <button className="hits-share-btn" onClick={handleShare}>
