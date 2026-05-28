@@ -6,6 +6,7 @@ import { newCardId } from '../../lib/hits/card-generator'
 import { MULTIPLIERS } from '../../lib/hits/payouts'
 import { CARD_TYPES, type CardType } from '../../lib/hits/card-types'
 import { readBalance, debit } from '../../lib/identity/token-balance'
+import { track } from '../../lib/analytics/track'
 
 /* ────────────────────────────────────────────────────────────────────────
  * /hits — masa-tier live-event hits entry page
@@ -91,6 +92,7 @@ export default function HitsEntry() {
     setSession(readSession())
     setBalance(readBalance())
     setMounted(true)
+    track('page_view', { route: '/hits' })
   }, [])
 
   // Fetch fixtures on mount to determine mode.
@@ -120,6 +122,7 @@ export default function HitsEntry() {
   const shouldOfferLimit = session.cards >= 2 && session.limit === 0
 
   function handleBuy() {
+    track('buy_clicked', { bet: price, type, mode: liveFixture ? 'live' : 'demo' })
     if (wouldExceedLimit || wouldExceedBalance) return
     if (shouldOfferLimit) {
       setShowLimitModal(true)
@@ -155,6 +158,11 @@ export default function HitsEntry() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ cardId, cardType: type, pricePhp: price, matchId }),
       })
+      track(
+        'card_purchased',
+        { bet: price, type, mode: goLive ? 'live' : 'demo', match_id: matchId ?? null },
+        cardId
+      )
     } catch (err) {
       console.error('[hits] /api/cards POST failed:', err)
     }
@@ -228,7 +236,10 @@ export default function HitsEntry() {
                 className="hits-type-tile"
                 data-selected={selected}
                 data-kind={t}
-                onClick={() => setType(t)}
+                onClick={() => {
+                  setType(t)
+                  track('card_type_selected', { type: t })
+                }}
               >
                 <div className="hits-type-label">
                   <span className="hits-type-dot" /> {meta.label}
@@ -295,7 +306,10 @@ export default function HitsEntry() {
             <button
               className="hits-price-btn"
               data-selected={price === 20}
-              onClick={() => setPrice(20)}
+              onClick={() => {
+                setPrice(20)
+                track('bet_amount_clicked', { bet: 20 })
+              }}
             >
               <span className="hits-price-amt">₱20</span>
               <span className="hits-price-sub">card</span>
@@ -303,7 +317,10 @@ export default function HitsEntry() {
             <button
               className="hits-price-btn"
               data-selected={price === 50}
-              onClick={() => setPrice(50)}
+              onClick={() => {
+                setPrice(50)
+                track('bet_amount_clicked', { bet: 50 })
+              }}
             >
               <span className="hits-price-amt">₱50</span>
               <span className="hits-price-sub">Bigger wins</span>

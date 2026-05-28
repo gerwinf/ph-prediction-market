@@ -7,6 +7,27 @@ import { bestPayout, detectWins, MULTIPLIERS } from '../../../lib/hits/payouts'
 import { CARD_TYPES, resolveCardType } from '../../../lib/hits/card-types'
 import type { WinPattern } from '../../../lib/hits/types'
 import { readBalance, credit, debit } from '../../../lib/identity/token-balance'
+import { track } from '../../../lib/analytics/track'
+import { ContactCaptureModal } from '../../../components/hits/ContactCaptureModal'
+
+const CAPTURE_KEY = 'hula-captured'
+const CARD_COUNT_KEY = 'hula-hits-session-cards'
+
+function shouldShowCapture(): boolean {
+  if (typeof window === 'undefined') return false
+  if (window.localStorage.getItem(CAPTURE_KEY) === '1') return false
+  return true
+}
+
+function markCaptureShown() {
+  if (typeof window === 'undefined') return
+  window.localStorage.setItem(CAPTURE_KEY, '1')
+}
+
+function sessionCardCount(): number {
+  if (typeof window === 'undefined') return 0
+  return Number(window.localStorage.getItem(CARD_COUNT_KEY) || 0)
+}
 
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime()
@@ -49,7 +70,14 @@ export default function HitsCardPage({ params }: PageProps) {
   const matchId =
     search?.get('match') || (cardType === 'sports' ? 'pba-gin-ros-2026-05-24' : 'daily-2026-07-20')
 
-  const card = useMemo(() => generateCard(card_id, bet, cardType), [card_id, bet, cardType])
+  // Pass matchId so the client-side generator picks the same
+  // match-aware pool the server used when /api/cards stored the row.
+  // For demo mode (no live), matchId is the default fixture — same
+  // codepath, no divergence.
+  const card = useMemo(
+    () => generateCard(card_id, bet, cardType, live ? matchId : undefined),
+    [card_id, bet, cardType, live, matchId]
+  )
 
   const [hitIndices, setHitIndices] = useState<Set<number>>(new Set([12])) // free cell always in
   const [justHitIdx, setJustHitIdx] = useState<number | null>(null)
@@ -68,9 +96,27 @@ export default function HitsCardPage({ params }: PageProps) {
   type LiveWin = { id: string; win_pattern: string; score: number; won_at: string }
   const [liveWins, setLiveWins] = useState<LiveWin[]>([])
   const wonPostedRef = useRef(false)
+  const firstHitFiredRef = useRef(false)
+  const [showCapture, setShowCapture] = useState(false)
 
   useEffect(() => {
     setBalance(readBalance())
+    track('card_opened', { bet, type: cardType, mode: live ? 'live' : 'demo', match_id: live ? matchId : null }, card_id)
+    // If URL has ?ref=<card_id>, record the referral landing. Ref points
+    // to the sharing user's card, which ties back to their device_id via
+    // the cards table — no PII exposed client-side.
+    const ref = search?.get('ref')
+    if (ref) track('referral_visit', { ref }, card_id)
+
+    // Threshold trigger: if this is the player's 3rd+ card this session
+    // and they haven't been captured yet, surface the modal on mount.
+    // (Win-trigger lives in the winShown effect below.)
+    if (shouldShowCapture() && sessionCardCount() >= 3) {
+      markCaptureShown()
+      setShowCapture(true)
+      track('contact_capture_shown', { trigger: 'card_count_3' }, card_id)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Fetch fixture once when in live mode to drive the badge + final-stop.
@@ -104,6 +150,12 @@ export default function HitsCardPage({ params }: PageProps) {
       })
       if (matchingIndices.length === 0) return
 
+      // First non-free cell lighting up — landmark event for the funnel.
+      if (!firstHitFiredRef.current) {
+        firstHitFiredRef.current = true
+        track('first_cell_lit', { event_key: eventKey }, card_id)
+      }
+
       setHitIndices((prev) => {
         const next = new Set(prev)
         matchingIndices.forEach((i) => next.add(i))
@@ -134,6 +186,23 @@ export default function HitsCardPage({ params }: PageProps) {
 
     const payoutPhp = card.pricePhp * winShown.multiplier
     setBalance(credit(payoutPhp))
+    track(
+      'win_shown',
+      { kind: winShown.kind, multiplier: winShown.multiplier, payoutPhp, bet: card.pricePhp },
+      card_id
+    )
+
+    // Win-trigger for contact capture: queue it to appear after the user
+    // dismisses the win modal (or alongside it, layered). Once-per-device
+    // gating handled by the localStorage flag.
+    if (shouldShowCapture()) {
+      markCaptureShown()
+      // Small delay so the win modal lands first, then the capture stacks.
+      setTimeout(() => {
+        setShowCapture(true)
+        track('contact_capture_shown', { trigger: 'win', kind: winShown.kind }, card_id)
+      }, 1800)
+    }
 
     // Best-effort POST to record the win. Silent fail OK — the
     // client-side balance update is the source of truth for the user.
@@ -182,6 +251,7 @@ export default function HitsCardPage({ params }: PageProps) {
     const result = debit(shuffleCost)
     if (!result.ok) return
     setBalance(result.newBalance)
+    track('shuffle_used', { cost: shuffleCost, bet: card.pricePhp }, card_id)
 
     const newId = newCardId()
     try {
@@ -314,10 +384,17 @@ export default function HitsCardPage({ params }: PageProps) {
   }, [live, matchId, matchStatus])
 
   const payout = bestPayout(hitIndices, card.pricePhp)
+  // Share URL carries ?ref=<card_id> so the receiving /hits/[id] page
+  // can attribute the visit back to the sharing card → device_id (via
+  // the cards table). Cleanest path to a K-factor without exposing the
+  // HttpOnly device_id cookie to client JS.
   const shareUrl =
-    typeof window !== 'undefined' ? `${window.location.origin}/hits/${card_id}?bet=${bet}` : ''
+    typeof window !== 'undefined'
+      ? `${window.location.origin}/hits/${card_id}?bet=${bet}&ref=${card_id}`
+      : ''
 
   function handleShare() {
+    track('share_clicked', { bet, type: cardType }, card_id)
     const shareText =
       cardType === 'daily'
         ? `Watch my Hula Hits card for ${meta.dateLabel}`
@@ -329,13 +406,16 @@ export default function HitsCardPage({ params }: PageProps) {
           text: shareText,
           url: shareUrl,
         })
+        .then(() => track('share_completed', { method: 'native' }, card_id))
         .catch(() => {})
     } else if (typeof navigator !== 'undefined' && navigator.clipboard) {
       navigator.clipboard.writeText(shareUrl)
+      track('share_completed', { method: 'clipboard' }, card_id)
     }
   }
 
   function handleReplay() {
+    track('replay_clicked', { done }, card_id)
     // Force remount by routing with a noop change
     router.refresh()
     window.location.reload()
@@ -481,6 +561,15 @@ export default function HitsCardPage({ params }: PageProps) {
           Demo. <strong>Real hits follows a real game.</strong>
         </p>
       </div>
+
+      {showCapture && (
+        <ContactCaptureModal
+          cardId={card_id}
+          bet={card.pricePhp}
+          winPattern={winShown?.kind}
+          onClose={() => setShowCapture(false)}
+        />
+      )}
 
       {winShown && (
         <div

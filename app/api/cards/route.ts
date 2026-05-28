@@ -62,10 +62,12 @@ export async function POST(req: Request) {
 
   const matchId = body.matchId || DEFAULT_MATCH_BY_TYPE[cardType]
 
-  // Build the card deterministically from cardId + cardType — same
-  // formula the active card page uses, so cells stored in DB match
-  // what the client renders.
-  const card = generateCard(cardId, pricePhp, cardType)
+  // Build the card deterministically from cardId + cardType + matchId
+  // — same formula the active card page uses (via the pool-builder),
+  // so cells stored in DB match what the client renders for live
+  // fixtures. Daily cards or unknown match ids fall back to the static
+  // pool inside generateCard.
+  const card = generateCard(cardId, pricePhp, cardType, matchId)
 
   const deviceId = await getOrCreateDeviceId()
 

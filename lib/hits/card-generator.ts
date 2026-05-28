@@ -1,4 +1,5 @@
 import { CARD_TYPES, type CardType } from './card-types'
+import { buildPoolForMatch } from './pool-builder'
 import type { Card, GameEvent } from './types'
 
 // FNV-1a → mulberry32. Deterministic PRNG seeded from card_id string.
@@ -39,8 +40,20 @@ const FREE_CELL: GameEvent = {
   rarity: 'common',
 }
 
-export function generateCard(cardId: string, pricePhp: number, cardType: CardType = 'sports'): Card {
-  const pool = CARD_TYPES[cardType].pool
+export function generateCard(
+  cardId: string,
+  pricePhp: number,
+  cardType: CardType = 'sports',
+  matchId?: string
+): Card {
+  // Match-aware pool when we have a fixture — pool-builder composes
+  // generic tiles + per-team tiles from current-form rosters. Falls
+  // back to the static CARD_TYPES pool when matchId is missing or
+  // can't be parsed (daily card, unknown fixture).
+  const pool =
+    cardType === 'sports' && matchId
+      ? buildPoolForMatch(matchId)
+      : CARD_TYPES[cardType].pool
   // Seed includes the card type so the same id on different types produces
   // different cards — keeps share-links semantically distinct across types.
   const seed = seedFromString(`${cardType}:${cardId}`)

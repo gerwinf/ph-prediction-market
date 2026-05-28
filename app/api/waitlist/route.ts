@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { email, source, picks, entry, willPay, prefMode, why } = body
+    const { email, phone, source, picks, entry, willPay, prefMode, why, card_id, win_pattern, bet } = body
 
     if (!email || !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
       return NextResponse.json(
@@ -76,6 +76,21 @@ export async function POST(request: NextRequest) {
           console.error('Resend notify error:', err)
         }
       }
+    }
+
+    // /hits contact-capture: log the moment-of-intent payload so we can
+    // pair email + card context downstream (which card/bet/win pattern
+    // triggered the capture). Resend Audiences only stores email; rich
+    // payload lives in server logs + analytics_events.
+    if (source === 'hits') {
+      console.log('[hits-submission]', JSON.stringify({
+        ts: new Date().toISOString(),
+        email,
+        phone: phone ?? null,
+        card_id: card_id ?? null,
+        win_pattern: win_pattern ?? null,
+        bet: bet ?? null,
+      }))
     }
 
     if (apiKey && audienceId) {
