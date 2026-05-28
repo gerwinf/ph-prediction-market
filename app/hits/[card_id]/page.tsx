@@ -72,11 +72,13 @@ export default function HitsCardPage({ params }: PageProps) {
 
   // Pass matchId so the client-side generator picks the same
   // match-aware pool the server used when /api/cards stored the row.
-  // For demo mode (no live), matchId is the default fixture — same
-  // codepath, no divergence.
+  // Always pass matchId — even in demo mode the server uses the same
+  // DEFAULT_MATCH_BY_TYPE fallback, so client + server agree on the
+  // pool. The pool-builder falls back to CANDIDATE_EVENTS for unknown
+  // match ids, so this is safe.
   const card = useMemo(
-    () => generateCard(card_id, bet, cardType, live ? matchId : undefined),
-    [card_id, bet, cardType, live, matchId]
+    () => generateCard(card_id, bet, cardType, matchId),
+    [card_id, bet, cardType, matchId]
   )
 
   const [hitIndices, setHitIndices] = useState<Set<number>>(new Set([12])) // free cell always in
@@ -194,11 +196,14 @@ export default function HitsCardPage({ params }: PageProps) {
 
     // Win-trigger for contact capture: queue it to appear after the user
     // dismisses the win modal (or alongside it, layered). Once-per-device
-    // gating handled by the localStorage flag.
+    // gating handled by the localStorage flag. markCaptureShown() lives
+    // INSIDE the setTimeout so a user who closes the tab during the 1.8s
+    // window doesn't get the flag set without ever seeing the modal —
+    // they'd never get prompted again.
     if (shouldShowCapture()) {
-      markCaptureShown()
-      // Small delay so the win modal lands first, then the capture stacks.
       setTimeout(() => {
+        if (!shouldShowCapture()) return  // re-check in case threshold fired in interim
+        markCaptureShown()
         setShowCapture(true)
         track('contact_capture_shown', { trigger: 'win', kind: winShown.kind }, card_id)
       }, 1800)
