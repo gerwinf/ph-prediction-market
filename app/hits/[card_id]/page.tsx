@@ -452,11 +452,29 @@ export default function HitsCardPage({ params }: PageProps) {
     }
   }
 
-  function handleReplay() {
-    track('replay_clicked', { done }, card_id)
-    // Force remount by routing with a noop change
-    router.refresh()
-    window.location.reload()
+  async function handleAnotherCard() {
+    track('another_card_clicked', { done, bet: card.pricePhp }, card_id)
+    const newId = newCardId()
+    try {
+      await fetch('/api/cards', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cardId: newId,
+          cardType,
+          pricePhp: card.pricePhp,
+          matchId: live ? matchId : undefined,
+        }),
+      })
+    } catch {
+      /* swallow — page still routes, card_id seeds the client view */
+    }
+    const params = new URLSearchParams({ bet: String(card.pricePhp), type: cardType })
+    if (live) {
+      params.set('live', '1')
+      params.set('match', matchId)
+    }
+    router.push(`/hits/${newId}?${params.toString()}`)
   }
 
   return (
@@ -611,8 +629,8 @@ export default function HitsCardPage({ params }: PageProps) {
           <button className="hits-share-btn" onClick={handleShare}>
             Share card
           </button>
-          <button className="hits-replay-btn" onClick={handleReplay}>
-            {done ? 'Buy another →' : 'Ulit'}
+          <button className="hits-replay-btn" onClick={handleAnotherCard}>
+            Iba pang card →
           </button>
         </section>
 
