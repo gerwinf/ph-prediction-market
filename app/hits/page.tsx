@@ -90,6 +90,7 @@ export default function HitsEntry() {
   const [upcomingFixture, setUpcomingFixture] = useState<Fixture | null>(null)
   const [balance, setBalance] = useState(0)
   const [showSignIn, setShowSignIn] = useState(false)
+  const [fixturesLoaded, setFixturesLoaded] = useState(false)
   const auth = useSession()
 
   useEffect(() => {
@@ -117,6 +118,9 @@ export default function HitsEntry() {
       })
       .catch(() => {
         /* silent — page falls back to demo-only */
+      })
+      .finally(() => {
+        if (!cancelled) setFixturesLoaded(true)
       })
     return () => {
       cancelled = true
@@ -288,16 +292,31 @@ export default function HitsEntry() {
           data-mode={
             type === 'daily'
               ? 'daily'
-              : isLive && liveFixture!.id.startsWith('demo-')
-                ? 'demo'
-                : isLive
-                  ? 'live'
-                  : isUpcoming
-                    ? 'upcoming'
-                    : 'fallback'
+              : !fixturesLoaded
+                ? 'loading'
+                : isLive && liveFixture!.id.startsWith('demo-')
+                  ? 'demo'
+                  : isLive
+                    ? 'live'
+                    : isUpcoming
+                      ? 'upcoming'
+                      : 'fallback'
           }
         >
-          {type === 'sports' && isLive ? (
+          {type === 'sports' && !fixturesLoaded ? (
+            <>
+              <div className="hits-hero-eyebrow hits-hero-skeleton-line" aria-hidden="true">
+                &nbsp;
+              </div>
+              <div className="hits-hero-title hits-hero-skeleton-line" aria-hidden="true">
+                &nbsp;
+              </div>
+              <div className="hits-hero-sub hits-hero-skeleton-line" aria-hidden="true">
+                &nbsp;
+              </div>
+              <span className="sr-only">Loading game info…</span>
+            </>
+          ) : type === 'sports' && isLive ? (
             <>
               <div className="hits-hero-eyebrow">
                 {liveFixture!.id.startsWith('demo-') ? (
