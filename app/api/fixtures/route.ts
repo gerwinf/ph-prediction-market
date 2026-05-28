@@ -31,11 +31,14 @@ export async function GET() {
   const upcomingMax = new Date(now.getTime() + UPCOMING_WINDOW_MS).toISOString()
   const finishedMin = new Date(now.getTime() - FINISHED_WINDOW_MS).toISOString()
 
+  const nowIso = now.toISOString()
   const { data, error } = await admin
     .from('match_fixtures')
     .select('id, card_type, match_label, starts_at, ends_at, status')
+    // Upcoming = scheduled AND starts_at in the next 8h (lower bound now()
+    // so a stale scheduled fixture from past days doesn't leak as "Next game")
     .or(
-      `status.eq.live,and(status.eq.scheduled,starts_at.lte.${upcomingMax}),and(status.eq.final,starts_at.gte.${finishedMin})`
+      `status.eq.live,and(status.eq.scheduled,starts_at.gte.${nowIso},starts_at.lte.${upcomingMax}),and(status.eq.final,starts_at.gte.${finishedMin})`
     )
     .not('id', 'like', 'private-%')  // hide private dry-run games from public picker
     .order('starts_at', { ascending: true })
