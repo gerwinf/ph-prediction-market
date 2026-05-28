@@ -1349,6 +1349,13 @@ button:focus {
   margin: 12px 0 16px;
   box-shadow: 0 4px 16px rgba(220,38,38,.20);
 }
+/* Demo banner: muted gradient so it reads as "this is a sandbox" rather
+ * than the saturated red of a real live game. Keeps the same shape so
+ * the picker hierarchy doesn't break. */
+.hula-v2 .hits-live-banner[data-demo] {
+  background: linear-gradient(135deg, var(--ink-2) 0%, var(--ink) 100%);
+  box-shadow: 0 4px 16px rgba(15, 36, 25, 0.15);
+}
 .hula-v2 .hits-live-banner-label {
   font-family: var(--ff-mono);
   font-size: 10px;

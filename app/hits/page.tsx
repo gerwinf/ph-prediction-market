@@ -95,16 +95,20 @@ export default function HitsEntry() {
     track('page_view', { route: '/hits' })
   }, [])
 
-  // Fetch fixtures on mount to determine mode.
+  // Fetch fixtures on mount to determine mode. Prefer real PBA fixtures
+  // over the demo-pba-perpetual fallback; only surface demo when no real
+  // sports fixture is live.
   useEffect(() => {
     let cancelled = false
     fetch('/api/fixtures')
       .then((r) => r.json())
       .then((j) => {
         if (cancelled || !j.ok) return
-        const sportsLive = (j.live as Fixture[]).find((f) => f.card_type === 'sports')
+        const liveFixtures = (j.live as Fixture[]).filter((f) => f.card_type === 'sports')
+        const realLive = liveFixtures.find((f) => !f.id.startsWith('demo-'))
+        const demoLive = liveFixtures.find((f) => f.id.startsWith('demo-'))
         const sportsNext = (j.upcoming as Fixture[]).find((f) => f.card_type === 'sports')
-        setLiveFixture(sportsLive ?? null)
+        setLiveFixture(realLive ?? demoLive ?? null)
         setUpcomingFixture(sportsNext ?? null)
       })
       .catch(() => {
@@ -210,8 +214,13 @@ export default function HitsEntry() {
         </header>
 
         {isLive && (
-          <div className="hits-live-banner">
-            <div className="hits-live-banner-label">Laro ngayon</div>
+          <div
+            className="hits-live-banner"
+            data-demo={liveFixture!.id.startsWith('demo-') || undefined}
+          >
+            <div className="hits-live-banner-label">
+              {liveFixture!.id.startsWith('demo-') ? 'Demo · LIVE' : 'Laro ngayon'}
+            </div>
             <div className="hits-live-banner-title">{liveFixture!.match_label}</div>
           </div>
         )}
@@ -338,7 +347,9 @@ export default function HitsEntry() {
           ) : (
             <button className="hits-buy-btn" onClick={handleBuy}>
               {isLive
-                ? `Sumali sa LIVE · ₱${price} →`
+                ? liveFixture!.id.startsWith('demo-')
+                  ? `Subukan ang demo · ₱${price} →`
+                  : `Sumali sa LIVE · ₱${price} →`
                 : `Bumili ng ₱${price} card →`}
             </button>
           )}
@@ -353,7 +364,11 @@ export default function HitsEntry() {
           )}
 
           <div className="hits-buy-meta">
-            {isLive ? 'Live game · cells light up as it happens' : 'Demo only · no real money yet'}
+            {isLive
+              ? liveFixture!.id.startsWith('demo-')
+                ? 'Demo · auto-fired events · no real money yet'
+                : 'Live game · cells light up as it happens'
+              : 'Demo only · no real money yet'}
           </div>
         </section>
 
