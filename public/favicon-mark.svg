@@ -1,9 +1,5 @@
-<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-  <!-- Circular background -->
-  <circle cx="32" cy="32" r="32" fill="#0A0A0B"/>
-
-  <!-- Gold accent mark (â diacritic) as the mark -->
-  <text x="32" y="44" font-family="Fraunces, Georgia, serif" font-size="48" font-weight="600" text-anchor="middle" fill="#F4B942">
-    â
-  </text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="14" fill="#0f2419"/>
+  <text x="30" y="46" text-anchor="middle" font-family="'Inter Tight', system-ui, -apple-system, 'Helvetica Neue', sans-serif" font-size="42" font-weight="700" letter-spacing="-2" fill="#f5f1e3">H</text>
+  <circle cx="50" cy="48" r="3.5" fill="#e87a1e"/>
 </svg>

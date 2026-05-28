@@ -1,37 +1,229 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import Link from 'next/link'
+import { useState, useEffect, FormEvent } from 'react'
 
-export default function Home() {
+const TICKER_DATA = [
+  { mkt: 'Argentina defend WC 2026',         pct: 31, d: +2 },
+  { mkt: 'BTC > ₱4M by Q3',                  pct: 71, d: +6 },
+  { mkt: 'Thunder reach NBA Finals',         pct: 64, d: +5 },
+  { mkt: 'Signal No. 3 hits Manila in May',  pct: 22, d: -2 },
+  { mkt: 'Bea top-5 at Miss Universe 2026',  pct: 48, d: +7 },
+  { mkt: 'BINI sells out MOA · Jun 20',      pct: 88, d: +3 },
+  { mkt: 'Ginebra win PBA Comm’s Cup',       pct: 41, d: -3 },
+  { mkt: 'USD/PHP closes < 55 by Dec',       pct: 31, d: -7 },
+  { mkt: 'ECHO win MPL-PH S17',              pct: 44, d: +9 },
+]
+
+const CATEGORIES = [
+  { key: 'trending', label: 'Trending',    count: 142 },
+  { key: 'sports',   label: 'Sports',      count: 38  },
+  { key: 'showbiz',  label: 'Showbiz',     count: 24  },
+  { key: 'crypto',   label: 'Crypto',      count: 19  },
+  { key: 'weather',  label: 'Weather',     count: 11  },
+  { key: 'world',    label: 'World',       count: 32  },
+  { key: 'popcult',  label: 'Pop culture', count: 18  },
+] as const
+
+type CategoryKey = typeof CATEGORIES[number]['key']
+
+type MarketRow = { cat: string; q: string; pct: number; d: number; vol: string }
+
+const MARKETS: Record<CategoryKey, MarketRow[]> = {
+  trending: [
+    { cat: 'World Cup', q: 'Argentina defend their World Cup title in 2026',    pct: 31, d: +2,  vol: '₱6.1M' },
+    { cat: 'NBA',       q: 'OKC Thunder reach the 2026 NBA Finals',             pct: 64, d: +5,  vol: '₱4.0M' },
+    { cat: 'Showbiz',   q: 'Bea Millan-Windorski places top-5 at Miss Universe 2026', pct: 48, d: +7, vol: '₱1.3M' },
+    { cat: 'Crypto',    q: 'Bitcoin closes above ₱4M on Dec 31, 2026',          pct: 71, d: +6,  vol: '₱5.4M' },
+    { cat: 'MLBB',      q: 'ECHO wins MPL-PH Season 17',                        pct: 44, d: +9,  vol: '₱2.2M' },
+    { cat: 'Music',     q: 'BINI sells out the SM MOA Arena on June 20',        pct: 88, d: +3,  vol: '₱1.2M' },
+  ],
+  sports: [
+    { cat: 'World Cup', q: 'Argentina defend their World Cup title in 2026',     pct: 31, d: +2,  vol: '₱6.1M' },
+    { cat: 'NBA',       q: 'OKC Thunder reach the 2026 NBA Finals',              pct: 64, d: +5,  vol: '₱4.0M' },
+    { cat: 'PBA',       q: 'Ginebra wins the 2026 PBA Commissioner’s Cup',       pct: 41, d: -3,  vol: '₱2.8M' },
+    { cat: 'NBA',       q: 'Wembanyama outscores SGA in the West Finals series', pct: 38, d: +4,  vol: '₱1.9M' },
+    { cat: 'Boxing',    q: 'Manny Pacquiao announces a return bout in 2026',     pct: 17, d: +1,  vol: '₱2.7M' },
+    { cat: 'F1',        q: "Max Verstappen wins the 2026 Drivers' Championship", pct: 41, d: -6,  vol: '₱783K' },
+  ],
+  showbiz: [
+    { cat: 'Pageant', q: 'Bea Millan-Windorski places top-5 at Miss Universe 2026', pct: 48, d: +7,  vol: '₱1.3M' },
+    { cat: 'Music',   q: 'BINI sells out the SM MOA Arena on June 20',             pct: 88, d: +3,  vol: '₱1.2M' },
+    { cat: 'Movies',  q: 'Toy Story 5 tops ₱150M on its PH opening weekend',       pct: 55, d: +4,  vol: '₱612K' },
+    { cat: 'Movies',  q: 'Spider-Man: Brand New Day is the biggest PH opening of 2026', pct: 63, d: +9, vol: '₱934K' },
+    { cat: 'Music',   q: 'SB19 performs at Lollapalooza 2026',                     pct: 92, d: +1,  vol: '₱508K' },
+    { cat: 'Awards',  q: 'Dolly de Leon lands another Hollywood lead in 2026',     pct: 34, d: -2,  vol: '₱421K' },
+  ],
+  crypto: [
+    { cat: 'BTC',  q: 'Bitcoin > ₱4M by close of Q3 2026',            pct: 71, d: +6, vol: '₱5.4M' },
+    { cat: 'ETH',  q: 'Ethereum closes above ₱300k on Dec 31, 2026',  pct: 48, d: -2, vol: '₱2.1M' },
+    { cat: 'PHP',  q: 'USD/PHP closes below 55 on Dec 31, 2026',      pct: 31, d: -7, vol: '₱1.8M' },
+    { cat: 'BSP',  q: 'BSP cuts rates by 50bps before end of Q3',     pct: 62, d: +4, vol: '₱990K' },
+    { cat: 'PSEi', q: 'PSEi crosses 8,000 in 2026',                   pct: 41, d: +1, vol: '₱1.3M' },
+    { cat: 'Reg',  q: 'BSP licenses a peso-pegged stablecoin in 2026', pct: 28, d: +9, vol: '₱702K' },
+  ],
+  weather: [
+    { cat: 'Storm',   q: 'Signal No. 3 declared in Metro Manila this May',   pct: 22, d: -2,  vol: '₱614K' },
+    { cat: 'Storm',   q: 'At least 20 named typhoons by end of 2026',         pct: 67, d: +4,  vol: '₱430K' },
+    { cat: 'Heat',    q: 'Heat index in Manila exceeds 50°C this year',       pct: 81, d: +12, vol: '₱290K' },
+    { cat: 'Rain',    q: 'Habagat causes class suspensions in NCR this June', pct: 73, d: +3,  vol: '₱204K' },
+    { cat: 'Quake',   q: 'Magnitude 6+ earthquake in Luzon in 2026',          pct: 39, d: 0,   vol: '₱338K' },
+    { cat: 'Climate', q: 'Manila records its hottest year on record in 2026', pct: 64, d: +8,  vol: '₱176K' },
+  ],
+  world: [
+    { cat: 'US',    q: 'US recession officially declared in 2026',          pct: 34, d: -8,  vol: '₱3.1M' },
+    { cat: 'China', q: 'China and Taiwan see armed conflict before 2027',    pct: 11, d: -1,  vol: '₱2.0M' },
+    { cat: 'Tech',  q: 'OpenAI launches a Manila office in 2026',            pct: 14, d: +2,  vol: '₱412K' },
+    { cat: 'Space', q: 'SpaceX completes a Mars uncrewed landing in 2026',   pct: 23, d: -4,  vol: '₱890K' },
+    { cat: 'AI',    q: 'AI passes the bar exam with 95%+ score in 2026',     pct: 78, d: +11, vol: '₱1.3M' },
+    { cat: 'Korea', q: 'BTS reunion world tour announced before 2027',        pct: 56, d: +5,  vol: '₱2.4M' },
+  ],
+  popcult: [
+    { cat: 'Music', q: 'BINI sells out the SM MOA Arena on June 20',      pct: 88, d: +3, vol: '₱1.2M' },
+    { cat: 'Movie', q: 'Toy Story 5 tops ₱150M on its PH opening weekend', pct: 55, d: +4, vol: '₱612K' },
+    { cat: 'Viral', q: 'A Filipino creator hits 50M YouTube subscribers', pct: 36, d: +7, vol: '₱221K' },
+    { cat: 'Game',  q: 'GTA VI launches before end of 2026',              pct: 81, d: +4, vol: '₱1.9M' },
+    { cat: 'Music', q: 'SB19 performs at Lollapalooza 2026',              pct: 92, d: +1, vol: '₱508K' },
+    { cat: 'Award', q: 'A Filipino wins the Magsaysay this year',         pct: 51, d: +1, vol: '₱312K' },
+  ],
+}
+
+function LogoMono() {
+  return <span className="logo-mono">H</span>
+}
+
+function LogoWordmark({ size }: { size?: number }) {
+  return (
+    <span className="logo-wordmark" style={size ? { fontSize: size } : undefined}>
+      Hula<span className="dot">.</span>
+    </span>
+  )
+}
+
+function LogoLockup() {
+  return (
+    <span className="logo-lockup">
+      <LogoMono />
+      <LogoWordmark />
+    </span>
+  )
+}
+
+function Ticker() {
+  const items = [...TICKER_DATA, ...TICKER_DATA]
+  return (
+    <div className="ticker" aria-hidden="true">
+      <div className="ticker-track">
+        {items.map((it, i) => (
+          <span className="ticker-item" key={i}>
+            <span className="ticker-dot" />
+            <span className="lbl">{it.mkt}</span>
+            <span className="pct">{it.pct}%</span>
+            <span className={'pct ' + (it.d >= 0 ? 'up' : 'down')}>
+              {it.d >= 0 ? '▲' : '▼'} {Math.abs(it.d)}
+            </span>
+          </span>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function Nav({ onBurger }: { onBurger: () => void }) {
+  const scrollToWaitlist = (e: React.MouseEvent) => {
+    e.preventDefault()
+    document.getElementById('waitlist')?.scrollIntoView({ behavior: 'smooth' })
+  }
+  return (
+    <nav className="nav shell">
+      <div className="nav-l">
+        <LogoLockup />
+        <div className="nav-links">
+          <a href="#markets">Markets</a>
+          <a href="#markets">Sports</a>
+          <a href="#markets">Showbiz</a>
+          <a href="#how">How it works</a>
+        </div>
+      </div>
+      <div className="nav-r">
+        <a className="btn btn-primary" href="#waitlist" onClick={scrollToWaitlist}>Hulaan na →</a>
+        <button className="nav-burger" type="button" aria-label="Open menu" onClick={onBurger}>
+          <i /><i /><i />
+        </button>
+      </div>
+    </nav>
+  )
+}
+
+function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
+  useEffect(() => {
+    if (!open) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = prev }
+  }, [open])
+
+  const go = (id: string) => (e: React.MouseEvent) => {
+    e.preventDefault()
+    onClose()
+    setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }), 80)
+  }
+
+  return (
+    <div className={'mobile-menu' + (open ? ' open' : '')} aria-hidden={!open}>
+      <div className="mobile-menu-head">
+        <LogoLockup />
+        <button className="mobile-menu-close" type="button" aria-label="Close menu" onClick={onClose}>×</button>
+      </div>
+      <div className="mobile-menu-links">
+        <a href="#markets" onClick={go('markets')}>Markets</a>
+        <a href="#how" onClick={go('how')}>How it works</a>
+        <a href="#waitlist" onClick={go('waitlist')}>Reserve handle</a>
+      </div>
+      <div className="mobile-menu-foot">
+        <a className="btn btn-primary btn-lg" href="#waitlist" onClick={go('waitlist')}>Hulaan na →</a>
+      </div>
+    </div>
+  )
+}
+
+function FeaturedCard() {
+  const yes = 64, no = 36
+  return (
+    <div className="featured">
+      <div className="featured-head">
+        <span className="featured-tag">Featured · World Cup 2026</span>
+        <span className="featured-vol">VOL ₱4.21M</span>
+      </div>
+      <h3 className="featured-q">Will Argentina defend their World Cup title in 2026?</h3>
+      <div className="featured-bar">
+        <i className="yes" style={{ width: yes + '%' }} />
+        <i className="no" style={{ width: no + '%' }} />
+      </div>
+      <div className="featured-legend">
+        <span className="yes"><strong>YES</strong> ₱{yes} · {yes}%</span>
+        <span className="no"><strong>NO</strong> ₱{no} · {no}%</span>
+      </div>
+      <div className="featured-bet">
+        <button className="bet-btn yes" type="button">
+          <span className="lbl">Buy YES</span>
+          <span className="val">₱{yes}.00</span>
+        </button>
+        <button className="bet-btn no" type="button">
+          <span className="lbl">Buy NO</span>
+          <span className="val">₱{no}.00</span>
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function EmailForm({ id, variant = 'hero' }: { id?: string; variant?: 'hero' | 'cta' }) {
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
-  const emailInputRef = useRef<HTMLInputElement>(null)
-  const heroEmailRef = useRef<HTMLFormElement>(null)
-  const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
 
-  useEffect(() => {
-    const target = new Date('2026-06-11T00:00:00+08:00').getTime()
-    const tick = () => {
-      const diff = target - Date.now()
-      if (diff <= 0) { setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 }); return }
-      setCountdown({
-        days: Math.floor(diff / 86400000),
-        hours: Math.floor((diff % 86400000) / 3600000),
-        minutes: Math.floor((diff % 3600000) / 60000),
-        seconds: Math.floor((diff % 60000) / 1000),
-      })
-    }
-    tick()
-    const id = setInterval(tick, 1000)
-    return () => clearInterval(id)
-  }, [])
-
-  const handleEmailSubmit = async (e: React.FormEvent, scrollTo?: React.RefObject<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     if (!email.trim()) return
-
     setStatus('loading')
     try {
       const res = await fetch('/api/waitlist', {
@@ -39,441 +231,282 @@ export default function Home() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       })
-
       if (res.ok) {
         setStatus('success')
         setEmail('')
-        setTimeout(() => setStatus('idle'), 3000)
       } else {
         setStatus('error')
-        setTimeout(() => setStatus('idle'), 3000)
       }
-    } catch (err) {
+    } catch {
       setStatus('error')
-      setTimeout(() => setStatus('idle'), 3000)
     }
   }
 
-  const scrollToHeroEmail = () => {
-    heroEmailRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
-    },
-  }
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5, ease: 'easeOut' },
-    },
-  }
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: (index: number) => ({
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5, ease: 'easeOut', delay: index * 0.08 },
-    }),
-  }
-
   return (
-    <main className="min-h-screen bg-brand-bg text-brand-text-primary">
-      {/* Header with Logo */}
-      <header className="fixed top-0 left-0 right-0 z-40 px-4 py-4 md:px-6 border-b border-brand-border/50 bg-brand-bg/95 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <svg
-              viewBox="0 0 40 40"
-              className="w-8 h-8"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <circle cx="20" cy="20" r="20" fill="#0A0A0B" />
-              <text
-                x="20"
-                y="28"
-                fontFamily="Fraunces, Georgia, serif"
-                fontSize="28"
-                fontWeight="600"
-                textAnchor="middle"
-                fill="#F4B942"
-              >
-                â
-              </text>
-            </svg>
-            <span className="text-xl font-serif font-medium hidden sm:inline">
-              Tay<span className="text-brand-accent">â</span>
-            </span>
+    <form id={id} className="email-form" onSubmit={handleSubmit}>
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="your@email.ph"
+        disabled={status === 'loading'}
+        required
+      />
+      <button
+        type="submit"
+        className={'btn btn-lg ' + (variant === 'cta' ? 'btn-primary' : 'btn-accent')}
+        disabled={status === 'loading' || !email.trim()}
+      >
+        {status === 'loading' ? 'Loading…' : status === 'success' ? "You're in" : 'Reserve handle →'}
+      </button>
+      {status === 'success' && <div className="msg">Salamat — we&apos;ll be in touch.</div>}
+      {status === 'error' && <div className="msg error">Something broke. Try again.</div>}
+    </form>
+  )
+}
+
+function Hero() {
+  return (
+    <section className="hero shell">
+      <div className="hero-grid">
+        <div>
+          <div className="eyebrow">
+            <span className="dot" />
+            Pre-launch · Reserve a handle
           </div>
-          <nav className="flex gap-6 text-sm">
-            <a href="#categories" className="text-brand-text-secondary hover:text-brand-text-primary transition-colors">
-              Markets
-            </a>
-            <a href="#how-it-works" className="text-brand-text-secondary hover:text-brand-text-primary transition-colors">
-              How it works
-            </a>
-          </nav>
-        </div>
-      </header>
-
-      {/* Hero Section */}
-      <section className="relative px-4 pt-32 pb-20 md:px-6 md:pt-40 md:pb-32">
-        {/* Subtle background chart line */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-5">
-          <svg className="w-full h-full" viewBox="0 0 1000 300" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="chartGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#F4B942" stopOpacity="0.3" />
-                <stop offset="100%" stopColor="#F4B942" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-            <path
-              d="M 0 200 Q 250 150 500 100 T 1000 50"
-              stroke="url(#chartGradient)"
-              strokeWidth="2"
-              fill="none"
-            />
-          </svg>
-        </div>
-
-        <div className="relative max-w-4xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="mb-8 md:mb-12"
-          >
-            <h1 className="font-serif text-5xl md:text-7xl font-medium tracking-tight leading-tight">
-              Tay<span className="text-brand-accent">â</span>
-            </h1>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="mb-6 md:mb-8"
-          >
-            <h2 className="text-3xl md:text-5xl font-semibold tracking-tight leading-snug">
-              Predict anything. From PBA to M-Series.
-            </h2>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="mb-8 md:mb-10"
-          >
-            <p className="text-lg md:text-xl text-brand-text-secondary leading-relaxed max-w-2xl">
-              The Philippines' first prediction market. Stake your call on the moments that matter — local hoops, esports, pageants, the World Cup. Pay with GCash, Maya, or bank transfer.
-            </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="mb-10 md:mb-12"
-          >
-            <p className="text-sm italic text-brand-accent">
-              First 1,000 users get founding-member status + zero fees for life.
-            </p>
-          </motion.div>
-
-          {/* Email Form */}
-          <motion.form
-            ref={heroEmailRef}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            onSubmit={handleEmailSubmit}
-            className="mb-12 md:mb-16"
-          >
-            <div className="flex flex-col md:flex-row gap-3 md:gap-0">
-              <input
-                ref={emailInputRef}
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.ph"
-                disabled={status === 'loading'}
-                className="flex-1 px-4 py-4 md:py-3 bg-brand-surface border border-brand-border text-brand-text-primary placeholder-brand-text-secondary focus:outline-none focus:border-brand-accent transition-colors font-mono text-sm rounded-l-brand-input md:rounded-l-input md:rounded-r-none"
-                required
-              />
-              <button
-                type="submit"
-                disabled={status === 'loading' || !email.trim()}
-                className={`px-6 py-4 md:py-3 font-medium rounded-r-brand-input md:rounded-r-input md:rounded-l-none text-sm transition-all ${
-                  status === 'success'
-                    ? 'bg-brand-success text-brand-bg'
-                    : status === 'error'
-                    ? 'bg-brand-danger text-brand-text-primary'
-                    : 'bg-brand-accent text-brand-bg hover:brightness-110 active:scale-98'
-                } ${status === 'loading' ? 'opacity-75' : ''}`}
-              >
-                {status === 'loading' ? (
-                  <span>Loading…</span>
-                ) : status === 'success' ? (
-                  <span>You're in.</span>
-                ) : status === 'error' ? (
-                  <span>Try again</span>
-                ) : (
-                  <span>Reserve handle →</span>
-                )}
-              </button>
-            </div>
-            {status === 'success' && (
-              <p className="text-sm text-brand-success mt-3">We'll be in touch soon.</p>
-            )}
-          </motion.form>
-
-          {/* Decorative Market Card - Desktop Only */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
-            className="hidden md:block max-w-md"
-          >
-            <div className="bg-brand-surface border border-brand-border rounded-card p-6">
-              <p className="text-sm text-brand-text-secondary mb-4">Sample market</p>
-              <p className="text-lg font-medium mb-6">Will Ginebra win the PBA Finals?</p>
-              <div className="grid grid-cols-2 gap-3">
-                <button className="py-3 bg-brand-success/10 border border-brand-success text-brand-success font-mono text-sm rounded-btn hover:bg-brand-success/20 transition-colors">
-                  Yes 64¢
-                </button>
-                <button className="py-3 bg-brand-danger/10 border border-brand-danger text-brand-danger font-mono text-sm rounded-btn hover:bg-brand-danger/20 transition-colors">
-                  No 36¢
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Categories Section */}
-      <section id="categories" className="px-4 py-20 md:px-6 md:py-32 border-t border-brand-border">
-        <div className="max-w-6xl mx-auto">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-100px' }}
-            variants={containerVariants}
-          >
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-              {[
-                {
-                  emoji: '🏀',
-                  title: 'PBA & NBA',
-                  desc: 'Every game. Every quarter. Every clutch moment.',
-                },
-                {
-                  emoji: '🎮',
-                  title: 'MLBB & Esports',
-                  desc: 'MPL-PH, M-Series, every major bracket.',
-                },
-                {
-                  emoji: '👑',
-                  title: 'Culture & World',
-                  desc: 'Pageants, awards nights, World Cup 2026. If it\'s predictable, it\'s tradeable.',
-                },
-              ].map((cat, idx) => (
-                <motion.div
-                  key={idx}
-                  custom={idx}
-                  variants={cardVariants}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true, margin: '-50px' }}
-                  className="bg-brand-surface border border-brand-border rounded-card p-6"
-                >
-                  <div className="text-3xl mb-4">{cat.emoji}</div>
-                  <h3 className="text-xl font-semibold mb-2">{cat.title}</h3>
-                  <p className="text-brand-text-secondary">{cat.desc}</p>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* How It Works Section */}
-      <section id="how-it-works" className="px-4 py-20 md:px-6 md:py-32 border-t border-brand-border">
-        <div className="max-w-6xl mx-auto">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-100px' }}
-            transition={{ duration: 0.5 }}
-            className="text-3xl md:text-4xl font-semibold mb-16 md:mb-24"
-          >
-            Three steps. Peer-driven. Crowd-priced.
-          </motion.h2>
-
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-100px' }}
-            variants={containerVariants}
-          >
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
-              {[
-                {
-                  num: '01',
-                  title: 'Pick a market.',
-                  desc: 'Will Ginebra take the Finals? Will Echo win M7? Will the Philippines crown another Miss Universe?',
-                },
-                {
-                  num: '02',
-                  title: 'Take a side.',
-                  desc: 'Yes or no. Price reflects what the crowd believes right now.',
-                },
-                {
-                  num: '03',
-                  title: 'Cash out anytime.',
-                  desc: 'Your call was right? You win. Markets settle automatically.',
-                },
-              ].map((step, idx) => (
-                <motion.div
-                  key={idx}
-                  custom={idx}
-                  variants={cardVariants}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true, margin: '-50px' }}
-                  className="flex flex-col"
-                >
-                  <div className="text-5xl font-mono font-bold text-brand-accent mb-4">
-                    {step.num}
-                  </div>
-                  <h3 className="text-xl font-semibold mb-3">{step.title}</h3>
-                  <p className="text-brand-text-secondary">{step.desc}</p>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true, margin: '-50px' }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="text-center text-brand-text-secondary text-sm mt-16 md:mt-24"
-          >
-            Prices move because people move them.
-          </motion.p>
-        </div>
-      </section>
-
-      {/* Launch Hook Section */}
-      <section className="px-4 py-20 md:px-6 md:py-32 border-t border-brand-border">
-        <div className="max-w-4xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-100px' }}
-            transition={{ duration: 0.5 }}
-          >
-            <p className="text-xs font-mono font-semibold text-brand-accent uppercase tracking-widest mb-4">
-              First Event
-            </p>
-            <h2 className="text-4xl md:text-5xl font-serif font-medium mb-8">
-              FIFA World Cup 2026
-            </h2>
-
-            {/* Countdown */}
-            <div className="flex items-end gap-4 md:gap-6 mb-3">
-              {[
-                { value: countdown.days, label: 'days' },
-                { value: countdown.hours, label: 'hrs' },
-                { value: countdown.minutes, label: 'min' },
-                { value: countdown.seconds, label: 'sec' },
-              ].map(({ value, label }) => (
-                <div key={label} className="text-center">
-                  <div className="font-mono text-4xl md:text-5xl font-bold text-brand-accent tabular-nums">
-                    {String(value).padStart(2, '0')}
-                  </div>
-                  <div className="text-xs text-brand-text-secondary mt-1 font-mono uppercase tracking-widest">{label}</div>
-                </div>
-              ))}
-            </div>
-            <p className="text-sm text-brand-text-secondary mb-10 font-mono">until kick-off · Jun 11, 2026</p>
-
-            {/* Sample WM markets */}
-            <div className="grid gap-3 mb-10">
-              {[
-                { q: 'Will Argentina defend their title?', yes: 38, no: 62 },
-                { q: 'Will Brazil win it all?', yes: 22, no: 78 },
-                { q: 'Will a host nation reach the semifinals?', yes: 44, no: 56 },
-              ].map(({ q, yes, no }) => (
-                <div key={q} className="bg-brand-surface border border-brand-border rounded-card p-4 flex flex-col md:flex-row md:items-center gap-4">
-                  <p className="flex-1 text-sm font-medium">{q}</p>
-                  <div className="flex gap-2 shrink-0">
-                    <button className="px-4 py-2 bg-brand-success/10 border border-brand-success text-brand-success font-mono text-sm rounded-btn hover:bg-brand-success/20 transition-colors">
-                      Yes {yes}¢
-                    </button>
-                    <button className="px-4 py-2 bg-brand-danger/10 border border-brand-danger text-brand-danger font-mono text-sm rounded-btn hover:bg-brand-danger/20 transition-colors">
-                      No {no}¢
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={scrollToHeroEmail}
-              className="px-6 py-4 bg-brand-accent text-brand-bg font-medium rounded-btn hover:brightness-110 transition-all text-sm"
-            >
-              Reserve your handle →
-            </motion.button>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="px-4 py-16 md:px-6 md:py-20 border-t border-brand-border">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:justify-between md:items-center gap-8">
-          <p className="text-sm text-brand-text-secondary">
-            Built in Manila. For Filipinos.
+          <h1 className="h1">
+            The market for <em>what happens next.</em>
+          </h1>
+          <p className="lede">
+            Hula is the Philippines&apos; prediction market — trade the outcome of basketball, boxing, billboards, and the biggest stories of the day. Real money, real probabilities, regulated locally.
           </p>
-          <div className="flex gap-8">
-            <a
-              href="https://twitter.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-brand-accent hover:text-brand-text-primary transition-colors"
-            >
-              Twitter/X
-            </a>
-            <a
-              href="https://instagram.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-brand-accent hover:text-brand-text-primary transition-colors"
-            >
-              Instagram
-            </a>
-            <a
-              href="mailto:hello@taya.ph"
-              className="text-sm text-brand-accent hover:text-brand-text-primary transition-colors"
-            >
-              Email
-            </a>
+          <EmailForm id="waitlist" variant="hero" />
+          <div style={{ marginTop: 14 }}>
+            <span className="cta-meta" style={{ paddingLeft: 0 }}>First 1,000 founding members · zero fees for life · 21+</span>
           </div>
         </div>
-      </footer>
+        <FeaturedCard />
+      </div>
+    </section>
+  )
+}
+
+function MarketCard({ m }: { m: MarketRow }) {
+  const yesPrice = m.pct
+  const noPrice = 100 - m.pct
+  return (
+    <article className="card">
+      <div className="card-head">
+        <span className="card-cat">{m.cat}</span>
+        <span className="card-vol">VOL {m.vol}</span>
+      </div>
+      <h3 className="card-q">{m.q}</h3>
+      <div className="card-prob">
+        <span className="pct">{m.pct}%</span>
+        <span className="pct-lbl">chance</span>
+        <span className={'delta ' + (m.d >= 0 ? 'up' : 'down')}>
+          {m.d >= 0 ? '▲' : '▼'} {Math.abs(m.d)}
+        </span>
+      </div>
+      <div className="card-bar"><i style={{ width: m.pct + '%' }} /></div>
+      <div className="card-actions">
+        <button className="bet-btn yes" type="button">
+          <span className="lbl">YES</span>
+          <span className="val">₱{yesPrice}</span>
+        </button>
+        <button className="bet-btn no" type="button">
+          <span className="lbl">NO</span>
+          <span className="val">₱{noPrice}</span>
+        </button>
+      </div>
+    </article>
+  )
+}
+
+function Markets() {
+  const [active, setActive] = useState<CategoryKey>('trending')
+  const cards = MARKETS[active]
+  return (
+    <section id="markets" className="section shell">
+      <div className="section-head">
+        <div>
+          <div className="section-kicker">Live Markets</div>
+          <h2 className="section-title">Today&apos;s odds, settled in pesos.</h2>
+        </div>
+      </div>
+      <div className="cat-tabs">
+        {CATEGORIES.map((c) => (
+          <button
+            key={c.key}
+            type="button"
+            className={'cat-tab' + (c.key === active ? ' active' : '')}
+            onClick={() => setActive(c.key)}
+          >
+            {c.label}<span className="count">{c.count}</span>
+          </button>
+        ))}
+      </div>
+      <div className="market-grid">
+        {cards.map((m, i) => <MarketCard key={i} m={m} />)}
+      </div>
+    </section>
+  )
+}
+
+function HowItWorks() {
+  const steps = [
+    { n: '01', t: 'Pumili ng hula.',  d: 'Browse hundreds of live markets — sports, showbiz, weather, world events. Each one is a yes-or-no question with real odds.' },
+    { n: '02', t: 'Bumili ng share.', d: 'A YES or NO share costs from ₱1 to ₱99, depending on the market price. The price is the probability.' },
+    { n: '03', t: 'Kunin ang bayad.', d: 'If your prediction is correct, every share pays out ₱100. Sell anytime, settled to GCash, Maya, or your bank.' },
+  ]
+  return (
+    <section id="how" className="section shell">
+      <div className="section-head">
+        <div>
+          <div className="section-kicker">Paano gumagana</div>
+          <h2 className="section-title">How a hula works.</h2>
+        </div>
+      </div>
+      <div className="steps">
+        {steps.map((s) => (
+          <div key={s.n} className="step">
+            <div className="step-num">— {s.n}</div>
+            <h3 className="step-t">{s.t}</h3>
+            <p className="step-d">{s.d}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function Pullquote() {
+  return (
+    <section className="pull">
+      <div className="shell">
+        <p className="pull-q">
+          Hindi lang ito panghuhula. <em>It&apos;s a market.</em>
+        </p>
+        <div className="pull-by">— Hula manifesto · 2026</div>
+      </div>
+    </section>
+  )
+}
+
+function Stats() {
+  const data = [
+    { n: '₱412M', l: 'Volume traded · 30d' },
+    { n: '184K',  l: 'Active hulers' },
+    { n: '1,420', l: 'Live markets' },
+    { n: '98.2%', l: 'Settlement on time' },
+  ]
+  return (
+    <section className="section shell">
+      <div className="section-head">
+        <div>
+          <div className="section-kicker">By the numbers</div>
+          <h2 className="section-title">The market is liquid.</h2>
+        </div>
+        <span className="cta-meta" style={{ paddingLeft: 0 }}>Illustrative · pre-launch</span>
+      </div>
+      <div className="stats">
+        {data.map((s, i) => (
+          <div key={i} className="stat">
+            <div className="stat-n">{s.n}</div>
+            <div className="stat-l">{s.l}</div>
+          </div>
+        ))}
+      </div>
+      <div className="compliance">
+        <span className="badge">21+</span>
+        <div>
+          <strong>Hula will operate under PAGCOR oversight.</strong>{' '}
+          Markets will be open only to Philippine residents 21 years and above. Government employees, AFP/PNP personnel, and persons in the NDRP will not be eligible. Magdiwang nang responsable — when the fun stops, stop.
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function CtaStrip() {
+  return (
+    <section className="cta-strip shell">
+      <h2>
+        Hulaan <em>na.</em>
+      </h2>
+      <p>
+        Reserve a handle in 60 seconds. Founding members get zero fees for life and first dibs on Day-1 markets.
+      </p>
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <EmailForm variant="cta" />
+      </div>
+    </section>
+  )
+}
+
+function Footer() {
+  return (
+    <footer className="foot">
+      <div className="shell">
+        <div className="foot-grid">
+          <div className="foot-col foot-logo">
+            <LogoMono />
+            <div className="foot-tag">
+              The market for what happens next, made in the Philippines.
+            </div>
+          </div>
+          <div className="foot-col">
+            <h5>Markets</h5>
+            <ul>
+              <li><a href="#markets">Sports</a></li>
+              <li><a href="#markets">Showbiz</a></li>
+              <li><a href="#markets">Crypto</a></li>
+              <li><a href="#markets">Weather</a></li>
+              <li><a href="#markets">World</a></li>
+            </ul>
+          </div>
+          <div className="foot-col">
+            <h5>Hula</h5>
+            <ul>
+              <li><a href="#how">How it works</a></li>
+              <li><a href="#waitlist">Reserve handle</a></li>
+              <li><a href="#">Press</a></li>
+            </ul>
+          </div>
+          <div className="foot-col">
+            <h5>Legal</h5>
+            <ul>
+              <li><a href="#">Terms</a></li>
+              <li><a href="#">Privacy</a></li>
+              <li><a href="#">PAGCOR pathway</a></li>
+              <li><a href="#">Responsible gaming</a></li>
+              <li><a href="#">21+ policy</a></li>
+            </ul>
+          </div>
+        </div>
+        <div className="foot-bottom">
+          <span>© 2026 Hula Pilipinas, Inc. · Manila, PH</span>
+          <span>v2.0 · pre-launch</span>
+        </div>
+      </div>
+    </footer>
+  )
+}
+
+export default function Home() {
+  const [menuOpen, setMenuOpen] = useState(false)
+  return (
+    <main className="hula-v2">
+      <Ticker />
+      <Nav onBurger={() => setMenuOpen(true)} />
+      <Hero />
+      <Markets />
+      <HowItWorks />
+      <Pullquote />
+      <Stats />
+      <CtaStrip />
+      <Footer />
+      <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
     </main>
   )
 }

@@ -1,4 +1,4 @@
-# Tayâ Landing Page
+# Hula Landing Page
 
 The Philippines' first prediction market — built with Next.js 14, Tailwind CSS, and Framer Motion.
 
@@ -87,7 +87,7 @@ Click the button below to deploy directly to Vercel:
 1. **Push to GitHub:**
    ```bash
    git add .
-   git commit -m "Add Tayâ landing page"
+   git commit -m "Add Hula landing page"
    git push
    ```
 
@@ -106,7 +106,7 @@ Click the button below to deploy directly to Vercel:
 
 ### Custom Domain
 1. In Vercel → Settings → Domains
-2. Add your custom domain (e.g., `taya.ph`)
+2. Add your custom domain (e.g., `hulaan.ph`)
 3. Update DNS records at your registrar
 4. Vercel provides DNS instructions — follow them exactly
 
@@ -173,8 +173,9 @@ package.json            # Dependencies
 ## Important Notes
 
 ### Brand
-- Always render "Tayâ" with the circumflex (â) accent — never as "Taya"
-- The â should appear in gold (`#F4B942`) in the wordmark
+- Render the wordmark as plain "Hula"; pair with the circular "H" mark in gold (`#F4B942`) when a logo treatment is needed
+- Brand name in copy is "Hula" (Tagalog for "predict / guess")
+- Domain is `hulaan.ph` (Tagalog imperative form: "predict it / guess it")
 - Use Tagalog accent words sparingly (max 3 on page)
 
 ### Design
@@ -219,4 +220,4 @@ npm install next@14
 
 ## License
 
-© 2026 Tayâ. All rights reserved.
+© 2026 Hula. All rights reserved.

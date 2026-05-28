@@ -1,5 +1,5 @@
 {
-  "name": "taya-landing",
+  "name": "hula-landing",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,20 +9,24 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.10.3",
+    "@supabase/supabase-js": "^2.106.1",
+    "@vercel/analytics": "^2.0.1",
+    "autoprefixer": "^10.4.17",
+    "framer-motion": "^11.0.0",
+    "next": "^14.1.0",
+    "postcss": "^8.4.32",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "next": "^14.1.0",
-    "framer-motion": "^11.0.0",
     "tailwindcss": "^3.4.1",
-    "autoprefixer": "^10.4.17",
-    "postcss": "^8.4.32"
+    "twilio": "^6.0.2"
   },
   "devDependencies": {
-    "typescript": "^5.3.3",
     "@types/node": "^20.10.6",
     "@types/react": "^18.2.46",
     "@types/react-dom": "^18.2.18",
     "eslint": "^8.56.0",
-    "eslint-config-next": "^14.1.0"
+    "eslint-config-next": "^14.1.0",
+    "typescript": "^5.3.3"
   }
 }

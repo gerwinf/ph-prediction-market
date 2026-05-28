@@ -1,5 +1,6 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Fraunces, Space_Mono } from 'next/font/google'
+import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
 const fraunces = Fraunces({
@@ -14,26 +15,55 @@ const spaceMono = Space_Mono({
   variable: '--font-geist-mono',
 })
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://hulaan.ph'
+const TITLE = 'Hula — The market for what happens next.'
+const DESCRIPTION =
+  "The Philippines' prediction market. Trade real odds on PBA, boxing, MMFF, weather, World Cup — pesos in, pesos out."
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+}
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://taya.ph'),
-  title: 'Tayâ — Predict anything. From PBA to M-Series.',
-  description: "The Philippines' first prediction market. Stake your call on the moments that matter — local hoops, esports, pageants, the World Cup.",
+  metadataBase: new URL(SITE_URL),
+  title: TITLE,
+  description: DESCRIPTION,
+  applicationName: 'Hula',
+  keywords: [
+    'Hula',
+    'Hulaan',
+    'prediction market',
+    'Philippines',
+    'PBA',
+    'PAGCOR',
+    'sports betting',
+    'GCash',
+    'pesos',
+  ],
+  authors: [{ name: 'Hula Pilipinas, Inc.' }],
+  alternates: { canonical: SITE_URL },
   icons: {
-    icon: '/favicon-mark.svg',
+    icon: [{ url: '/favicon-mark.svg', type: 'image/svg+xml' }],
+    apple: '/favicon-mark.svg',
   },
   openGraph: {
-    title: 'Tayâ — Predict anything. From PBA to M-Series.',
-    description: "The Philippines' first prediction market.",
-    url: 'https://taya.ph',
+    title: TITLE,
+    description: DESCRIPTION,
+    url: SITE_URL,
+    siteName: 'Hula',
     type: 'website',
-    images: [
-      {
-        url: '/og-image.svg',
-        width: 1200,
-        height: 630,
-        alt: 'Tayâ - Predict anything',
-      },
-    ],
+    locale: 'en_PH',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: TITLE,
+    description: DESCRIPTION,
+  },
+  other: {
+    // WhatsApp specifically reads og:image:type — declaring PNG helps preview render
+    'og:image:type': 'image/png',
   },
 }
 
@@ -44,8 +74,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${fraunces.variable} ${spaceMono.variable}`}>
-      <body className="bg-brand-bg text-brand-text-primary font-sans antialiased">
+      <body className="antialiased">
         {children}
+        <Analytics />
       </body>
     </html>
   )
