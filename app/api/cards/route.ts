@@ -83,6 +83,7 @@ export async function POST(req: Request) {
       card_type: cardType,
       board_seed: hashSeed(cardId, cardType),
       cells: card.cells,
+      price_php: pricePhp,
       score: 0,
       won: false,
     })

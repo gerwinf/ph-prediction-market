@@ -184,15 +184,18 @@ export default function HitsCardPage({ params }: PageProps) {
 
   // When a win pattern is shown, credit the balance + persist to DB.
   // Idempotent via wonPostedRef so re-renders don't double-credit.
+  // Server is now the source of truth for payoutPhp: POST with empty body,
+  // server recomputes from cells + events, returns canonical payoutPhp.
+  // Client trusts the response, not the local winShown.multiplier.
   useEffect(() => {
     if (!winShown || wonPostedRef.current) return
     wonPostedRef.current = true
 
-    const payoutPhp = card.pricePhp * winShown.multiplier
-    setBalance(credit(payoutPhp))
+    // Optimistic UI: track the win event using the client-visible
+    // multiplier so analytics reflects what the user actually saw.
     track(
       'win_shown',
-      { kind: winShown.kind, multiplier: winShown.multiplier, payoutPhp, bet: card.pricePhp },
+      { kind: winShown.kind, multiplier: winShown.multiplier, bet: card.pricePhp },
       card_id
     )
 
@@ -200,26 +203,44 @@ export default function HitsCardPage({ params }: PageProps) {
     // dismisses the win modal (or alongside it, layered). Once-per-device
     // gating handled by the localStorage flag. markCaptureShown() lives
     // INSIDE the setTimeout so a user who closes the tab during the 1.8s
-    // window doesn't get the flag set without ever seeing the modal —
-    // they'd never get prompted again.
+    // window doesn't get the flag set without ever seeing the modal.
     if (shouldShowCapture()) {
       setTimeout(() => {
-        if (!shouldShowCapture()) return  // re-check in case threshold fired in interim
+        if (!shouldShowCapture()) return
         markCaptureShown()
         setShowCapture(true)
         track('contact_capture_shown', { trigger: 'win', kind: winShown.kind }, card_id)
       }, 1800)
     }
 
-    // Best-effort POST to record the win. Silent fail OK — the
-    // client-side balance update is the source of truth for the user.
-    fetch(`/api/cards/${encodeURIComponent(card_id)}/won`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pattern: winShown.kind, payoutPhp }),
-    }).catch(() => {
-      /* swallow */
-    })
+    // POST the claim with an empty body. Server recomputes payout from
+    // cells + events. On 409 (no_win_yet — events haven't propagated
+    // server-side yet), retry once after 1.5s; if still 409, accept the
+    // cosmetic mismatch — the modal already showed locally, leaderboard
+    // just won't see this card. Better than crediting a fake balance.
+    const claimWin = async (attempt = 1): Promise<void> => {
+      try {
+        const res = await fetch(`/api/cards/${encodeURIComponent(card_id)}/won`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: '{}',
+        })
+        const j = await res.json().catch(() => null)
+        if (res.status === 409 && attempt === 1) {
+          // Events likely haven't propagated. One retry then give up.
+          setTimeout(() => claimWin(2), 1500)
+          return
+        }
+        if (j?.ok && typeof j.payoutPhp === 'number') {
+          // Server-canonical credit. Replaces the client-side multiplier
+          // path entirely.
+          setBalance(credit(j.payoutPhp))
+        }
+      } catch {
+        /* swallow — leaderboard miss is acceptable Phase 0 */
+      }
+    }
+    claimWin()
   }, [winShown, card.pricePhp, card_id])
 
   // Live wins ticker: poll /api/wins for other players' wins on this
