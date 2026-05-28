@@ -10,6 +10,8 @@ import { readBalance, credit, debit } from '../../../lib/identity/token-balance'
 import { track } from '../../../lib/analytics/track'
 import { ContactCaptureModal } from '../../../components/hits/ContactCaptureModal'
 import { useModalA11y } from '../../../lib/hooks/useModalA11y'
+import { useSession } from '../../../lib/auth/use-session'
+import { SignInModal } from '../../../components/auth/SignInModal'
 
 const CAPTURE_KEY = 'hula-captured'
 const CARD_COUNT_KEY = 'hula-hits-session-cards'
@@ -101,7 +103,9 @@ export default function HitsCardPage({ params }: PageProps) {
   const wonPostedRef = useRef(false)
   const firstHitFiredRef = useRef(false)
   const [showCapture, setShowCapture] = useState(false)
+  const [showSignIn, setShowSignIn] = useState(false)
   const winA11y = useModalA11y({ isOpen: winShown !== null, onClose: () => setWinShown(null) })
+  const auth = useSession()
 
   useEffect(() => {
     setBalance(readBalance())
@@ -461,6 +465,27 @@ export default function HitsCardPage({ params }: PageProps) {
               <span className="hits-token-chip-coin">₱</span>
               {balance.toLocaleString()}
             </span>
+            {!auth.loading && (
+              auth.profile ? (
+                <button
+                  className="hits-back"
+                  onClick={() => auth.signOut()}
+                  title={`Signed in as ${auth.profile.email}`}
+                >
+                  {auth.profile.display_name}
+                </button>
+              ) : (
+                <button
+                  className="hits-back"
+                  onClick={() => {
+                    setShowSignIn(true)
+                    track('signin_opened', { from: '/hits/[card_id]' })
+                  }}
+                >
+                  Sign in
+                </button>
+              )
+            )}
             <button className="hits-back" onClick={() => router.push('/hits')}>
               ← New
             </button>
@@ -589,6 +614,13 @@ export default function HitsCardPage({ params }: PageProps) {
           Demo. <strong>Real hits follows a real game.</strong>
         </p>
       </div>
+
+      {showSignIn && (
+        <SignInModal
+          onClose={() => setShowSignIn(false)}
+          redirectTo={`/hits/${card_id}?bet=${bet}${live ? `&live=1&match=${matchId}` : ''}`}
+        />
+      )}
 
       {showCapture && (
         <ContactCaptureModal

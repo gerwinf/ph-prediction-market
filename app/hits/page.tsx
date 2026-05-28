@@ -7,6 +7,8 @@ import { MULTIPLIERS } from '../../lib/hits/payouts'
 import { CARD_TYPES, type CardType } from '../../lib/hits/card-types'
 import { readBalance, debit } from '../../lib/identity/token-balance'
 import { track } from '../../lib/analytics/track'
+import { useSession } from '../../lib/auth/use-session'
+import { SignInModal } from '../../components/auth/SignInModal'
 
 /* ────────────────────────────────────────────────────────────────────────
  * /hits — masa-tier live-event hits entry page
@@ -87,6 +89,8 @@ export default function HitsEntry() {
   const [liveFixture, setLiveFixture] = useState<Fixture | null>(null)
   const [upcomingFixture, setUpcomingFixture] = useState<Fixture | null>(null)
   const [balance, setBalance] = useState(0)
+  const [showSignIn, setShowSignIn] = useState(false)
+  const auth = useSession()
 
   useEffect(() => {
     setSession(readSession())
@@ -203,14 +207,35 @@ export default function HitsEntry() {
           <div className="hits-brand">
             Hula <em>Hits</em>
           </div>
-          {mounted ? (
-            <span className="hits-token-chip" data-low={balance < 100}>
-              <span className="hits-token-chip-coin">₱</span>
-              {balance.toLocaleString()}
-            </span>
-          ) : (
-            <span className="hits-eyebrow">Demo</span>
-          )}
+          <div className="hits-header-right">
+            {mounted && (
+              <span className="hits-token-chip" data-low={balance < 100}>
+                <span className="hits-token-chip-coin">₱</span>
+                {balance.toLocaleString()}
+              </span>
+            )}
+            {mounted && (
+              auth.loading ? null : auth.profile ? (
+                <button
+                  className="hits-back"
+                  onClick={() => auth.signOut()}
+                  title={`Signed in as ${auth.profile.email}`}
+                >
+                  {auth.profile.display_name}
+                </button>
+              ) : (
+                <button
+                  className="hits-back"
+                  onClick={() => {
+                    setShowSignIn(true)
+                    track('signin_opened', { from: '/hits' })
+                  }}
+                >
+                  Sign in
+                </button>
+              )
+            )}
+          </div>
         </header>
 
         {isLive && (
@@ -394,6 +419,13 @@ export default function HitsEntry() {
           21+ only · <strong>Play smart</strong> · Need help? Call 8521-1542
         </p>
       </div>
+
+      {showSignIn && (
+        <SignInModal
+          onClose={() => setShowSignIn(false)}
+          redirectTo="/hits"
+        />
+      )}
 
       {showLimitModal && (
         <div className="hits-limit-modal" onClick={(e) => e.target === e.currentTarget && skipLimit()}>
