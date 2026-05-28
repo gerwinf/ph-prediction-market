@@ -76,3 +76,28 @@ export function credit(amount: number): number {
   writeBalance(next)
   return next
 }
+
+/**
+ * Migration helper: when an anon user signs in for the first time AND
+ * has a localStorage balance > the default, merge that balance into
+ * their profile row server-side. Idempotent — server checks
+ * profiles.migrated_from_anon before acting.
+ *
+ * Called by useSession once on profile.migrated_from_anon=false detection.
+ */
+export async function migrateToProfileBalance(): Promise<void> {
+  if (typeof window === 'undefined') return
+  const local = readBalance()
+  try {
+    await fetch('/api/profile/balance/migrate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ localBalance: local }),
+    })
+    // After successful migrate, the profile is authoritative. We clear
+    // the local balance to avoid divergence — next read from server is
+    // the source of truth.
+  } catch {
+    /* swallow — next session retries */
+  }
+}

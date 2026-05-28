@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { createClient } from '../supabase/client'
+import { migrateToProfileBalance } from '../identity/token-balance'
 
 /* ────────────────────────────────────────────────────────────────────────
  * useSession
@@ -44,6 +45,7 @@ export function useSession(): SessionState {
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<SessionState['user']>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
+  const migrationFiredRef = useRef(false)
 
   const fetchProfile = useCallback(async () => {
     try {
@@ -53,8 +55,22 @@ export function useSession(): SessionState {
         return
       }
       const j = await res.json()
-      if (j.ok && j.profile) setProfile(j.profile as Profile)
-      else setProfile(null)
+      if (j.ok && j.profile) {
+        const p = j.profile as Profile
+        setProfile(p)
+        // One-shot anon-to-authed balance migration. Server is idempotent
+        // (no-ops if migrated_from_anon already true or profile has activity).
+        if (!p.migrated_from_anon && !migrationFiredRef.current) {
+          migrationFiredRef.current = true
+          await migrateToProfileBalance()
+          // Re-fetch profile to reflect the migrated balance.
+          const res2 = await fetch('/api/profile/me', { cache: 'no-store' })
+          const j2 = await res2.json()
+          if (j2.ok && j2.profile) setProfile(j2.profile as Profile)
+        }
+      } else {
+        setProfile(null)
+      }
     } catch {
       setProfile(null)
     }

@@ -123,9 +123,14 @@ export default function HitsEntry() {
     }
   }, [])
 
+  // Displayed balance: prefer authed profile balance over localStorage when
+  // signed in. Authed users see the cross-device truth; anon users see
+  // localStorage. Falls back to localStorage during the brief loading
+  // window (auth.loading=true).
+  const displayBalance = auth.profile ? auth.profile.virtual_balance : balance
   const wouldExceedLimit =
     session.limit > 0 && session.spend + price > session.limit
-  const wouldExceedBalance = balance < price
+  const wouldExceedBalance = displayBalance < price
 
   const shouldOfferLimit = session.cards >= 2 && session.limit === 0
 
@@ -140,11 +145,14 @@ export default function HitsEntry() {
   }
 
   async function completePurchase(opts: { forceDemo?: boolean } = {}) {
-    // Debit token balance first. If insufficient, bail (button should
-    // already be disabled but this is defense in depth).
-    const result = debit(price)
-    if (!result.ok) return
-    setBalance(result.newBalance)
+    // Anonymous users debit localStorage upfront for optimistic UX. Authed
+    // users let the server decide — server returns 402 if insufficient,
+    // and we surface that without a phantom debit.
+    if (!auth.profile) {
+      const result = debit(price)
+      if (!result.ok) return
+      setBalance(result.newBalance)
+    }
 
     const cardId = newCardId()
     const newSession = {
@@ -159,13 +167,24 @@ export default function HitsEntry() {
     const goLive = !opts.forceDemo && type === 'sports' && liveFixture !== null
     const matchId = goLive ? liveFixture!.id : undefined
 
-    // Best-effort persistence.
     try {
-      await fetch('/api/cards', {
+      const res = await fetch('/api/cards', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ cardId, cardType: type, pricePhp: price, matchId }),
       })
+      if (res.status === 402) {
+        // Authed user, insufficient balance. Refresh from server so the
+        // chip reflects truth and bail.
+        await auth.refresh()
+        return
+      }
+      const j = await res.json().catch(() => null)
+      if (j?.ok && j.balance !== null && typeof j.balance === 'number') {
+        // Authed: server is the source of truth. Refresh hook profile
+        // so the chip + downstream pages see the new value.
+        await auth.refresh()
+      }
       track(
         'card_purchased',
         { bet: price, type, mode: goLive ? 'live' : 'demo', match_id: matchId ?? null },
@@ -209,9 +228,9 @@ export default function HitsEntry() {
           </div>
           <div className="hits-header-right">
             {mounted && (
-              <span className="hits-token-chip" data-low={balance < 100}>
+              <span className="hits-token-chip" data-low={displayBalance < 100}>
                 <span className="hits-token-chip-coin">₱</span>
-                {balance.toLocaleString()}
+                {displayBalance.toLocaleString()}
               </span>
             )}
             {mounted && (

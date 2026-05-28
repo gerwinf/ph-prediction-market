@@ -28,6 +28,7 @@
  */
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '../../../../../lib/supabase/admin'
+import { createClient as createServerSupabase } from '../../../../../lib/supabase/server'
 import { bestPayout } from '../../../../../lib/hits/payouts'
 import type { GameEvent } from '../../../../../lib/hits/types'
 
@@ -123,10 +124,34 @@ export async function POST(_req: Request, ctx: { params: Promise<{ id: string }>
     )
   }
 
+  // Authed users: credit profile.virtual_balance with the canonical
+  // payoutPhp. Anonymous users keep the localStorage credit path
+  // (handled client-side from this response). Best-effort — the cards
+  // row is the audit record; balance is a denormalized cache.
+  let balanceAfter: number | null = null
+  const authClient = createServerSupabase()
+  const { data: userData } = await authClient.auth.getUser()
+  if (userData?.user) {
+    const { data: prof } = await admin
+      .from('profiles')
+      .select('virtual_balance')
+      .eq('id', userData.user.id)
+      .maybeSingle()
+    if (prof) {
+      const next = (prof.virtual_balance as number) + best.payoutPhp
+      await admin
+        .from('profiles')
+        .update({ virtual_balance: next })
+        .eq('id', userData.user.id)
+      balanceAfter = next
+    }
+  }
+
   return NextResponse.json({
     ok: true,
     pattern: best.pattern.kind,
     payoutPhp: best.payoutPhp,
     multiplier: best.multiplier,
+    balance: balanceAfter,
   })
 }

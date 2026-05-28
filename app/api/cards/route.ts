@@ -18,6 +18,7 @@
  */
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '../../../lib/supabase/admin'
+import { createClient as createServerSupabase } from '../../../lib/supabase/server'
 import { getOrCreateDeviceId } from '../../../lib/identity/device-id'
 import { generateCard } from '../../../lib/hits/card-generator'
 import type { CardType } from '../../../lib/hits/card-types'
@@ -71,6 +72,51 @@ export async function POST(req: Request) {
 
   const deviceId = await getOrCreateDeviceId()
 
+  // Authed users: debit profile.virtual_balance server-side BEFORE
+  // inserting the card row. Reject with 402 if insufficient. Anonymous
+  // users keep the localStorage-debit path (client trusts itself in
+  // Phase 0 free-play; balance has no real value).
+  const authClient = createServerSupabase()
+  const { data: userData } = await authClient.auth.getUser()
+  const authedUserId = userData?.user?.id ?? null
+  let newBalanceForResponse: number | null = null
+
+  if (authedUserId) {
+    const adminPre = createAdminClient()
+    const { data: prof, error: profReadErr } = await adminPre
+      .from('profiles')
+      .select('virtual_balance')
+      .eq('id', authedUserId)
+      .maybeSingle()
+    if (profReadErr) {
+      return NextResponse.json(
+        { ok: false, error: 'db_error', message: profReadErr.message },
+        { status: 500 }
+      )
+    }
+    if (!prof) {
+      return NextResponse.json({ ok: false, error: 'profile_not_found' }, { status: 404 })
+    }
+    const next = (prof.virtual_balance as number) - pricePhp
+    if (next < 0) {
+      return NextResponse.json(
+        { ok: false, error: 'insufficient_balance', balance: prof.virtual_balance },
+        { status: 402 }
+      )
+    }
+    const { error: debitErr } = await adminPre
+      .from('profiles')
+      .update({ virtual_balance: next })
+      .eq('id', authedUserId)
+    if (debitErr) {
+      return NextResponse.json(
+        { ok: false, error: 'db_error', message: debitErr.message },
+        { status: 500 }
+      )
+    }
+    newBalanceForResponse = next
+  }
+
   // Seed for the cells column: store the FNV-derived seed so we can
   // re-derive the board later if the events pool changes.
   const supabase = createAdminClient()
@@ -79,6 +125,7 @@ export async function POST(req: Request) {
     .insert({
       id: cardId,
       device_id: deviceId,
+      user_id: authedUserId,
       match_id: matchId,
       card_type: cardType,
       board_seed: hashSeed(cardId, cardType),
@@ -91,6 +138,16 @@ export async function POST(req: Request) {
     .single()
 
   if (error) {
+    // If authed and we already debited, refund the balance so the user
+    // isn't charged for a card that never persisted. Phase 0 best-effort
+    // — Phase 1 wraps purchase + balance in a payment_ledger transaction.
+    if (authedUserId && newBalanceForResponse !== null) {
+      const adminRefund = createAdminClient()
+      await adminRefund
+        .from('profiles')
+        .update({ virtual_balance: newBalanceForResponse + pricePhp })
+        .eq('id', authedUserId)
+    }
     // 23505 = unique_violation: cardId collision (very unlikely with
     // 6-char Crockford ids at Phase 0 volumes). Caller should retry.
     if (error.code === '23505') {
@@ -110,7 +167,7 @@ export async function POST(req: Request) {
     )
   }
 
-  return NextResponse.json({ ok: true, card: data })
+  return NextResponse.json({ ok: true, card: data, balance: newBalanceForResponse })
 }
 
 // 64-bit hash (returned as a positive bigint-compatible number for the

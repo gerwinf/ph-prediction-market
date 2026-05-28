@@ -236,9 +236,15 @@ export default function HitsCardPage({ params }: PageProps) {
           return
         }
         if (j?.ok && typeof j.payoutPhp === 'number') {
-          // Server-canonical credit. Replaces the client-side multiplier
-          // path entirely.
-          setBalance(credit(j.payoutPhp))
+          if (auth.profile) {
+            // Authed: server already credited profiles.virtual_balance.
+            // Refresh hook to pick up the new value; localStorage is
+            // irrelevant for authed users.
+            await auth.refresh()
+          } else {
+            // Anon: credit localStorage. Same behavior as before.
+            setBalance(credit(j.payoutPhp))
+          }
         }
       } catch {
         /* swallow — leaderboard miss is acceptable Phase 0 */
@@ -461,9 +467,9 @@ export default function HitsCardPage({ params }: PageProps) {
             Hula <em>Hits</em>
           </div>
           <div className="hits-header-right">
-            <span className="hits-token-chip" data-low={balance < 100}>
+            <span className="hits-token-chip" data-low={(auth.profile ? auth.profile.virtual_balance : balance) < 100}>
               <span className="hits-token-chip-coin">₱</span>
-              {balance.toLocaleString()}
+              {(auth.profile ? auth.profile.virtual_balance : balance).toLocaleString()}
             </span>
             {!auth.loading && (
               auth.profile ? (
