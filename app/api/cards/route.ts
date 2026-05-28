@@ -22,6 +22,7 @@ import { createClient as createServerSupabase } from '../../../lib/supabase/serv
 import { getOrCreateDeviceId } from '../../../lib/identity/device-id'
 import { generateCard } from '../../../lib/hits/card-generator'
 import type { CardType } from '../../../lib/hits/card-types'
+import { ensureDemoEvents } from '../../../lib/demo/seed-events'
 
 export const dynamic = 'force-dynamic'
 
@@ -165,6 +166,17 @@ export async function POST(req: Request) {
       { ok: false, error: 'db_error', message: error.message },
       { status: 500 }
     )
+  }
+
+  // Demo fixture: seed N future-stamped events so the card lights up
+  // naturally over the next ~7 min without needing a cron. Best-effort —
+  // a seeding failure shouldn't kill the buy.
+  if (matchId === 'demo-pba-perpetual') {
+    try {
+      await ensureDemoEvents(supabase, matchId)
+    } catch (err) {
+      console.error('[hits/cards] demo seed failed:', err)
+    }
   }
 
   return NextResponse.json({ ok: true, card: data, balance: newBalanceForResponse })

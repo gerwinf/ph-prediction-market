@@ -4,11 +4,5 @@
   "framework": "nextjs",
   "env": {
     "NODE_ENV": "production"
-  },
-  "crons": [
-    {
-      "path": "/api/cron/demo-tick",
-      "schedule": "*/2 * * * *"
-    }
-  ]
+  }
 }

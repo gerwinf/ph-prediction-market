@@ -1,27 +1,23 @@
 /**
  * GET /api/cron/demo-tick
  *
- * Vercel-cron-triggered. Fires one event into the demo-pba-perpetual
- * match's events table so casual visitors (and devs verifying the server-
- * side flow) see real events flow without /ops involvement.
+ * Manual-trigger endpoint (Vercel cron path NOT used — Hobby tier caps
+ * cron at once-per-day, which defeats the demo purpose). Demo events
+ * are now seeded server-side on card buy via lib/demo/seed-events.ts.
  *
- * Auth: CRON_SECRET header (Vercel cron sends Authorization: Bearer
- * <CRON_SECRET>). Reject anything else with 401.
+ * This endpoint remains useful for:
+ *   - Manual testing via `curl -H "Authorization: Bearer $CRON_SECRET"
+ *     https://hulaan.ph/api/cron/demo-tick` to inject one extra event
+ *     immediately when a card is already open.
+ *   - Future Pro-tier upgrade path: if Vercel Pro is adopted, restore
+ *     the cron entry in vercel.json and this endpoint becomes the
+ *     scheduled trigger again.
  *
- * Schedule: every 2 minutes via vercel.json cron (every 1 min on Vercel
- * Pro; Hobby tier is throttled to daily — confirm at deploy).
+ * Auth: CRON_SECRET header. Reject anything else with 401.
  *
- * Selection logic:
- *   1. Read last 30 events for demo-pba-perpetual to know what fired recently
- *   2. Pick a random event from buildPoolForMatch (the match-aware pool;
- *      falls back to CANDIDATE_EVENTS for non-pba- match ids — which
- *      includes our demo fixture)
- *   3. Skip if it was in the last 5 fired (no immediate repeats)
- *   4. INSERT new event
- *
- * Pruning: every ~50 ticks, delete events older than the most recent 30
- * for this match. Keeps the events feed short so a player joining mid-
- * stream doesn't see a 10K-event backlog from days of cron firings.
+ * Fires ONE event immediately (resolved_at = now()) into the demo
+ * fixture's events table. Player polling /api/events sees it within
+ * the next 3s poll cycle.
  */
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '../../../../lib/supabase/admin'

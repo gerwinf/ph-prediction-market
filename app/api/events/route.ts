@@ -33,10 +33,17 @@ export async function GET(req: Request) {
   }
 
   const admin = createAdminClient()
+  // Filter to events whose stamp has reached "now". The demo fixture
+  // (demo-pba-perpetual) pre-seeds events with future resolved_at on
+  // card buy so they trickle out naturally. Ops-fired live events
+  // always insert with resolved_at = now(), so this filter is a no-op
+  // for the live path.
+  const nowIso = new Date().toISOString()
   let query = admin
     .from('events')
     .select('id, event_key, payload, resolved_at')
     .eq('match_id', matchId)
+    .lte('resolved_at', nowIso)
     .order('resolved_at', { ascending: true })
 
   if (since > 0) {
