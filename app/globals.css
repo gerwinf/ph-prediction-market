@@ -1927,6 +1927,132 @@ button:focus {
   border-top: 1px solid var(--line);
 }
 
+/* ── Identity eyebrow above the hero (anon nudge / authed confirmation) ── */
+.hula-v2 .hits-identity-row {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--ink-3);
+  margin: 6px 2px 10px;
+  line-height: 1.4;
+}
+.hula-v2 .hits-identity-authed {
+  color: var(--up);
+}
+.hula-v2 .hits-identity-authed strong {
+  font-weight: 600;
+  color: var(--up);
+}
+.hula-v2 .hits-identity-anon {
+  color: var(--ink-3);
+}
+.hula-v2 .hits-identity-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.hula-v2 .hits-identity-link:hover {
+  color: var(--accent);
+}
+
+/* ── Hero card — single "what am I playing" surface ───────────────────── */
+.hula-v2 .hits-hero {
+  border-radius: 18px;
+  padding: 20px 22px;
+  margin: 8px 0 16px;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+/* LIVE real game — saturated red (mirrors prior live banner intent) */
+.hula-v2 .hits-hero[data-mode='live'] {
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  box-shadow: 0 6px 20px rgba(220,38,38,.20);
+}
+/* DEMO perpetual — muted dark, signals "sandbox" */
+.hula-v2 .hits-hero[data-mode='demo'] {
+  background: linear-gradient(135deg, var(--ink-2) 0%, var(--ink) 100%);
+  box-shadow: 0 6px 20px rgba(15, 36, 25, 0.15);
+}
+/* UPCOMING — neutral dark; subtle, not loud */
+.hula-v2 .hits-hero[data-mode='upcoming'] {
+  background: var(--ink);
+  box-shadow: 0 6px 20px rgba(15, 36, 25, 0.12);
+}
+/* FALLBACK (no live, no upcoming) — same as upcoming */
+.hula-v2 .hits-hero[data-mode='fallback'] {
+  background: var(--ink);
+  box-shadow: 0 6px 20px rgba(15, 36, 25, 0.10);
+}
+/* DAILY — Mango accent, distinct from sports palette */
+.hula-v2 .hits-hero[data-mode='daily'] {
+  background: linear-gradient(135deg, var(--accent) 0%, #b85a14 100%);
+  box-shadow: 0 6px 20px rgba(232, 122, 30, 0.22);
+}
+.hula-v2 .hits-hero-eyebrow {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 600;
+  opacity: 0.88;
+  margin-bottom: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.hula-v2 .hits-hero-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 0 rgba(255,255,255,0.7);
+  animation: hits-hero-pulse 1.6s ease-out infinite;
+}
+@keyframes hits-hero-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(255,255,255,0.7); }
+  70%  { box-shadow: 0 0 0 10px rgba(255,255,255,0); }
+  100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+}
+.hula-v2 .hits-hero-title {
+  font-family: var(--ff-display);
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin-bottom: 6px;
+}
+.hula-v2 .hits-hero-sub {
+  font-family: var(--ff-sans);
+  font-size: 13px;
+  line-height: 1.4;
+  opacity: 0.85;
+}
+
+/* ── Secondary type-toggle link below buy CTA ──────────────────────────── */
+.hula-v2 .hits-secondary-link {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  background: none;
+  border: none;
+  font-family: var(--ff-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
+  cursor: pointer;
+  padding: 6px 4px;
+  text-align: center;
+}
+.hula-v2 .hits-secondary-link:hover {
+  color: var(--ink);
+}
+
 /* ── Purchase block ───────────────────────────────────────────────────── */
 .hula-v2 .hits-purchase {
   margin-top: 18px;
