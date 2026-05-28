@@ -9,6 +9,7 @@ import type { WinPattern } from '../../../lib/hits/types'
 import { readBalance, credit, debit } from '../../../lib/identity/token-balance'
 import { track } from '../../../lib/analytics/track'
 import { ContactCaptureModal } from '../../../components/hits/ContactCaptureModal'
+import { useModalA11y } from '../../../lib/hooks/useModalA11y'
 
 const CAPTURE_KEY = 'hula-captured'
 const CARD_COUNT_KEY = 'hula-hits-session-cards'
@@ -100,6 +101,7 @@ export default function HitsCardPage({ params }: PageProps) {
   const wonPostedRef = useRef(false)
   const firstHitFiredRef = useRef(false)
   const [showCapture, setShowCapture] = useState(false)
+  const winA11y = useModalA11y({ isOpen: winShown !== null, onClose: () => setWinShown(null) })
 
   useEffect(() => {
     setBalance(readBalance())
@@ -581,7 +583,7 @@ export default function HitsCardPage({ params }: PageProps) {
           className="hits-win-backdrop"
           onClick={(e) => e.target === e.currentTarget && setWinShown(null)}
         >
-          <div className="hits-win-card">
+          <div ref={winA11y.containerRef} {...winA11y.dialogProps} className="hits-win-card">
             <span className="hits-win-badge">
               {winShown.kind === 'full' ? 'Jackpot!' : 'Panalo ka!'}
             </span>

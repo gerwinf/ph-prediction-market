@@ -11,6 +11,7 @@ import { HULA_FREE_ID } from '../../../../lib/private-games/types'
 import type { Square } from '../../../../lib/private-games/types'
 import { detectWins } from '../../../../lib/hits/payouts'
 import type { WinPattern } from '../../../../lib/hits/types'
+import { useModalA11y } from '../../../../lib/hooks/useModalA11y'
 
 /* ────────────────────────────────────────────────────────────────────────
  * /private/[gameId]/[playerSlug] — founding-team dry-run card view
@@ -46,6 +47,7 @@ export default function PrivateCardPage({ params }: Props) {
   const [justHitIdx, setJustHitIdx] = useState<number | null>(null)
   const [lastEvent, setLastEvent] = useState<{ key: string; ts: string } | null>(null)
   const [winShown, setWinShown] = useState<WinPattern | null>(null)
+  const winA11y = useModalA11y({ isOpen: winShown !== null, onClose: () => setWinShown(null) })
   const [highestWinMult, setHighestWinMult] = useState(0)
   const [flashPattern, setFlashPattern] = useState<Set<number>>(new Set())
   // Persistent "you have a win!" badge in the ticker once first achieved.
@@ -284,7 +286,7 @@ export default function PrivateCardPage({ params }: Props) {
           className="hits-win-backdrop"
           onClick={(e) => e.target === e.currentTarget && setWinShown(null)}
         >
-          <div className="hits-win-card">
+          <div ref={winA11y.containerRef} {...winA11y.dialogProps} className="hits-win-card">
             <span className="hits-win-badge">
               {winShown.kind === 'full' ? 'Jackpot!' : 'Bingo!'}
             </span>

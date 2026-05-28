@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { track } from '../../lib/analytics/track'
+import { useModalA11y } from '../../lib/hooks/useModalA11y'
 
 /* ────────────────────────────────────────────────────────────────────────
  * ContactCaptureModal
@@ -27,6 +28,7 @@ export function ContactCaptureModal({ cardId, bet, winPattern, onClose }: Props)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { containerRef, dialogProps } = useModalA11y({ isOpen: true, onClose })
 
   const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
 
@@ -73,31 +75,32 @@ export function ContactCaptureModal({ cardId, bet, winPattern, onClose }: Props)
       className="hits-win-backdrop"
       onClick={(e) => e.target === e.currentTarget && handleDismiss()}
     >
-      <div className="hits-capture-card">
+      <div ref={containerRef} {...dialogProps} aria-labelledby="hits-capture-h" className="hits-capture-card">
         {submitted ? (
           <>
             <div className="hits-capture-tick">✓</div>
-            <h2 className="hits-capture-h">
-              Salamat. <em>Aabisuhan ka.</em>
+            <h2 id="hits-capture-h" className="hits-capture-h">
+              Sali ka na sa <em>insider list.</em>
             </h2>
             <p className="hits-capture-sub">
-              Ipapadala namin sa email ang ay launch — at kapag may bagong laro.
+              Ikaw ang unang aabisuhan kapag may bagong laro o bagong game mode.
             </p>
           </>
         ) : (
           <>
             <div className="hits-capture-eyebrow">
-              {winPattern ? '🎉 Panalo ka!' : 'Real-money launch'}
+              {winPattern ? '🎉 Panalo ka!' : 'Pre-launch insider list'}
             </div>
-            <h2 className="hits-capture-h">
+            <h2 id="hits-capture-h" className="hits-capture-h">
               {winPattern ? (
-                <>Drop your email para sa <em>result + early access</em> sa real-money launch.</>
+                <>Drop your email — sumali sa <em>insider list.</em></>
               ) : (
-                <>Gusto mong laruin ito <em>for real?</em></>
+                <>Sali ka na sa <em>insider list.</em></>
               )}
             </h2>
             <p className="hits-capture-sub">
-              Phase 0 is free-play tokens. When real money launches, you'll get notified first.
+              Free-play tokens muna. Ang nasa list, sila ang unang aabisuhan kapag may bagong laro
+              o mode. No spam, no timeline promises.
             </p>
             <form onSubmit={handleSubmit} className="hits-capture-form">
               <input
@@ -126,7 +129,7 @@ export function ContactCaptureModal({ cardId, bet, winPattern, onClose }: Props)
                 className="hits-capture-submit"
                 disabled={!validEmail || submitting}
               >
-                {submitting ? 'Sending…' : 'Notify me sa launch →'}
+                {submitting ? 'Sending…' : 'Sumali sa insider list →'}
               </button>
               <button type="button" className="hits-capture-skip" onClick={handleDismiss}>
                 Saka na
