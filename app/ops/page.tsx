@@ -39,10 +39,16 @@ const POOLS = {
 // pool='private:<gameId>' loads from lib/private-games/registry.
 type FixturePool = 'sports' | 'daily' | `private:${string}`
 const QUICK_FIXTURES: Array<{ id: string; label: string; pool: FixturePool }> = [
-  { id: SAKE_OKADA_2026_05_22.id, label: 'Sake + Okada — May 22 (private)',     pool: `private:${SAKE_OKADA_2026_05_22.id}` },
-  { id: 'pba-gin-ros-2026-05-24', label: 'Ginebra vs Rain or Shine — Sun May 24', pool: 'sports' },
-  { id: 'pba-tnt-mer-2026-05-24', label: 'TNT vs Meralco — Sun May 24',         pool: 'sports' },
-  { id: 'daily-2026-07-20',       label: 'Daily — Jul 20',                       pool: 'daily'  },
+  { id: SAKE_OKADA_2026_05_22.id, label: 'Sake + Okada — May 22 (private)',         pool: `private:${SAKE_OKADA_2026_05_22.id}` },
+  // PBA Comm's Cup semis Game 5 — Fri May 29
+  { id: 'pba-mer-tnt-2026-05-29', label: 'Meralco vs TNT — Fri May 29 · G5',       pool: 'sports' },
+  { id: 'pba-gin-ros-2026-05-29', label: 'Ginebra vs Rain or Shine — Fri May 29 · G5', pool: 'sports' },
+  // PBA Comm's Cup semis Game 6 — Sun May 31
+  { id: 'pba-ros-gin-2026-05-31', label: 'Rain or Shine vs Ginebra — Sun May 31 · G6', pool: 'sports' },
+  { id: 'pba-tnt-mer-2026-05-31', label: 'TNT vs Meralco — Sun May 31 · G6',       pool: 'sports' },
+  // Always-on demo fixture for testing the seed-on-buy loop
+  { id: 'demo-pba-perpetual',     label: 'Demo · PBA perpetual',                  pool: 'sports' },
+  { id: 'daily-2026-07-20',       label: 'Daily — Jul 20',                          pool: 'daily'  },
 ]
 
 const PRIVATE_GAMES: Record<string, typeof SAKE_OKADA_2026_05_22> = {
@@ -55,10 +61,12 @@ export default function OpsPage() {
   const [secret, setSecret] = useState<string>('')
   const [secretInput, setSecretInput] = useState('')
   const [poolKey, setPoolKey] = useState<FixturePool>('sports')
-  const [matchId, setMatchId] = useState('pba-gin-ros-2026-05-24')
+  const [matchId, setMatchId] = useState('pba-gin-ros-2026-05-29')
   const [fired, setFired] = useState<FiredEvent[]>([])
   const [busy, setBusy] = useState<string | null>(null)
   const [errMsg, setErrMsg] = useState<string | null>(null)
+  const [fixtureStatus, setFixtureStatus] = useState<string | null>(null)
+  const [statusBusy, setStatusBusy] = useState(false)
 
   // Load secret from localStorage on mount.
   useEffect(() => {
@@ -89,6 +97,55 @@ export default function OpsPage() {
       clearInterval(t)
     }
   }, [matchId])
+
+  // Fetch current fixture status when matchId changes so the toggle row
+  // can render "Currently: live" etc. Reuses the public /api/fixtures/[id]
+  // endpoint — no auth needed for the read.
+  useEffect(() => {
+    if (!matchId) return
+    let cancelled = false
+    const load = async () => {
+      try {
+        const res = await fetch(`/api/fixtures/${encodeURIComponent(matchId)}`, {
+          cache: 'no-store',
+        })
+        const j = await res.json()
+        if (!cancelled && j.ok && j.fixture) {
+          setFixtureStatus(j.fixture.status as string)
+        } else if (!cancelled) {
+          setFixtureStatus(null)
+        }
+      } catch {
+        if (!cancelled) setFixtureStatus(null)
+      }
+    }
+    load()
+    return () => {
+      cancelled = true
+    }
+  }, [matchId])
+
+  async function setStatus(next: 'scheduled' | 'live' | 'final' | 'canceled') {
+    if (statusBusy || !matchId) return
+    setErrMsg(null)
+    setStatusBusy(true)
+    try {
+      const res = await fetch('/api/ops/fixture-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Ops-Secret': secret },
+        body: JSON.stringify({ fixtureId: matchId, status: next }),
+      })
+      const j = await res.json()
+      if (!j.ok) {
+        setErrMsg(j.message || j.error)
+        if (j.error === 'bad_secret') clearSecret()
+        return
+      }
+      setFixtureStatus(j.fixture?.status ?? next)
+    } finally {
+      setStatusBusy(false)
+    }
+  }
 
   function saveSecret() {
     if (!secretInput) return
@@ -275,6 +332,34 @@ export default function OpsPage() {
           </select>
         </div>
       )}
+
+      <div style={{ ...row, padding: '12px 14px', background: '#0f0f0f', borderRadius: 8, border: '1px solid #1f1f1f' }}>
+        <label style={{ ...label, marginBottom: 8 }}>
+          Fixture status {fixtureStatus && <span style={{ color: fixtureStatus === 'live' ? '#2d9d57' : fixtureStatus === 'final' ? '#888' : fixtureStatus === 'canceled' ? '#e85a5a' : '#fbbf24' }}>· currently {fixtureStatus.toUpperCase()}</span>}
+        </label>
+        <div style={{ display: 'flex', gap: 6 }}>
+          <button
+            onClick={() => setStatus('scheduled')}
+            disabled={statusBusy || fixtureStatus === 'scheduled'}
+            style={{ ...predBtn, background: fixtureStatus === 'scheduled' ? '#3b2410' : '#1a1a1a', color: '#fbbf24', flex: 1, border: '1px solid #f59e0b', opacity: fixtureStatus === 'scheduled' ? 0.6 : 1 }}
+          >SCHEDULED</button>
+          <button
+            onClick={() => setStatus('live')}
+            disabled={statusBusy || fixtureStatus === 'live'}
+            style={{ ...predBtn, background: fixtureStatus === 'live' ? '#0f3a1f' : '#1a1a1a', color: '#86efac', flex: 1, border: '1px solid #2d9d57', opacity: fixtureStatus === 'live' ? 0.6 : 1 }}
+          >LIVE</button>
+          <button
+            onClick={() => setStatus('final')}
+            disabled={statusBusy || fixtureStatus === 'final'}
+            style={{ ...predBtn, background: fixtureStatus === 'final' ? '#1a1a1a' : '#1a1a1a', color: '#aaa', flex: 1, border: '1px solid #555', opacity: fixtureStatus === 'final' ? 0.6 : 1 }}
+          >FINAL</button>
+          <button
+            onClick={() => setStatus('canceled')}
+            disabled={statusBusy || fixtureStatus === 'canceled'}
+            style={{ ...predBtn, background: fixtureStatus === 'canceled' ? '#3b1010' : '#1a1a1a', color: '#fca5a5', flex: 'none', padding: '6px 10px', border: '1px solid #7f1d1d', opacity: fixtureStatus === 'canceled' ? 0.6 : 1 }}
+          >CXL</button>
+        </div>
+      </div>
 
       <p style={muted}>
         Fired this match: <b>{fired.length}</b> event{fired.length === 1 ? '' : 's'}
