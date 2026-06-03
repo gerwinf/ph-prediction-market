@@ -104,13 +104,19 @@ export async function POST(_req: Request, ctx: { params: Promise<{ id: string }>
     return NextResponse.json({ ok: false, error: 'no_win_yet' }, { status: 409 })
   }
 
+  const settledAt = new Date().toISOString()
   const { error: updErr } = await admin
     .from('cards')
     .update({
       won: true,
       win_pattern: best.pattern.kind,
       score: best.payoutPhp,
-      claimed_at: new Date().toISOString(),
+      claimed_at: settledAt,
+      // GGR: per-card hold = wager − payout. Negative on a win (house pays
+      // out more than the wager on this card); summed across all settled
+      // cards = Gross Gaming Revenue. settled_at marks it counted.
+      hold_amount: pricePhp - best.payoutPhp,
+      settled_at: settledAt,
     })
     .eq('id', id)
     .eq('won', false) // belt + suspenders: race-safe — if another writer
