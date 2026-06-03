@@ -1437,6 +1437,14 @@ button:focus {
   font-size: 11px;
   opacity: 0.7;
 }
+.hula-v2 .hits-token-chip-loading {
+  opacity: 0.5;
+  animation: hits-chip-pulse 1.2s ease-in-out infinite;
+}
+@keyframes hits-chip-pulse {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 0.6; }
+}
 .hula-v2 .hits-header-right {
   display: inline-flex; align-items: center; gap: 8px;
 }

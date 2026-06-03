@@ -233,10 +233,19 @@ export default function HitsEntry() {
           </div>
           <div className="hits-header-right">
             {mounted && (
-              <span className="hits-token-chip" data-low={displayBalance < 100}>
-                <span className="hits-token-chip-coin">₱</span>
-                {displayBalance.toLocaleString()}
-              </span>
+              auth.loading ? (
+                // Don't show a number until we know authed vs anon — avoids
+                // flashing the localStorage balance then snapping to profile.
+                <span className="hits-token-chip hits-token-chip-loading" aria-hidden="true">
+                  <span className="hits-token-chip-coin">₱</span>
+                  •••
+                </span>
+              ) : (
+                <span className="hits-token-chip" data-low={displayBalance < 100}>
+                  <span className="hits-token-chip-coin">₱</span>
+                  {displayBalance.toLocaleString()}
+                </span>
+              )
             )}
             {mounted && (
               auth.loading ? null : auth.profile ? (

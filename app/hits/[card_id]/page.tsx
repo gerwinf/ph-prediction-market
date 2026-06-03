@@ -486,10 +486,22 @@ export default function HitsCardPage({ params }: PageProps) {
             Hula <em>Hits</em>
           </div>
           <div className="hits-header-right">
-            <span className="hits-token-chip" data-low={(auth.profile ? auth.profile.virtual_balance : balance) < 100}>
-              <span className="hits-token-chip-coin">₱</span>
-              {(auth.profile ? auth.profile.virtual_balance : balance).toLocaleString()}
-            </span>
+            {auth.loading ? (
+              // Placeholder until authed vs anon is known — prevents the
+              // localStorage balance flashing before the profile balance.
+              <span className="hits-token-chip hits-token-chip-loading" aria-hidden="true">
+                <span className="hits-token-chip-coin">₱</span>
+                •••
+              </span>
+            ) : (
+              <span
+                className="hits-token-chip"
+                data-low={(auth.profile ? auth.profile.virtual_balance : balance) < 100}
+              >
+                <span className="hits-token-chip-coin">₱</span>
+                {(auth.profile ? auth.profile.virtual_balance : balance).toLocaleString()}
+              </span>
+            )}
             {!auth.loading && (
               auth.profile ? (
                 <AccountMenu
