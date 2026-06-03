@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { track } from '../../lib/analytics/track'
 import { useModalA11y } from '../../lib/hooks/useModalA11y'
+import { createClient } from '../../lib/supabase/client'
 
 /* ────────────────────────────────────────────────────────────────────────
  * SignInModal
@@ -35,14 +36,21 @@ export function SignInModal({ onClose, redirectTo }: Props) {
     setSubmitting(true)
     setError(null)
     try {
-      const res = await fetch('/api/auth/email/start', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), redirectTo }),
+      // Initiate sign-in from the BROWSER client so PKCE engages — the
+      // code-verifier is stored in the browser before the link is clicked.
+      // (Server-initiated signInWithOtp can't do PKCE and falls back to
+      // implicit flow, which drops the token in the URL hash and never
+      // reaches our /auth/callback route.) The magic link will carry
+      // ?code= and land on /auth/callback, which exchanges it for a cookie.
+      const supabase = createClient()
+      const next = redirectTo && redirectTo.startsWith('/') ? redirectTo : '/hits'
+      const emailRedirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`
+      const { error: otpErr } = await supabase.auth.signInWithOtp({
+        email: email.trim(),
+        options: { emailRedirectTo, shouldCreateUser: true },
       })
-      const j = await res.json()
-      if (!j.ok) {
-        setError(j.message || 'Hindi tumagos. Subukan ulit.')
+      if (otpErr) {
+        setError(otpErr.message || 'Hindi tumagos. Subukan ulit.')
         setSubmitting(false)
         return
       }
