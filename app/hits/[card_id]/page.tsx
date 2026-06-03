@@ -12,6 +12,7 @@ import { ContactCaptureModal } from '../../../components/hits/ContactCaptureModa
 import { useModalA11y } from '../../../lib/hooks/useModalA11y'
 import { useSession } from '../../../lib/auth/use-session'
 import { SignInModal } from '../../../components/auth/SignInModal'
+import { AccountMenu } from '../../../components/hits/AccountMenu'
 
 const CAPTURE_KEY = 'hula-captured'
 const CARD_COUNT_KEY = 'hula-hits-session-cards'
@@ -491,13 +492,12 @@ export default function HitsCardPage({ params }: PageProps) {
             </span>
             {!auth.loading && (
               auth.profile ? (
-                <button
-                  className="hits-back"
-                  onClick={() => auth.signOut()}
-                  title={`Signed in as ${auth.profile.email}`}
-                >
-                  {auth.profile.display_name}
-                </button>
+                <AccountMenu
+                  displayName={auth.profile.display_name}
+                  email={auth.profile.email}
+                  onHistory={() => router.push('/hits/history')}
+                  onSignOut={() => auth.signOut()}
+                />
               ) : (
                 <button
                   className="hits-back"

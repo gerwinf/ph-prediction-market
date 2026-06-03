@@ -9,6 +9,7 @@ import { readBalance, debit } from '../../lib/identity/token-balance'
 import { track } from '../../lib/analytics/track'
 import { useSession } from '../../lib/auth/use-session'
 import { SignInModal } from '../../components/auth/SignInModal'
+import { AccountMenu } from '../../components/hits/AccountMenu'
 
 /* ────────────────────────────────────────────────────────────────────────
  * /hits — masa-tier live-event hits entry page
@@ -239,13 +240,12 @@ export default function HitsEntry() {
             )}
             {mounted && (
               auth.loading ? null : auth.profile ? (
-                <button
-                  className="hits-back"
-                  onClick={() => auth.signOut()}
-                  title={`Signed in as ${auth.profile.email}`}
-                >
-                  {auth.profile.display_name}
-                </button>
+                <AccountMenu
+                  displayName={auth.profile.display_name}
+                  email={auth.profile.email}
+                  onHistory={() => router.push('/hits/history')}
+                  onSignOut={() => auth.signOut()}
+                />
               ) : (
                 <button
                   className="hits-back"

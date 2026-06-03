@@ -17,14 +17,96 @@
  * doesn't die on a transient backend outage.
  */
 import { NextResponse } from 'next/server'
+import { unstable_noStore as noStore } from 'next/cache'
 import { createAdminClient } from '../../../lib/supabase/admin'
 import { createClient as createServerSupabase } from '../../../lib/supabase/server'
-import { getOrCreateDeviceId } from '../../../lib/identity/device-id'
+import { getOrCreateDeviceId, readDeviceId } from '../../../lib/identity/device-id'
 import { generateCard } from '../../../lib/hits/card-generator'
 import type { CardType } from '../../../lib/hits/card-types'
 import { ensureDemoEvents } from '../../../lib/demo/seed-events'
 
 export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
+
+/**
+ * GET /api/cards?limit=20&offset=0
+ *
+ * Card history for the current identity. Authed users (Supabase session)
+ * see their user_id cards; anonymous users see their device_id cards
+ * (user_id NULL). Newest first, server-paginated.
+ *
+ * Response:
+ *   200 { ok: true, cards: [{ id, match_id, match_label, card_type,
+ *         price_php, won, win_pattern, score, created_at }], hasMore }
+ *   500 { ok: false, error: 'db_error', message }
+ */
+export async function GET(req: Request) {
+  noStore()
+  const url = new URL(req.url)
+  const limit = Math.min(50, Math.max(1, Number(url.searchParams.get('limit')) || 20))
+  const offset = Math.max(0, Number(url.searchParams.get('offset')) || 0)
+
+  const admin = createAdminClient()
+
+  // Identity: authed → user_id; anon → device_id (user_id NULL).
+  const authClient = createServerSupabase()
+  const { data: userData } = await authClient.auth.getUser()
+  const authedUserId = userData?.user?.id ?? null
+
+  let query = admin
+    .from('cards')
+    .select('id, match_id, card_type, price_php, won, win_pattern, score, created_at')
+    .order('created_at', { ascending: false })
+    .range(offset, offset + limit) // fetch one extra to compute hasMore
+
+  if (authedUserId) {
+    query = query.eq('user_id', authedUserId)
+  } else {
+    const deviceId = await readDeviceId()
+    if (!deviceId) {
+      return NextResponse.json(
+        { ok: true, cards: [], hasMore: false },
+        { headers: { 'Cache-Control': 'no-store' } }
+      )
+    }
+    query = query.eq('device_id', deviceId).is('user_id', null)
+  }
+
+  const { data, error } = await query
+  if (error) {
+    return NextResponse.json(
+      { ok: false, error: 'db_error', message: error.message },
+      { status: 500 }
+    )
+  }
+
+  const rows = data ?? []
+  const hasMore = rows.length > limit
+  const page = hasMore ? rows.slice(0, limit) : rows
+
+  // Resolve match labels in one lookup (no N+1).
+  const matchIds = Array.from(new Set(page.map((c) => c.match_id)))
+  let labelByMatch: Record<string, string> = {}
+  if (matchIds.length > 0) {
+    const { data: fixtures } = await admin
+      .from('match_fixtures')
+      .select('id, match_label')
+      .in('id', matchIds)
+    labelByMatch = Object.fromEntries(
+      (fixtures ?? []).map((f) => [f.id as string, f.match_label as string])
+    )
+  }
+
+  const cards = page.map((c) => ({
+    ...c,
+    match_label: labelByMatch[c.match_id] ?? c.match_id,
+  }))
+
+  return NextResponse.json(
+    { ok: true, cards, hasMore },
+    { headers: { 'Cache-Control': 'no-store' } }
+  )
+}
 
 // Default match ids when the caller hasn't picked a fixture yet. Phase 0
 // stopgap until the match-picker UI lands (Day 4). Both ids are seeded

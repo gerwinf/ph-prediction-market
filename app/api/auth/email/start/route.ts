@@ -35,14 +35,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: 'invalid_email' }, { status: 400 })
   }
 
-  // Where to send the user after they click the magic link. Defaults to
-  // /hits (the masa-tier surface). Caller can override via redirectTo —
-  // useful when claiming a card mid-session.
+  // Where to send the user after they click the magic link. We route
+  // through /auth/callback, which exchanges the PKCE code for a session
+  // cookie server-side, then forwards to the intended page via `next`.
+  // Landing directly on /hits would skip the server-side exchange and
+  // cause the "Sign in still shows when logged in" race.
   const url = new URL(req.url)
-  const redirectTo =
-    body.redirectTo && body.redirectTo.startsWith('/')
-      ? `${url.origin}${body.redirectTo}`
-      : `${url.origin}/hits`
+  const nextPath =
+    body.redirectTo && body.redirectTo.startsWith('/') ? body.redirectTo : '/hits'
+  const redirectTo = `${url.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`
 
   const supabase = createAdminClient()
 

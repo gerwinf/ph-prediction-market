@@ -2084,6 +2084,152 @@ button:focus {
   color: var(--ink);
 }
 
+/* ── Account menu dropdown (signed-in header) ─────────────────────────── */
+.hula-v2 .hits-account-wrap {
+  position: relative;
+  display: inline-block;
+}
+.hula-v2 .hits-account-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 168px;
+  background: var(--paper);
+  border: 1px solid var(--line-2);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.16);
+  padding: 6px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.hula-v2 .hits-account-menu-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 10px 12px;
+  font-family: var(--ff-sans);
+  font-size: 14px;
+  color: var(--ink);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.hula-v2 .hits-account-menu-item:hover {
+  background: var(--bg-2);
+}
+.hula-v2 .hits-account-menu-signout {
+  color: var(--down);
+}
+
+/* ── Card history ─────────────────────────────────────────────────────── */
+.hula-v2 .hits-history-title {
+  font-family: var(--ff-display);
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 14px 2px 12px;
+}
+.hula-v2 .hits-history-anon-banner {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--ink-3);
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+.hula-v2 .hits-history-empty {
+  font-size: 14px;
+  color: var(--ink-2);
+  text-align: center;
+  padding: 40px 16px;
+}
+.hula-v2 .hits-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.hula-v2 .hits-history-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.hula-v2 .hits-history-row-main {
+  min-width: 0;
+  flex: 1;
+}
+.hula-v2 .hits-history-row-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hula-v2 .hits-history-row-meta {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  margin-top: 3px;
+}
+.hula-v2 .hits-history-row-result {
+  flex: none;
+  text-align: right;
+}
+.hula-v2 .hits-history-win {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-family: var(--ff-mono);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--up);
+}
+.hula-v2 .hits-history-pattern {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-top: 2px;
+}
+.hula-v2 .hits-history-loss {
+  font-family: var(--ff-mono);
+  font-size: 15px;
+  color: var(--ink-3);
+}
+.hula-v2 .hits-history-more {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px;
+  font-family: var(--ff-mono);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  cursor: pointer;
+}
+.hula-v2 .hits-history-more:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 /* ── Purchase block ───────────────────────────────────────────────────── */
 .hula-v2 .hits-purchase {
   margin-top: 18px;
