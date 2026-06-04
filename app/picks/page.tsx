@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, FormEvent } from 'react'
+import { useState, useEffect, Fragment, FormEvent } from 'react'
 
 /* ────────────────────────────────────────────────────────────────────────
  * /picks — predictive-skill-contest prototype
@@ -77,6 +77,20 @@ const SPORT_LABEL: Record<Sport, string> = {
   pool:    'Pool · Pro Tour 2026',
   showbiz: 'Showbiz · Kultura',
 }
+
+// Game label → mirror-price event slug. Only globally-traded games (World Cup,
+// NBA) have Polymarket order books — these slugs must match lib/oracle/slugs.ts.
+// PBA / MLBB / pool / showbiz are intentionally absent and show no context strip.
+const GAME_TO_SLUG: Record<string, string> = {
+  'Mexico vs South Africa · Group A · opener': 'wc-mex-rsa',
+  'Argentina vs Algeria · Group J': 'wc-arg-alg',
+  'Thunder vs Spurs · West Finals': 'nba-okc-sas',
+  'Knicks vs Cavaliers · East Finals': 'nba-nyk-cle',
+}
+
+type MirrorOutcome = { name: string; price: number }
+type PriceInfo = { outcomes: MirrorOutcome[]; is_stale: boolean; fetched_at: string }
+type PricesMap = Record<string, PriceInfo>
 
 const PROPS: Prop[] = [
   // ─── World Cup 2026 — REAL fixtures verified vs Wikipedia (draw was Dec 2025)
@@ -286,12 +300,36 @@ function PropAvatar({ prop }: { prop: Prop }) {
   )
 }
 
-function SportSection({ sport, props, picks, onToggle }: {
+// One-line Polymarket implied-probability context strip, shown above the cards
+// for a game when a non-stale mirror price exists. Spans the full prop grid.
+function GameContextStrip({ price }: { price: PriceInfo }) {
+  const outcomes = Array.isArray(price.outcomes) ? price.outcomes : []
+  if (outcomes.length === 0) return null
+  return (
+    <div className="picks-game-strip" aria-label="Polymarket implied win probability">
+      {outcomes.map((o, i) => (
+        <Fragment key={o.name}>
+          {i > 0 && <span className="picks-strip-sep" aria-hidden>──</span>}
+          <span className="picks-strip-team">{o.name}</span>
+          <span className="picks-strip-pct">{Math.round(o.price * 100)}%</span>
+        </Fragment>
+      ))}
+      <span className="picks-strip-src">· Polymarket</span>
+    </div>
+  )
+}
+
+function SportSection({ sport, props, picks, prices, onToggle }: {
   sport: Sport
   props: Prop[]
   picks: Record<string, Pick>
+  prices: PricesMap
   onToggle: (id: string, pick: Pick) => void
 }) {
+  // Ordered unique games in this section (PROPS lists each game contiguously).
+  const games: string[] = []
+  for (const p of props) if (!games.includes(p.game)) games.push(p.game)
+
   return (
     <section className="picks-sport">
       <div className="picks-sport-head">
@@ -299,7 +337,14 @@ function SportSection({ sport, props, picks, onToggle }: {
         <span className="picks-sport-count">{props.length} props</span>
       </div>
       <div className="picks-list">
-        {props.map((p) => {
+        {games.map((game) => {
+          const slug = GAME_TO_SLUG[game]
+          const price = slug ? prices[slug] : undefined
+          const showStrip = !!price && !price.is_stale
+          return (
+            <Fragment key={game}>
+              {showStrip && <GameContextStrip price={price!} />}
+              {props.filter((p) => p.game === game).map((p) => {
           const selected = picks[p.id]
           const stripe = stripeFor(p.team)
           return (
@@ -338,6 +383,9 @@ function SportSection({ sport, props, picks, onToggle }: {
                 </button>
               </div>
             </div>
+          )
+              })}
+            </Fragment>
           )
         })}
       </div>
@@ -583,6 +631,23 @@ export default function PicksPage() {
   const [entry, setEntry] = useState<number>(500)
   const [mode, setMode] = useState<Mode>('power')
   const [showLockIn, setShowLockIn] = useState(false)
+  const [prices, setPrices] = useState<PricesMap>({})
+
+  // Pull Polymarket mirror prices for the games that have a tradeable global
+  // market. Best-effort: any failure leaves prices empty and the strips simply
+  // don't render (no layout shift, no error state).
+  useEffect(() => {
+    const slugs = Array.from(
+      new Set(PROPS.map((p) => GAME_TO_SLUG[p.game]).filter(Boolean)),
+    )
+    if (slugs.length === 0) return
+    let cancelled = false
+    fetch(`/api/prices?events=${slugs.join(',')}`)
+      .then((r) => (r.ok ? r.json() : {}))
+      .then((data: PricesMap) => { if (!cancelled) setPrices(data) })
+      .catch(() => { /* leave prices empty — strips stay hidden */ })
+    return () => { cancelled = true }
+  }, [])
 
   const togglePick = (id: string, side: Pick) => {
     setPicks((cur) => {
@@ -639,6 +704,7 @@ export default function PicksPage() {
             sport={s}
             props={PROPS.filter((p) => p.sport === s)}
             picks={picks}
+            prices={prices}
             onToggle={togglePick}
           />
         ))}
