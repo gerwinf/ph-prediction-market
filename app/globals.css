@@ -1437,6 +1437,14 @@ button:focus {
   font-size: 11px;
   opacity: 0.7;
 }
+.hula-v2 .hits-token-chip-loading {
+  opacity: 0.5;
+  animation: hits-chip-pulse 1.2s ease-in-out infinite;
+}
+@keyframes hits-chip-pulse {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 0.6; }
+}
 .hula-v2 .hits-header-right {
   display: inline-flex; align-items: center; gap: 8px;
 }
@@ -1925,6 +1933,309 @@ button:focus {
   color: var(--ink-3);
   padding-top: 12px;
   border-top: 1px solid var(--line);
+}
+
+/* ── Identity eyebrow above the hero (anon nudge / authed confirmation) ── */
+.hula-v2 .hits-identity-row {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--ink-3);
+  margin: 6px 2px 10px;
+  line-height: 1.4;
+}
+.hula-v2 .hits-identity-authed {
+  color: var(--up);
+}
+.hula-v2 .hits-identity-authed strong {
+  font-weight: 600;
+  color: var(--up);
+}
+.hula-v2 .hits-identity-anon {
+  color: var(--ink-3);
+}
+.hula-v2 .hits-identity-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.hula-v2 .hits-identity-link:hover {
+  color: var(--accent);
+}
+
+/* ── Hero card — single "what am I playing" surface ───────────────────── */
+.hula-v2 .hits-hero {
+  border-radius: 18px;
+  padding: 20px 22px;
+  margin: 8px 0 16px;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+/* LIVE real game — saturated red (mirrors prior live banner intent) */
+.hula-v2 .hits-hero[data-mode='live'] {
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  box-shadow: 0 6px 20px rgba(220,38,38,.20);
+}
+/* DEMO perpetual — muted dark, signals "sandbox" */
+.hula-v2 .hits-hero[data-mode='demo'] {
+  background: linear-gradient(135deg, var(--ink-2) 0%, var(--ink) 100%);
+  box-shadow: 0 6px 20px rgba(15, 36, 25, 0.15);
+}
+/* UPCOMING — neutral dark; subtle, not loud */
+.hula-v2 .hits-hero[data-mode='upcoming'] {
+  background: var(--ink);
+  box-shadow: 0 6px 20px rgba(15, 36, 25, 0.12);
+}
+/* FALLBACK (no live, no upcoming) — same as upcoming */
+.hula-v2 .hits-hero[data-mode='fallback'] {
+  background: var(--ink);
+  box-shadow: 0 6px 20px rgba(15, 36, 25, 0.10);
+}
+/* DAILY — Mango accent, distinct from sports palette */
+.hula-v2 .hits-hero[data-mode='daily'] {
+  background: linear-gradient(135deg, var(--accent) 0%, #b85a14 100%);
+  box-shadow: 0 6px 20px rgba(232, 122, 30, 0.22);
+}
+/* LOADING — neutral, no flash of wrong content */
+.hula-v2 .hits-hero[data-mode='loading'] {
+  background: var(--ink-2);
+  box-shadow: 0 6px 20px rgba(15, 36, 25, 0.10);
+}
+.hula-v2 .hits-hero-skeleton-line {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  color: transparent;
+  animation: hits-hero-skeleton 1.4s ease-in-out infinite;
+  user-select: none;
+}
+.hula-v2 .hits-hero-skeleton-line.hits-hero-eyebrow { width: 30%; }
+.hula-v2 .hits-hero-skeleton-line.hits-hero-title   { width: 70%; }
+.hula-v2 .hits-hero-skeleton-line.hits-hero-sub     { width: 55%; }
+@keyframes hits-hero-skeleton {
+  0%, 100% { background: rgba(255, 255, 255, 0.06); }
+  50%      { background: rgba(255, 255, 255, 0.14); }
+}
+/* Screen-reader-only label for the skeleton */
+.hula-v2 .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.hula-v2 .hits-hero-eyebrow {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 600;
+  opacity: 0.88;
+  margin-bottom: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.hula-v2 .hits-hero-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 0 rgba(255,255,255,0.7);
+  animation: hits-hero-pulse 1.6s ease-out infinite;
+}
+@keyframes hits-hero-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(255,255,255,0.7); }
+  70%  { box-shadow: 0 0 0 10px rgba(255,255,255,0); }
+  100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+}
+.hula-v2 .hits-hero-title {
+  font-family: var(--ff-display);
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin-bottom: 6px;
+}
+.hula-v2 .hits-hero-sub {
+  font-family: var(--ff-sans);
+  font-size: 13px;
+  line-height: 1.4;
+  opacity: 0.85;
+}
+
+/* ── Secondary type-toggle link below buy CTA ──────────────────────────── */
+.hula-v2 .hits-secondary-link {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  background: none;
+  border: none;
+  font-family: var(--ff-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
+  cursor: pointer;
+  padding: 6px 4px;
+  text-align: center;
+}
+.hula-v2 .hits-secondary-link:hover {
+  color: var(--ink);
+}
+
+/* ── Account menu dropdown (signed-in header) ─────────────────────────── */
+.hula-v2 .hits-account-wrap {
+  position: relative;
+  display: inline-block;
+}
+.hula-v2 .hits-account-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 168px;
+  background: var(--paper);
+  border: 1px solid var(--line-2);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.16);
+  padding: 6px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.hula-v2 .hits-account-menu-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 10px 12px;
+  font-family: var(--ff-sans);
+  font-size: 14px;
+  color: var(--ink);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.hula-v2 .hits-account-menu-item:hover {
+  background: var(--bg-2);
+}
+.hula-v2 .hits-account-menu-signout {
+  color: var(--down);
+}
+
+/* ── Card history ─────────────────────────────────────────────────────── */
+.hula-v2 .hits-history-title {
+  font-family: var(--ff-display);
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 14px 2px 12px;
+}
+.hula-v2 .hits-history-anon-banner {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--ink-3);
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+.hula-v2 .hits-history-empty {
+  font-size: 14px;
+  color: var(--ink-2);
+  text-align: center;
+  padding: 40px 16px;
+}
+.hula-v2 .hits-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.hula-v2 .hits-history-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.hula-v2 .hits-history-row-main {
+  min-width: 0;
+  flex: 1;
+}
+.hula-v2 .hits-history-row-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hula-v2 .hits-history-row-meta {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  margin-top: 3px;
+}
+.hula-v2 .hits-history-row-result {
+  flex: none;
+  text-align: right;
+}
+.hula-v2 .hits-history-win {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-family: var(--ff-mono);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--up);
+}
+.hula-v2 .hits-history-pattern {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-top: 2px;
+}
+.hula-v2 .hits-history-loss {
+  font-family: var(--ff-mono);
+  font-size: 15px;
+  color: var(--ink-3);
+}
+.hula-v2 .hits-history-more {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px;
+  font-family: var(--ff-mono);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  cursor: pointer;
+}
+.hula-v2 .hits-history-more:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 
 /* ── Purchase block ───────────────────────────────────────────────────── */

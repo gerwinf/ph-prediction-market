@@ -12,6 +12,7 @@ import { ContactCaptureModal } from '../../../components/hits/ContactCaptureModa
 import { useModalA11y } from '../../../lib/hooks/useModalA11y'
 import { useSession } from '../../../lib/auth/use-session'
 import { SignInModal } from '../../../components/auth/SignInModal'
+import { AccountMenu } from '../../../components/hits/AccountMenu'
 
 const CAPTURE_KEY = 'hula-captured'
 const CARD_COUNT_KEY = 'hula-hits-session-cards'
@@ -452,11 +453,29 @@ export default function HitsCardPage({ params }: PageProps) {
     }
   }
 
-  function handleReplay() {
-    track('replay_clicked', { done }, card_id)
-    // Force remount by routing with a noop change
-    router.refresh()
-    window.location.reload()
+  async function handleAnotherCard() {
+    track('another_card_clicked', { done, bet: card.pricePhp }, card_id)
+    const newId = newCardId()
+    try {
+      await fetch('/api/cards', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cardId: newId,
+          cardType,
+          pricePhp: card.pricePhp,
+          matchId: live ? matchId : undefined,
+        }),
+      })
+    } catch {
+      /* swallow — page still routes, card_id seeds the client view */
+    }
+    const params = new URLSearchParams({ bet: String(card.pricePhp), type: cardType })
+    if (live) {
+      params.set('live', '1')
+      params.set('match', matchId)
+    }
+    router.push(`/hits/${newId}?${params.toString()}`)
   }
 
   return (
@@ -467,19 +486,30 @@ export default function HitsCardPage({ params }: PageProps) {
             Hula <em>Hits</em>
           </div>
           <div className="hits-header-right">
-            <span className="hits-token-chip" data-low={(auth.profile ? auth.profile.virtual_balance : balance) < 100}>
-              <span className="hits-token-chip-coin">₱</span>
-              {(auth.profile ? auth.profile.virtual_balance : balance).toLocaleString()}
-            </span>
+            {auth.loading ? (
+              // Placeholder until authed vs anon is known — prevents the
+              // localStorage balance flashing before the profile balance.
+              <span className="hits-token-chip hits-token-chip-loading" aria-hidden="true">
+                <span className="hits-token-chip-coin">₱</span>
+                •••
+              </span>
+            ) : (
+              <span
+                className="hits-token-chip"
+                data-low={(auth.profile ? auth.profile.virtual_balance : balance) < 100}
+              >
+                <span className="hits-token-chip-coin">₱</span>
+                {(auth.profile ? auth.profile.virtual_balance : balance).toLocaleString()}
+              </span>
+            )}
             {!auth.loading && (
               auth.profile ? (
-                <button
-                  className="hits-back"
-                  onClick={() => auth.signOut()}
-                  title={`Signed in as ${auth.profile.email}`}
-                >
-                  {auth.profile.display_name}
-                </button>
+                <AccountMenu
+                  displayName={auth.profile.display_name}
+                  email={auth.profile.email}
+                  onHistory={() => router.push('/hits/history')}
+                  onSignOut={() => auth.signOut()}
+                />
               ) : (
                 <button
                   className="hits-back"
@@ -611,8 +641,8 @@ export default function HitsCardPage({ params }: PageProps) {
           <button className="hits-share-btn" onClick={handleShare}>
             Share card
           </button>
-          <button className="hits-replay-btn" onClick={handleReplay}>
-            {done ? 'Buy another →' : 'Ulit'}
+          <button className="hits-replay-btn" onClick={handleAnotherCard}>
+            Iba pang card →
           </button>
         </section>
 

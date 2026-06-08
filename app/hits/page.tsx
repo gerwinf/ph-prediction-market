@@ -4,11 +4,12 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { newCardId } from '../../lib/hits/card-generator'
 import { MULTIPLIERS } from '../../lib/hits/payouts'
-import { CARD_TYPES, type CardType } from '../../lib/hits/card-types'
+import { type CardType } from '../../lib/hits/card-types'
 import { readBalance, debit } from '../../lib/identity/token-balance'
 import { track } from '../../lib/analytics/track'
 import { useSession } from '../../lib/auth/use-session'
 import { SignInModal } from '../../components/auth/SignInModal'
+import { AccountMenu } from '../../components/hits/AccountMenu'
 
 /* ────────────────────────────────────────────────────────────────────────
  * /hits — masa-tier live-event hits entry page
@@ -90,6 +91,7 @@ export default function HitsEntry() {
   const [upcomingFixture, setUpcomingFixture] = useState<Fixture | null>(null)
   const [balance, setBalance] = useState(0)
   const [showSignIn, setShowSignIn] = useState(false)
+  const [fixturesLoaded, setFixturesLoaded] = useState(false)
   const auth = useSession()
 
   useEffect(() => {
@@ -117,6 +119,9 @@ export default function HitsEntry() {
       })
       .catch(() => {
         /* silent — page falls back to demo-only */
+      })
+      .finally(() => {
+        if (!cancelled) setFixturesLoaded(true)
       })
     return () => {
       cancelled = true
@@ -228,20 +233,28 @@ export default function HitsEntry() {
           </div>
           <div className="hits-header-right">
             {mounted && (
-              <span className="hits-token-chip" data-low={displayBalance < 100}>
-                <span className="hits-token-chip-coin">₱</span>
-                {displayBalance.toLocaleString()}
-              </span>
+              auth.loading ? (
+                // Don't show a number until we know authed vs anon — avoids
+                // flashing the localStorage balance then snapping to profile.
+                <span className="hits-token-chip hits-token-chip-loading" aria-hidden="true">
+                  <span className="hits-token-chip-coin">₱</span>
+                  •••
+                </span>
+              ) : (
+                <span className="hits-token-chip" data-low={displayBalance < 100}>
+                  <span className="hits-token-chip-coin">₱</span>
+                  {displayBalance.toLocaleString()}
+                </span>
+              )
             )}
             {mounted && (
               auth.loading ? null : auth.profile ? (
-                <button
-                  className="hits-back"
-                  onClick={() => auth.signOut()}
-                  title={`Signed in as ${auth.profile.email}`}
-                >
-                  {auth.profile.display_name}
-                </button>
+                <AccountMenu
+                  displayName={auth.profile.display_name}
+                  email={auth.profile.email}
+                  onHistory={() => router.push('/hits/history')}
+                  onSignOut={() => auth.signOut()}
+                />
               ) : (
                 <button
                   className="hits-back"
@@ -257,93 +270,103 @@ export default function HitsEntry() {
           </div>
         </header>
 
-        {isLive && (
-          <div
-            className="hits-live-banner"
-            data-demo={liveFixture!.id.startsWith('demo-') || undefined}
-          >
-            <div className="hits-live-banner-label">
-              {liveFixture!.id.startsWith('demo-') ? 'Demo · LIVE' : 'Laro ngayon'}
-            </div>
-            <div className="hits-live-banner-title">{liveFixture!.match_label}</div>
+        {/* Identity eyebrow — visible value prop without gating */}
+        {mounted && !auth.loading && (
+          <div className="hits-identity-row">
+            {auth.profile ? (
+              <span className="hits-identity-authed">
+                Hi, <strong>{auth.profile.display_name}</strong> · Tokens saved sa account ✓
+              </span>
+            ) : (
+              <span className="hits-identity-anon">
+                🔓 Playing as anon ·{' '}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowSignIn(true)
+                    track('signin_opened', { from: 'identity_eyebrow' })
+                  }}
+                  className="hits-identity-link"
+                >
+                  Sign in to save tokens →
+                </button>
+              </span>
+            )}
           </div>
         )}
 
-        {isUpcoming && (
-          <div className="hits-upcoming-banner">
-            <div className="hits-upcoming-banner-label">Next game</div>
-            <div className="hits-upcoming-banner-title">{upcomingFixture!.match_label}</div>
-            <div className="hits-upcoming-banner-when">{formatStartTime(upcomingFixture!.starts_at)}</div>
-          </div>
-        )}
-
-        <div className="hits-today-eyebrow">Ang laro ngayon</div>
-        <section className="hits-type-row">
-          {(['sports', 'daily'] as const).map((t) => {
-            const meta = CARD_TYPES[t]
-            const m = meta.sample
-            const selected = type === t
-            return (
-              <button
-                key={t}
-                className="hits-type-tile"
-                data-selected={selected}
-                data-kind={t}
-                onClick={() => {
-                  setType(t)
-                  track('card_type_selected', { type: t })
-                }}
-              >
-                <div className="hits-type-label">
-                  <span className="hits-type-dot" /> {meta.label}
-                </div>
-                {t === 'sports' ? (
-                  <div className="hits-type-anchor">
-                    <div className="hits-type-anchor-head">{meta.sublabel}</div>
-                    <div className="hits-type-anchor-vs">
-                      <div className="hits-type-side">
-                        <div className="hits-team-stripe" style={{ background: m.homeColor }} />
-                        <div className="hits-type-side-name">{m.home}</div>
-                      </div>
-                      <span className="hits-type-vs">vs</span>
-                      <div className="hits-type-side">
-                        <div className="hits-team-stripe" style={{ background: m.awayColor }} />
-                        <div className="hits-type-side-name">{m.away}</div>
-                      </div>
-                    </div>
-                    <div className="hits-type-when">{meta.tagline}</div>
-                  </div>
+        {/* Hero card — single source of truth for "what am I playing" */}
+        <section
+          className="hits-hero"
+          data-mode={
+            type === 'daily'
+              ? 'daily'
+              : !fixturesLoaded
+                ? 'loading'
+                : isLive && liveFixture!.id.startsWith('demo-')
+                  ? 'demo'
+                  : isLive
+                    ? 'live'
+                    : isUpcoming
+                      ? 'upcoming'
+                      : 'fallback'
+          }
+        >
+          {type === 'sports' && !fixturesLoaded ? (
+            <>
+              <div className="hits-hero-eyebrow hits-hero-skeleton-line" aria-hidden="true">
+                &nbsp;
+              </div>
+              <div className="hits-hero-title hits-hero-skeleton-line" aria-hidden="true">
+                &nbsp;
+              </div>
+              <div className="hits-hero-sub hits-hero-skeleton-line" aria-hidden="true">
+                &nbsp;
+              </div>
+              <span className="sr-only">Loading game info…</span>
+            </>
+          ) : type === 'sports' && isLive ? (
+            <>
+              <div className="hits-hero-eyebrow">
+                {liveFixture!.id.startsWith('demo-') ? (
+                  <>DEMO · LIVE</>
                 ) : (
-                  <div className="hits-type-anchor hits-type-anchor-daily">
-                    <div className="hits-type-anchor-head">{meta.sublabel}</div>
-                    <div className="hits-type-daily-stripe" />
-                    <div className="hits-type-daily-date">
-                      <svg
-                        className="hits-type-daily-sun"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        aria-hidden="true"
-                      >
-                        <circle cx="12" cy="12" r="4" fill="currentColor" />
-                        <g stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
-                          <line x1="12" y1="2" x2="12" y2="5" />
-                          <line x1="12" y1="19" x2="12" y2="22" />
-                          <line x1="2" y1="12" x2="5" y2="12" />
-                          <line x1="19" y1="12" x2="22" y2="12" />
-                          <line x1="4.9" y1="4.9" x2="6.9" y2="6.9" />
-                          <line x1="17.1" y1="17.1" x2="19.1" y2="19.1" />
-                          <line x1="4.9" y1="19.1" x2="6.9" y2="17.1" />
-                          <line x1="17.1" y1="6.9" x2="19.1" y2="4.9" />
-                        </g>
-                      </svg>
-                      <span>{meta.dateLabel}</span>
-                    </div>
-                    <div className="hits-type-when">{meta.windowLabel}</div>
-                  </div>
+                  <><span className="hits-hero-pulse" /> LIVE NA</>
                 )}
-              </button>
-            )
-          })}
+              </div>
+              <div className="hits-hero-title">{liveFixture!.match_label}</div>
+              <div className="hits-hero-sub">
+                {liveFixture!.id.startsWith('demo-')
+                  ? 'Subukan habang naghihintay sa real game'
+                  : 'Cells light up habang nangyayari ang laro'}
+              </div>
+            </>
+          ) : type === 'sports' && isUpcoming ? (
+            <>
+              <div className="hits-hero-eyebrow">SUSUNOD NA LARO</div>
+              <div className="hits-hero-title">{upcomingFixture!.match_label}</div>
+              <div className="hits-hero-sub">{formatStartTime(upcomingFixture!.starts_at)}</div>
+            </>
+          ) : type === 'sports' ? (
+            <>
+              <div className="hits-hero-eyebrow">DEMO</div>
+              <div className="hits-hero-title">Hula Demo Card</div>
+              <div className="hits-hero-sub">Sample cells, no live game</div>
+            </>
+          ) : (
+            <>
+              <div className="hits-hero-eyebrow">MANILA · TODAY</div>
+              <div className="hits-hero-title">Daily card</div>
+              <div className="hits-hero-sub">
+                {new Date().toLocaleDateString('en-PH', {
+                  weekday: 'short',
+                  month: 'short',
+                  day: 'numeric',
+                })}{' '}
+                · 6 AM → MIDNIGHT
+              </div>
+            </>
+          )}
         </section>
 
         <section className="hits-purchase">
@@ -390,13 +413,28 @@ export default function HitsEntry() {
             </button>
           ) : (
             <button className="hits-buy-btn" onClick={handleBuy}>
-              {isLive
-                ? liveFixture!.id.startsWith('demo-')
-                  ? `Subukan ang demo · ₱${price} →`
-                  : `Sumali sa LIVE · ₱${price} →`
-                : `Bumili ng ₱${price} card →`}
+              {type === 'daily'
+                ? `Bumili ng daily card · ₱${price} →`
+                : isLive
+                  ? liveFixture!.id.startsWith('demo-')
+                    ? `Subukan ang demo · ₱${price} →`
+                    : `Sumali sa LIVE · ₱${price} →`
+                  : `Bumili ng ₱${price} card →`}
             </button>
           )}
+
+          {/* Type toggle as a secondary link, not a parallel tile */}
+          <button
+            type="button"
+            className="hits-secondary-link"
+            onClick={() => {
+              const next = type === 'sports' ? 'daily' : 'sports'
+              setType(next)
+              track('card_type_selected', { type: next })
+            }}
+          >
+            {type === 'sports' ? '→ Or play the daily card' : '← Back to sports'}
+          </button>
 
           {isUpcoming && (
             <button
@@ -408,11 +446,13 @@ export default function HitsEntry() {
           )}
 
           <div className="hits-buy-meta">
-            {isLive
-              ? liveFixture!.id.startsWith('demo-')
-                ? 'Demo · auto-fired events · no real money yet'
-                : 'Live game · cells light up as it happens'
-              : 'Demo only · no real money yet'}
+            {type === 'daily'
+              ? 'Daily card · all-day window · no real money yet'
+              : isLive
+                ? liveFixture!.id.startsWith('demo-')
+                  ? 'Demo · auto-fired events · no real money yet'
+                  : 'Live game · cells light up as it happens'
+                : 'Demo only · no real money yet'}
           </div>
         </section>
 

@@ -91,6 +91,15 @@ export function useSession(): SessionState {
     let cancelled = false
     const supabase = createClient()
 
+    // If the URL still carries a PKCE `code` (e.g. an old magic link that
+    // points straight at the app instead of /auth/callback), the SDK
+    // performs an async code exchange after mount. Trusting the immediate
+    // getUser() in that window would flash "Sign in". Detect the code and
+    // let onAuthStateChange drive the final state instead, with a timeout
+    // fallback so we never hang in loading.
+    const hasPendingCode =
+      typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('code')
+
     // Initial load: getUser hits Supabase Auth, then profile.
     ;(async () => {
       const { data } = await supabase.auth.getUser()
@@ -98,11 +107,18 @@ export function useSession(): SessionState {
       if (data?.user) {
         setUser({ id: data.user.id, email: data.user.email ?? null })
         await fetchProfile()
+        if (!cancelled) setLoading(false)
+      } else if (hasPendingCode) {
+        // Don't resolve loading yet — wait for onAuthStateChange after the
+        // SDK finishes the exchange. Fallback timer prevents a hang.
+        setTimeout(() => {
+          if (!cancelled) setLoading(false)
+        }, 4000)
       } else {
         setUser(null)
         setProfile(null)
+        if (!cancelled) setLoading(false)
       }
-      if (!cancelled) setLoading(false)
     })()
 
     // Listen for sign-in / sign-out events from other tabs or magic-link
@@ -116,6 +132,8 @@ export function useSession(): SessionState {
         setUser(null)
         setProfile(null)
       }
+      // Any settled auth event means we know the answer — stop loading.
+      if (!cancelled) setLoading(false)
     })
 
     return () => {
