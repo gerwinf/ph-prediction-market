@@ -66,7 +66,7 @@ export function buildMirrorRow(
  */
 export function selectSlugsToRefresh(
   requested: string[],
-  known: Record<string, string>,
+  known: Record<string, unknown>,
   fetchedAt: Record<string, string | null | undefined>,
   now: number,
   ttlMs: number = PRICE_TTL_MS,

@@ -2,16 +2,33 @@
 
 import { useState, useEffect, FormEvent } from 'react'
 
-const TICKER_DATA = [
-  { mkt: 'Argentina defend WC 2026',         pct: 31, d: +2 },
-  { mkt: 'BTC > ₱4M by Q3',                  pct: 71, d: +6 },
-  { mkt: 'Thunder reach NBA Finals',         pct: 64, d: +5 },
-  { mkt: 'Signal No. 3 hits Manila in May',  pct: 22, d: -2 },
-  { mkt: 'Bea top-5 at Miss Universe 2026',  pct: 48, d: +7 },
-  { mkt: 'BINI sells out MOA · Jun 20',      pct: 88, d: +3 },
-  { mkt: 'Ginebra win PBA Comm’s Cup',       pct: 41, d: -3 },
-  { mkt: 'USD/PHP closes < 55 by Dec',       pct: 31, d: -7 },
-  { mkt: 'ECHO win MPL-PH S17',              pct: 44, d: +9 },
+// Live Polymarket odds (see lib/oracle/slugs.ts LIVE_MARKETS) are overlaid onto
+// any row carrying a `slug`; untagged (PH-local) rows stay hardcoded. The `pct`
+// here is the fallback shown until the fetch resolves (or if it's stale).
+type PriceInfo = { outcomes: { name: string; price: number }[]; is_stale: boolean; fetched_at: string }
+type PricesMap = Record<string, PriceInfo>
+
+// Returns the live "Yes" probability % for a slug when fresh, else the fallback.
+function livePct(prices: PricesMap, slug: string | undefined, fallback: number): number {
+  if (!slug) return fallback
+  const row = prices[slug]
+  if (!row || row.is_stale) return fallback
+  const yes = Array.isArray(row.outcomes) ? row.outcomes[0]?.price : undefined
+  return typeof yes === 'number' ? Math.round(yes * 100) : fallback
+}
+
+type TickerItem = { mkt: string; pct: number; slug?: string }
+
+const TICKER_DATA: TickerItem[] = [
+  { mkt: 'Argentina win WC 2026',            pct: 9,  slug: 'wc-argentina' },
+  { mkt: 'BTC > ₱4M by Q3',                  pct: 71 },
+  { mkt: 'Knicks win NBA Finals',            pct: 78, slug: 'nba-knicks' },
+  { mkt: 'Signal No. 3 hits Manila in May',  pct: 22 },
+  { mkt: 'Bea top-5 at Miss Universe 2026',  pct: 48 },
+  { mkt: 'BINI sells out MOA · Jun 20',      pct: 88 },
+  { mkt: 'Ginebra win PBA Comm’s Cup',       pct: 41 },
+  { mkt: 'USD/PHP closes < 55 by Dec',       pct: 31 },
+  { mkt: 'ECHO win MPL-PH S17',              pct: 44 },
 ]
 
 const CATEGORIES = [
@@ -26,20 +43,20 @@ const CATEGORIES = [
 
 type CategoryKey = typeof CATEGORIES[number]['key']
 
-type MarketRow = { cat: string; q: string; pct: number; d: number; vol: string }
+type MarketRow = { cat: string; q: string; pct: number; d: number; vol: string; slug?: string }
 
 const MARKETS: Record<CategoryKey, MarketRow[]> = {
   trending: [
-    { cat: 'World Cup', q: 'Argentina defend their World Cup title in 2026',    pct: 31, d: +2,  vol: '₱6.1M' },
-    { cat: 'NBA',       q: 'OKC Thunder reach the 2026 NBA Finals',             pct: 64, d: +5,  vol: '₱4.0M' },
+    { cat: 'World Cup', q: 'Argentina win the 2026 FIFA World Cup',            pct: 9,  d: +2,  vol: '₱6.1M', slug: 'wc-argentina' },
+    { cat: 'NBA',       q: 'The Knicks win the 2026 NBA Finals',               pct: 78, d: +5,  vol: '₱4.0M', slug: 'nba-knicks' },
     { cat: 'Showbiz',   q: 'Bea Millan-Windorski places top-5 at Miss Universe 2026', pct: 48, d: +7, vol: '₱1.3M' },
     { cat: 'Crypto',    q: 'Bitcoin closes above ₱4M on Dec 31, 2026',          pct: 71, d: +6,  vol: '₱5.4M' },
     { cat: 'MLBB',      q: 'ECHO wins MPL-PH Season 17',                        pct: 44, d: +9,  vol: '₱2.2M' },
     { cat: 'Music',     q: 'BINI sells out the SM MOA Arena on June 20',        pct: 88, d: +3,  vol: '₱1.2M' },
   ],
   sports: [
-    { cat: 'World Cup', q: 'Argentina defend their World Cup title in 2026',     pct: 31, d: +2,  vol: '₱6.1M' },
-    { cat: 'NBA',       q: 'OKC Thunder reach the 2026 NBA Finals',              pct: 64, d: +5,  vol: '₱4.0M' },
+    { cat: 'World Cup', q: 'Argentina win the 2026 FIFA World Cup',             pct: 9,  d: +2,  vol: '₱6.1M', slug: 'wc-argentina' },
+    { cat: 'NBA',       q: 'The Knicks win the 2026 NBA Finals',                pct: 78, d: +5,  vol: '₱4.0M', slug: 'nba-knicks' },
     { cat: 'PBA',       q: 'Ginebra wins the 2026 PBA Commissioner’s Cup',       pct: 41, d: -3,  vol: '₱2.8M' },
     { cat: 'NBA',       q: 'Wembanyama outscores SGA in the West Finals series', pct: 38, d: +4,  vol: '₱1.9M' },
     { cat: 'Boxing',    q: 'Manny Pacquiao announces a return bout in 2026',     pct: 17, d: +1,  vol: '₱2.7M' },
@@ -108,7 +125,7 @@ function LogoLockup() {
   )
 }
 
-function Ticker() {
+function Ticker({ prices }: { prices: PricesMap }) {
   const items = [...TICKER_DATA, ...TICKER_DATA]
   return (
     <div className="ticker" aria-hidden="true">
@@ -117,10 +134,7 @@ function Ticker() {
           <span className="ticker-item" key={i}>
             <span className="ticker-dot" />
             <span className="lbl">{it.mkt}</span>
-            <span className="pct">{it.pct}%</span>
-            <span className={'pct ' + (it.d >= 0 ? 'up' : 'down')}>
-              {it.d >= 0 ? '▲' : '▼'} {Math.abs(it.d)}
-            </span>
+            <span className="pct">{livePct(prices, it.slug, it.pct)}%</span>
           </span>
         ))}
       </div>
@@ -186,15 +200,16 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
   )
 }
 
-function FeaturedCard() {
-  const yes = 64, no = 36
+function FeaturedCard({ prices }: { prices: PricesMap }) {
+  const yes = livePct(prices, 'wc-argentina', 64)
+  const no = 100 - yes
   return (
     <div className="featured">
       <div className="featured-head">
         <span className="featured-tag">Featured · World Cup 2026</span>
         <span className="featured-vol">VOL ₱4.21M</span>
       </div>
-      <h3 className="featured-q">Will Argentina defend their World Cup title in 2026?</h3>
+      <h3 className="featured-q">Will Argentina win the 2026 FIFA World Cup?</h3>
       <div className="featured-bar">
         <i className="yes" style={{ width: yes + '%' }} />
         <i className="no" style={{ width: no + '%' }} />
@@ -265,7 +280,7 @@ function EmailForm({ id, variant = 'hero' }: { id?: string; variant?: 'hero' | '
   )
 }
 
-function Hero() {
+function Hero({ prices }: { prices: PricesMap }) {
   return (
     <section className="hero shell">
       <div className="hero-grid">
@@ -285,15 +300,16 @@ function Hero() {
             <span className="cta-meta" style={{ paddingLeft: 0 }}>First 1,000 founding members · zero fees for life · 21+</span>
           </div>
         </div>
-        <FeaturedCard />
+        <FeaturedCard prices={prices} />
       </div>
     </section>
   )
 }
 
-function MarketCard({ m }: { m: MarketRow }) {
-  const yesPrice = m.pct
-  const noPrice = 100 - m.pct
+function MarketCard({ m, prices }: { m: MarketRow; prices: PricesMap }) {
+  const pct = livePct(prices, m.slug, m.pct)
+  const yesPrice = pct
+  const noPrice = 100 - pct
   return (
     <article className="card">
       <div className="card-head">
@@ -302,13 +318,10 @@ function MarketCard({ m }: { m: MarketRow }) {
       </div>
       <h3 className="card-q">{m.q}</h3>
       <div className="card-prob">
-        <span className="pct">{m.pct}%</span>
+        <span className="pct">{pct}%</span>
         <span className="pct-lbl">chance</span>
-        <span className={'delta ' + (m.d >= 0 ? 'up' : 'down')}>
-          {m.d >= 0 ? '▲' : '▼'} {Math.abs(m.d)}
-        </span>
       </div>
-      <div className="card-bar"><i style={{ width: m.pct + '%' }} /></div>
+      <div className="card-bar"><i style={{ width: pct + '%' }} /></div>
       <div className="card-actions">
         <button className="bet-btn yes" type="button">
           <span className="lbl">YES</span>
@@ -323,7 +336,7 @@ function MarketCard({ m }: { m: MarketRow }) {
   )
 }
 
-function Markets() {
+function Markets({ prices }: { prices: PricesMap }) {
   const [active, setActive] = useState<CategoryKey>('trending')
   const cards = MARKETS[active]
   return (
@@ -347,7 +360,7 @@ function Markets() {
         ))}
       </div>
       <div className="market-grid">
-        {cards.map((m, i) => <MarketCard key={i} m={m} />)}
+        {cards.map((m, i) => <MarketCard key={i} m={m} prices={prices} />)}
       </div>
     </section>
   )
@@ -493,14 +506,37 @@ function Footer() {
   )
 }
 
+// Slugs to fetch live = the union of every tagged row across all surfaces.
+const LIVE_SLUGS = Array.from(
+  new Set([
+    ...TICKER_DATA.map((t) => t.slug),
+    ...Object.values(MARKETS).flat().map((m) => m.slug),
+    'wc-argentina', // FeaturedCard
+  ].filter(Boolean) as string[]),
+)
+
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [prices, setPrices] = useState<PricesMap>({})
+
+  // Pull live Polymarket odds once on mount. Best-effort: on any failure the
+  // surfaces keep their hardcoded fallbacks — no flash, no error state.
+  useEffect(() => {
+    if (LIVE_SLUGS.length === 0) return
+    let cancelled = false
+    fetch(`/api/prices?events=${LIVE_SLUGS.join(',')}`)
+      .then((r) => (r.ok ? r.json() : {}))
+      .then((data: PricesMap) => { if (!cancelled) setPrices(data) })
+      .catch(() => { /* keep fallbacks */ })
+    return () => { cancelled = true }
+  }, [])
+
   return (
     <main className="hula-v2">
-      <Ticker />
+      <Ticker prices={prices} />
       <Nav onBurger={() => setMenuOpen(true)} />
-      <Hero />
-      <Markets />
+      <Hero prices={prices} />
+      <Markets prices={prices} />
       <HowItWorks />
       <Pullquote />
       <Stats />

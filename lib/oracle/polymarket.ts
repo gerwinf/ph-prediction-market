@@ -27,6 +27,8 @@ export type MirrorPrice = {
 const GAMMA_URL = 'https://gamma-api.polymarket.com/markets'
 const VOLUME_FLOOR = 10_000
 
+export type ParseOptions = { skipVolumeFloor?: boolean }
+
 /**
  * Split a Gamma list field that may be a JSON-array string or a bare
  * comma-separated string into trimmed string parts.
@@ -50,12 +52,13 @@ function splitListField(value: unknown): string[] {
  * Parse one raw Gamma market into a MirrorPrice, or null if it can't be
  * parsed or sits below the liquidity floor.
  */
-export function parseMarket(raw: unknown, query: string): MirrorPrice | null {
+export function parseMarket(raw: unknown, query: string, opts: ParseOptions = {}): MirrorPrice | null {
   if (!raw || typeof raw !== 'object') return null
   const m = raw as Record<string, unknown>
 
-  const volumeUsd = Number(m.volume)
-  if (!Number.isFinite(volumeUsd) || volumeUsd < VOLUME_FLOOR) return null
+  const rawVolume = Number(m.volume)
+  const volumeUsd = Number.isFinite(rawVolume) ? rawVolume : 0
+  if (!opts.skipVolumeFloor && volumeUsd < VOLUME_FLOOR) return null
 
   const names = splitListField(m.outcomes)
   const prices = splitListField(m.outcomePrices).map((p) => Number(p))
@@ -110,6 +113,37 @@ export async function fetchPolymarketPrices(
         }
       } catch {
         // Swallow per-query failures — caller marks the slug stale.
+      }
+    }),
+  )
+
+  return results
+}
+
+/**
+ * Fetch curated markets by their stable Gamma market id (`GET /markets/<id>`,
+ * which — unlike `?search=` — reliably returns the one intended market). Each
+ * result is tagged with the caller's app `slug` (via MirrorPrice.query) so the
+ * price route can key responses by slug. Trusted/curated, so the volume floor
+ * is skipped. Never throws — a failed id contributes no row.
+ */
+export async function fetchPolymarketById(
+  items: Array<{ slug: string; marketId: string }>,
+  fetchImpl: typeof fetch = fetch,
+): Promise<MirrorPrice[]> {
+  const results: MirrorPrice[] = []
+
+  await Promise.all(
+    items.map(async ({ slug, marketId }) => {
+      try {
+        const res = await fetchImpl(`${GAMMA_URL}/${marketId}`)
+        if (!res.ok) return
+
+        const raw = await res.json()
+        const parsed = parseMarket(raw, slug, { skipVolumeFloor: true })
+        if (parsed) results.push(parsed)
+      } catch {
+        // Swallow per-id failures — caller marks the slug stale.
       }
     }),
   )

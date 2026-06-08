@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest'
-import { parseMarket, fetchPolymarketPrices } from './polymarket'
+import { parseMarket, fetchPolymarketPrices, fetchPolymarketById } from './polymarket'
 
 describe('parseMarket', () => {
   test('parses comma-separated outcomePrices into structured outcomes', () => {
@@ -53,6 +53,50 @@ describe('parseMarket', () => {
     }
 
     expect(parseMarket(raw, 'whatever')).toBeNull()
+  })
+
+  test('skipVolumeFloor keeps a curated market below the floor', () => {
+    const raw = {
+      id: 'mkt-4',
+      question: 'Curated low-volume market',
+      outcomes: '["Yes", "No"]',
+      outcomePrices: '["0.6", "0.4"]',
+      volume: 12,
+    }
+
+    const result = parseMarket(raw, 'wc-argentina', { skipVolumeFloor: true })
+    expect(result?.outcomes[0]).toEqual({ name: 'Yes', price: 0.6 })
+  })
+})
+
+describe('fetchPolymarketById', () => {
+  test('fetches each market by id and tags the result with the app slug', async () => {
+    const byId: Record<string, unknown> = {
+      '558938': { id: '558938', question: 'Will Argentina win the 2026 FIFA World Cup?', outcomes: '["Yes","No"]', outcomePrices: '["0.09","0.91"]', volume: '500000' },
+      '553858': { id: '553858', question: 'Will the Knicks win the 2026 NBA Finals?', outcomes: '["Yes","No"]', outcomePrices: '["0.78","0.22"]', volume: '300000' },
+    }
+    const fakeFetch = async (url: string | URL | Request) => {
+      const id = String(url).split('/').pop() ?? ''
+      return { ok: true, json: async () => byId[id] } as Response
+    }
+
+    const result = await fetchPolymarketById(
+      [
+        { slug: 'wc-argentina', marketId: '558938' },
+        { slug: 'nba-knicks', marketId: '553858' },
+      ],
+      fakeFetch as typeof fetch,
+    )
+
+    expect(result).toHaveLength(2)
+    const arg = result.find((r) => r.query === 'wc-argentina')
+    expect(arg?.outcomes[0]).toEqual({ name: 'Yes', price: 0.09 })
+  })
+
+  test('skips a market that returns a non-ok response (no throw)', async () => {
+    const fakeFetch = async () => ({ ok: false, json: async () => ({}) } as Response)
+    const result = await fetchPolymarketById([{ slug: 'wc-argentina', marketId: '558938' }], fakeFetch as typeof fetch)
+    expect(result).toEqual([])
   })
 })
 

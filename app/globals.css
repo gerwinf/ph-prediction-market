@@ -816,26 +816,6 @@ button:focus {
 }
 @media (max-width: 640px) { .hula-v2 .picks-list { grid-template-columns: 1fr; } }
 
-/* Polymarket implied-probability context strip — spans the full prop grid,
-   sits above the cards for a globally-traded game. */
-.hula-v2 .picks-game-strip {
-  grid-column: 1 / -1;
-  display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
-  padding: 6px 12px; margin-top: 4px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: var(--paper);
-  font-family: var(--ff-mono); font-size: 11px;
-  letter-spacing: 0.04em; color: var(--ink-3);
-}
-.hula-v2 .picks-strip-team { color: var(--ink-2); font-weight: 500; }
-.hula-v2 .picks-strip-pct { color: var(--ink); font-weight: 600; }
-.hula-v2 .picks-strip-sep { color: var(--line-2); margin: 0 2px; }
-.hula-v2 .picks-strip-src {
-  margin-left: auto; text-transform: uppercase; letter-spacing: 0.1em;
-  color: var(--ink-3); opacity: 0.7;
-}
-
 .hula-v2 .picks-card {
   background: var(--paper);
   border: 1px solid var(--line);

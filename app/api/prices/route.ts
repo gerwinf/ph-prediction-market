@@ -13,8 +13,8 @@
  */
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '../../../lib/supabase/admin'
-import { SLUG_TO_QUERY } from '../../../lib/oracle/slugs'
-import { fetchPolymarketPrices } from '../../../lib/oracle/polymarket'
+import { SLUG_TO_QUERY, LIVE_MARKETS } from '../../../lib/oracle/slugs'
+import { fetchPolymarketPrices, fetchPolymarketById } from '../../../lib/oracle/polymarket'
 import { selectSlugsToRefresh, buildMirrorRow } from '../../../lib/oracle/refresh'
 
 export const dynamic = 'force-dynamic'
@@ -55,15 +55,25 @@ export async function GET(req: Request) {
   const bySlug = new Map<string, Row>((existing ?? []).map((r) => [r.event_slug as string, r as Row]))
   const fetchedAt = Object.fromEntries(slugs.map((s) => [s, bySlug.get(s)?.fetched_at ?? null]))
 
-  const toRefresh = selectSlugsToRefresh(slugs, SLUG_TO_QUERY, fetchedAt, Date.now())
+  const known = { ...SLUG_TO_QUERY, ...LIVE_MARKETS }
+  const toRefresh = selectSlugsToRefresh(slugs, known, fetchedAt, Date.now())
 
   if (toRefresh.length > 0) {
-    const prices = await fetchPolymarketPrices(toRefresh.map((s) => SLUG_TO_QUERY[s]))
-    const byQuery = new Map(prices.map((p) => [p.query, p]))
+    // Live markets fetch by pinned id (reliable); legacy /picks slugs fetch by
+    // fuzzy search. Both tag results with the app slug via MirrorPrice.query.
+    const byIdSlugs = toRefresh.filter((s) => s in LIVE_MARKETS)
+    const bySearchSlugs = toRefresh.filter((s) => s in SLUG_TO_QUERY)
+
+    const [idPrices, searchPrices] = await Promise.all([
+      fetchPolymarketById(byIdSlugs.map((s) => ({ slug: s, marketId: LIVE_MARKETS[s].id }))),
+      fetchPolymarketPrices(bySearchSlugs.map((s) => SLUG_TO_QUERY[s])),
+    ])
+
+    const bySlugResult = new Map([...idPrices, ...searchPrices].map((p) => [p.query, p]))
     const nowIso = new Date().toISOString()
 
     const upserts = toRefresh.map((slug) =>
-      buildMirrorRow(slug, byQuery.get(SLUG_TO_QUERY[slug]), bySlug.get(slug), nowIso),
+      buildMirrorRow(slug, bySlugResult.get(slug) ?? bySlugResult.get(SLUG_TO_QUERY[slug] ?? ''), bySlug.get(slug), nowIso),
     )
 
     const { error: upsertErr } = await admin

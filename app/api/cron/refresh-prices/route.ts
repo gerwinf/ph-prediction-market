@@ -13,8 +13,8 @@
  */
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '../../../../lib/supabase/admin'
-import { SLUG_TO_QUERY } from '../../../../lib/oracle/slugs'
-import { fetchPolymarketPrices } from '../../../../lib/oracle/polymarket'
+import { SLUG_TO_QUERY, LIVE_MARKETS } from '../../../../lib/oracle/slugs'
+import { fetchPolymarketPrices, fetchPolymarketById } from '../../../../lib/oracle/polymarket'
 import { buildMirrorRow, type MirrorRow } from '../../../../lib/oracle/refresh'
 
 export const dynamic = 'force-dynamic'
@@ -31,7 +31,7 @@ export async function GET(req: Request) {
   }
 
   const admin = createAdminClient()
-  const slugs = Object.keys(SLUG_TO_QUERY)
+  const slugs = [...Object.keys(LIVE_MARKETS), ...Object.keys(SLUG_TO_QUERY)]
 
   // Pull prior rows so a failed fetch preserves the last known value.
   const { data: existing } = await admin
@@ -43,12 +43,15 @@ export async function GET(req: Request) {
     (existing ?? []).map((r) => [r.event_slug as string, r as Partial<MirrorRow>]),
   )
 
-  const prices = await fetchPolymarketPrices(slugs.map((s) => SLUG_TO_QUERY[s]))
-  const byQuery = new Map(prices.map((p) => [p.query, p]))
+  const [idPrices, searchPrices] = await Promise.all([
+    fetchPolymarketById(Object.entries(LIVE_MARKETS).map(([slug, m]) => ({ slug, marketId: m.id }))),
+    fetchPolymarketPrices(Object.values(SLUG_TO_QUERY)),
+  ])
+  const byResult = new Map([...idPrices, ...searchPrices].map((p) => [p.query, p]))
   const nowIso = new Date().toISOString()
 
   const rows = slugs.map((slug) =>
-    buildMirrorRow(slug, byQuery.get(SLUG_TO_QUERY[slug]), bySlug.get(slug), nowIso),
+    buildMirrorRow(slug, byResult.get(slug) ?? byResult.get(SLUG_TO_QUERY[slug] ?? ''), bySlug.get(slug), nowIso),
   )
 
   const { error: upsertErr } = await admin
