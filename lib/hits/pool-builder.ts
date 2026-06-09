@@ -19,6 +19,7 @@
  */
 import type { GameEvent } from './types'
 import { CANDIDATE_EVENTS } from './events'
+import { eventCellToGameEvent } from '../catalog/types'
 import {
   PLAYERS_BY_TEAM,
   TEAMS,
@@ -117,4 +118,41 @@ export function buildPoolForMatch(matchId: string): GameEvent[] {
     }
   }
   return tiles
+}
+
+/**
+ * Catalog-aware pool builder (server-only path).
+ *
+ * Reads approved/live event-cells from the markets catalog and merges them
+ * over GENERIC_TILES (catalog wins on id collision). Falls back to the sync
+ * `buildPoolForMatch(matchId)` whenever the catalog is empty or unreachable —
+ * so /hits is unchanged until the catalog is seeded.
+ *
+ * The catalog read is dynamically imported because it pulls the service-role
+ * admin client; pool-builder is otherwise reachable from the client bundle
+ * (card-generator → this module) and must stay free of server-only imports.
+ *
+ * Determinism is safe: a card's `cells` are persisted at purchase (migration
+ * 001) and settlement reads the persisted cells, so changing the pool later
+ * never affects already-sold cards.
+ */
+export async function buildPoolForMatchAsync(
+  matchId: string,
+  fixtureId?: string | null,
+): Promise<GameEvent[]> {
+  try {
+    const { fetchApprovedEventCellsForFixture } = await import('../catalog/read')
+    const cells = await fetchApprovedEventCellsForFixture(fixtureId ?? null)
+    if (cells.length === 0) return buildPoolForMatch(matchId)
+
+    const byId = new Map<string, GameEvent>()
+    for (const t of GENERIC_TILES) byId.set(t.id, t)
+    for (const c of cells) {
+      const e = eventCellToGameEvent(c.payload)
+      byId.set(e.id, e)
+    }
+    return Array.from(byId.values())
+  } catch {
+    return buildPoolForMatch(matchId)
+  }
 }
