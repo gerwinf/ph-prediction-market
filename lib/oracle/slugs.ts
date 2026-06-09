@@ -38,4 +38,8 @@ export const LIVE_MARKETS: Record<string, { id: string; label: string }> = {
   'wc-brazil':    { id: '558937', label: 'Brazil win WC 2026' },
   'nba-knicks':   { id: '553858', label: 'Knicks win NBA Finals' },
   'nba-spurs':    { id: '553866', label: 'Spurs win NBA Finals' },
+  // Crypto + world (Yes/No threshold/outcome markets, verified active 2026-06-08)
+  'crypto-btc-120k':   { id: '701494', label: 'BTC tops $120k in 2026' },
+  'crypto-eth-5500':   { id: '701545', label: 'ETH tops $5,500 in 2026' },
+  'world-china-taiwan': { id: '567621', label: 'China–Taiwan conflict in 2026' },
 }
