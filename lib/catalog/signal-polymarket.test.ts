@@ -88,6 +88,16 @@ describe('mapPolymarketEventToCandidate', () => {
     expect(mapPolymarketEventToCandidate(event({ endDate: isoFromNow(-1) }), NOW)).toBeNull()
   })
 
+  test('carries the event endDate as closesAt (for auto-retire)', () => {
+    const c = mapPolymarketEventToCandidate(event({ endDate: '2026-07-20T00:00:00.000Z' }), NOW)!
+    expect(c.closesAt).toBe('2026-07-20T00:00:00.000Z')
+  })
+
+  test('closesAt is null when the event has no endDate', () => {
+    const { endDate, ...noEnd } = event() as Record<string, unknown>
+    expect(mapPolymarketEventToCandidate(noEnd, NOW)!.closesAt).toBeNull()
+  })
+
   test('maps a sports event to a candidate binary market', () => {
     const c = mapPolymarketEventToCandidate(event(), NOW)!
     expect(c).not.toBeNull()

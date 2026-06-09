@@ -22,6 +22,7 @@ export type SignalCandidate = {
   status: 'candidate'
   source: 'signal:polymarket'
   interestScore: number
+  closesAt: string | null
   payload: BinaryPayload
 }
 
@@ -143,6 +144,7 @@ export function mapPolymarketEventToCandidate(event: unknown, nowMs: number): Si
     status: 'candidate',
     source: 'signal:polymarket',
     interestScore,
+    closesAt: typeof e.endDate === 'string' ? e.endDate : null,
     payload,
   }
 }
