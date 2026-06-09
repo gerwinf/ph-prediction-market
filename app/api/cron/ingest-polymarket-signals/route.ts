@@ -22,8 +22,12 @@ import { mapPolymarketEventToCandidate } from '../../../../lib/catalog/signal-po
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
 
+// Order by 24h volume (trending NOW) and require closed=false. Ordering by
+// all-time volume + active=true surfaces resolved megamarkets (2024 election,
+// last season's UCL/Premier League); the mapper additionally drops any
+// closed/past event as belt-and-suspenders.
 const GAMMA_EVENTS_URL =
-  'https://gamma-api.polymarket.com/events?order=volume&ascending=false&limit=50&active=true'
+  'https://gamma-api.polymarket.com/events?order=volume24hr&ascending=false&limit=50&closed=false&active=true'
 const VOLUME_FLOOR_USD = 50_000
 
 export async function GET(req: Request) {

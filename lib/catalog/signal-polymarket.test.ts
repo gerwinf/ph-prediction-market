@@ -41,6 +41,14 @@ describe('mapPolymarketEventToCandidate', () => {
     expect(mapPolymarketEventToCandidate(bad, NOW)).toBeNull()
   })
 
+  test('returns null for a resolved event (closed=true)', () => {
+    expect(mapPolymarketEventToCandidate(event({ closed: true }), NOW)).toBeNull()
+  })
+
+  test('returns null for an event whose endDate has already passed', () => {
+    expect(mapPolymarketEventToCandidate(event({ endDate: isoFromNow(-1) }), NOW)).toBeNull()
+  })
+
   test('maps a sports event to a candidate binary market', () => {
     const c = mapPolymarketEventToCandidate(event(), NOW)!
     expect(c).not.toBeNull()
