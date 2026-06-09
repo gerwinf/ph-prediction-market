@@ -1,223 +1,154 @@
-# Hula Landing Page
+# Hula
 
-The Philippines' first prediction market — built with Next.js 14, Tailwind CSS, and Framer Motion.
+The Philippines' prediction market — *"the market for what happens next."* Pesos in, pesos out, on PBA, boxing, the World Cup, weather, showbiz, and the biggest stories of the day.
 
-## Quick Start
+This repo started as a marketing landing page and has grown into the Phase 0 product surface: a public landing page, a masa-facing live-event game (`/hits`), a player-props prototype (`/picks`), operator dashboards, and a Polymarket-backed price oracle — all on Next.js 14 + Supabase.
 
-### Prerequisites
-- Node.js 18+ and npm/yarn
-- Vercel account (for deployment)
+## Stack
 
-### Local Development
+- **Framework:** Next.js 14 (App Router, `'use client'` pages) + TypeScript
+- **Styling:** Tailwind CSS + a hand-rolled design system in `app/globals.css` (light "paper" theme)
+- **Fonts:** Fraunces (wordmark/headlines) + Space Mono (all numbers)
+- **Backend:** Supabase (Postgres + Auth + Row Level Security)
+- **Auth:** Supabase email + password, plus Twilio Verify OTP routes
+- **Live odds:** Polymarket Gamma API, cached in Postgres (`lib/oracle`)
+- **Email:** Resend (waitlist audience + ops notifications)
+- **Analytics:** `@vercel/analytics` + a `/api/analytics/track` event sink
+- **Tests:** Vitest (`lib/oracle/*.test.ts`)
 
-1. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+## Quick start
 
-2. **Run the dev server:**
-   ```bash
-   npm run dev
-   ```
-
-3. **Open your browser:**
-   Navigate to `http://localhost:3000`
-
-The landing page will update automatically as you edit files.
-
-## Email Capture Setup
-
-The landing page includes an email capture form at `/api/waitlist`. By default, it accepts emails and returns success.
-
-### To connect a real email service:
-
-#### Option 1: Formspree
-1. Sign up at [formspree.io](https://formspree.io)
-2. Create a form and get your FORM_ID
-3. Update `/app/api/waitlist/route.ts` — uncomment the Formspree section and add your FORM_ID:
-   ```typescript
-   const res = await fetch('https://formspree.io/f/YOUR_FORM_ID', {
-     method: 'POST',
-     headers: { 'Content-Type': 'application/json' },
-     body: JSON.stringify({ email }),
-   })
-   return NextResponse.json({ success: res.ok }, { status: res.ok ? 200 : 500 })
-   ```
-
-#### Option 2: ConvertKit
-1. Generate an API key from ConvertKit's settings
-2. Store it in `.env.local`:
-   ```
-   CONVERTKIT_API_KEY=your_api_key
-   CONVERTKIT_FORM_ID=your_form_id
-   ```
-3. Update `/app/api/waitlist/route.ts` to call ConvertKit's API:
-   ```typescript
-   const res = await fetch('https://api.convertkit.com/v3/forms/{FORM_ID}/subscriptions', {
-     method: 'POST',
-     headers: { 'Content-Type': 'application/json' },
-     body: JSON.stringify({
-       email,
-       api_key: process.env.CONVERTKIT_API_KEY,
-     }),
-   })
-   ```
-
-#### Option 3: Custom Backend
-Send to your own database/CRM:
-```typescript
-const res = await fetch('https://your-api.com/waitlist', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ email }),
-})
-```
-
-## Deploy to Vercel
-
-### 1-Click Deploy
-Click the button below to deploy directly to Vercel:
-
-```
-[Deploy Button - configure in vercel.json]
-```
-
-### Manual Deploy
-
-1. **Push to GitHub:**
-   ```bash
-   git add .
-   git commit -m "Add Hula landing page"
-   git push
-   ```
-
-2. **Import to Vercel:**
-   - Go to [vercel.com/new](https://vercel.com/new)
-   - Import your GitHub repository
-   - Vercel auto-detects Next.js and configures the build
-
-3. **Set environment variables (if using email service):**
-   - In Vercel project settings → Environment Variables
-   - Add `CONVERTKIT_API_KEY`, `CONVERTKIT_FORM_ID`, etc. as needed
-
-4. **Deploy:**
-   - Click "Deploy"
-   - Your site will be live at `your-project.vercel.app`
-
-### Custom Domain
-1. In Vercel → Settings → Domains
-2. Add your custom domain (e.g., `hulaan.ph`)
-3. Update DNS records at your registrar
-4. Vercel provides DNS instructions — follow them exactly
-
-## Design System
-
-### Colors
-- **Background:** `#0A0A0B` (near-black)
-- **Surface:** `#141417` with `#222226` borders
-- **Primary text:** `#FAFAFA`
-- **Secondary text:** `#8A8A92`
-- **Accent (gold):** `#F4B942`
-- **Success:** `#10B981`
-- **Danger:** `#EF4444`
-
-### Typography
-- **Wordmark:** Fraunces (serif)
-- **Headlines:** Inter (sans) — substitutes for Geist Sans
-- **Body:** Inter (sans)
-- **Numbers/prices:** Space Mono (monospace) — substitutes for Geist Mono
-  - *All numbers on the page use monospace — this is non-negotiable*
-
-### Spacing
-- Mobile: 16px padding, 24px section gaps
-- Desktop (768px+): 24px padding, 96px section gaps
-- Max width: 1120px
-
-### Border Radius
-- Cards: 12px
-- Buttons: 8px
-- Inputs: 6px
-
-## Build & Optimize
-
-### Production Build
 ```bash
-npm run build
-npm run start
+npm install
+# create .env.local with at least the Supabase keys — see "Environment" below
+npm run dev   # http://localhost:3000
 ```
 
-### Performance
-- Lighthouse targets: 95+ on mobile across all categories
-- Static pages auto-optimized by Next.js
-- Images lazy-loaded by default
-- CSS purged of unused styles by Tailwind
+Scripts:
 
-## Project Structure
+| Command | Purpose |
+|---|---|
+| `npm run dev` | Local dev server |
+| `npm run build` / `npm start` | Production build / serve |
+| `npm run lint` | Next.js ESLint |
+| `npm test` | Run the Vitest suite once |
+| `npm run test:watch` | Vitest in watch mode |
+
+## Surfaces (routes)
+
+| Route | What it is |
+|---|---|
+| `/` | Public marketing landing — live-odds ticker, featured card, market grid, waitlist capture |
+| `/hits` | Masa-facing live-event **bingo card** product (the Phase 0 demand test). Card detail at `/hits/[card_id]`, history at `/hits/history` |
+| `/picks` | PrizePicks-style **player-props** prototype — closed validation tool, not linked from `/` |
+| `/app` | Phone-frame product simulator (internal UI prototype) |
+| `/ops` | Manual live-ops dashboard (resolve events, toggle fixture status) |
+| `/ops/ggr` | Gross Gaming Revenue dashboard |
+| `/private/[gameId]/[playerSlug]` | Private prediction games |
+| `/dev/signin` | Dev-only sign-in helper |
+
+## Project structure
 
 ```
 app/
-├── layout.tsx          # Root layout + fonts
-├── page.tsx            # Landing page (all 5 sections)
-├── globals.css         # Global styles + typography
-└── api/
-    └── waitlist/
-        └── route.ts    # Email capture endpoint
+├── layout.tsx              # Root layout, fonts, metadata/OG
+├── page.tsx                # Landing page (ticker / hero / markets / how-it-works / footer)
+├── globals.css             # Design system + all component styles
+├── hits/ picks/ ops/ app/  # Product surfaces (see table above)
+└── api/                    # 24 route handlers, incl:
+    ├── waitlist/           # Email capture → Resend audience + notify
+    ├── auth/               # email + OTP sign-in
+    ├── cards/              # /hits card create / read / settle-on-won
+    ├── fixtures/ events/   # live-event data + polling
+    ├── ops/                # resolve, fixture-status, ggr
+    ├── prices/             # live Polymarket odds (lazy-refreshed cache)
+    └── cron/               # demo-tick, refresh-prices (manual triggers)
 
-tailwind.config.ts      # Tailwind color + spacing config
-postcss.config.js       # PostCSS for Tailwind
-tsconfig.json           # TypeScript config
-next.config.js          # Next.js config
-package.json            # Dependencies
+lib/
+├── supabase/   # client (browser), server (cookie-bound), admin (service role), middleware
+├── oracle/     # Polymarket price feed: polymarket.ts, refresh.ts, slugs.ts (+ tests)
+├── hits/       # card generation, payouts, event pools, player data
+├── auth/  identity/  analytics/  private-games/  format/  hooks/
+
+supabase/migrations/        # 001–008 (schema, RLS, prices, GGR, mirror_prices, …)
 ```
 
-## Important Notes
+## Environment
 
-### Brand
-- Render the wordmark as plain "Hula"; pair with the circular "H" mark in gold (`#F4B942`) when a logo treatment is needed
-- Brand name in copy is "Hula" (Tagalog for "predict / guess")
-- Domain is `hulaan.ph` (Tagalog imperative form: "predict it / guess it")
-- Use Tagalog accent words sparingly (max 3 on page)
+Create `.env.local` with:
 
-### Design
-- Inspired by Kalshi.com (clean, financial, serious)
-- Zero stock photos, mascots, or gambling imagery
-- Monospace for ALL numbers — this is the Kalshi visual signature
-- Subtle motion: fade-in on scroll, no parallax or auto-play
-- Respect `prefers-reduced-motion` media query
-
-### What NOT to include
-- No "licensed" / "regulated" claims
-- No specific payouts or odds tables
-- No direct comparisons to competitors
-- No KYC/login mentions
-- No political or sabong references
-- No dark patterns (fake urgency, fake user counts)
-
-## Troubleshooting
-
-### Build fails with "module not found"
 ```bash
-rm -rf node_modules package-lock.json
-npm install
-npm run dev
+# Supabase (required)
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=     # publishable / anon key
+SUPABASE_SERVICE_ROLE_KEY=                # server-only; never expose to the browser
+
+# Site (optional — defaults to https://hulaan.ph)
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+
+# Twilio Verify OTP (optional — phone sign-in)
+TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
+TWILIO_VERIFY_SERVICE_SID=
+
+# Resend (optional — waitlist audience + ops notifications)
+RESEND_API_KEY=
+RESEND_AUDIENCE_ID=
+RESEND_NOTIFY_FROM=
+RESEND_NOTIFY_TO=
+
+# Ops / cron (optional)
+OPS_SHARED_SECRET=                         # gates the manual ops dashboard actions
+CRON_SECRET=                               # Bearer token for /api/cron/* endpoints
 ```
 
-### "Cannot find module 'next/font/google'"
-Ensure Next.js 14+ is installed:
+The app fails soft when optional vars are missing (e.g. the waitlist still returns success without Resend), so you can run the landing page with only the Supabase keys.
+
+## Database
+
+Schema lives in `supabase/migrations/` (`001`–`008`). Migrations are applied **manually** in the Supabase SQL Editor — paste-ready copies for the recent ones are at the repo root as `MIGRATION_00X_RUN_ME.sql`. RLS is the access boundary; server-side writes use the service-role admin client (`lib/supabase/admin.ts`), which bypasses RLS.
+
+## Live odds (Polymarket oracle)
+
+The landing page shows **live market odds** (ticker, featured card, market grid) imported from Polymarket.
+
+- Markets are pinned by **stable id** in `lib/oracle/slugs.ts` (`LIVE_MARKETS`) and fetched via `GET /markets/<id>`. Polymarket Gamma's `?search=` does **not** filter — use `?slug=` / `/markets/<id>` to curate, then pin the id.
+- `GET /api/prices?events=<slug,slug>` reads the `mirror_prices` cache (migration 008) and **lazily refreshes** any slug older than the TTL (no sub-daily cron — Vercel Hobby caps cron at once/day). The table *is* the cache.
+- `GET /api/cron/refresh-prices` (Bearer `CRON_SECRET`) force-warms all curated markets.
+- Each landing-page row carries an optional `slug`; only globally-traded markets (World Cup, NBA, BTC/ETH, world events) go live — PH-local markets (PBA, MPL, showbiz, etc.) stay hardcoded.
+
+To add a market: find it on polymarket.com → take the slug from the URL → `GET /markets?slug=<slug>` for its id → add to `LIVE_MARKETS` → tag the matching landing row.
+
+## Testing
+
 ```bash
-npm install next@14
+npm test
 ```
 
-### Email form not submitting
-1. Check browser console for errors
-2. Verify `/api/waitlist` endpoint is reachable
-3. Ensure email validation passes (must be valid format)
+Unit tests cover the oracle (`lib/oracle/`): Gamma response parsing (both string formats), the volume floor, the lazy-refresh TTL decision, stale-preserve-on-failure, and the fetch-by-id path. Pure logic is tested directly; Supabase/fetch glue is exercised via the dev server.
 
-### Deploy to Vercel fails
-- Check build logs in Vercel dashboard
-- Ensure no secrets/env vars are hardcoded
-- Verify Node version matches (18+ recommended)
+## Deploy
 
-## License
+Hosted on **Vercel** (`vercel.json`), auto-detected Next.js build. Set the environment variables above in the project settings. Custom domain `hulaan.ph` via Vercel → Settings → Domains.
+
+> **Note:** Vercel Hobby caps cron at once-per-day, so scheduled jobs (price refresh, demo events) run lazily / on-demand instead of on a schedule. The `/api/cron/*` endpoints remain as manual or Pro-tier triggers.
+
+## Design system
+
+Light "paper" theme defined in `app/globals.css` `:root`:
+
+- **Background:** `#f5f1e3` (cream) · surfaces on `#ffffff` paper with hairline `#0f2419` borders
+- **Ink:** `#0f2419` → `#5a6a60` (primary → muted)
+- **Accent:** `#e87a1e` (orange)
+- **Type:** Fraunces for the wordmark/headlines, Space Mono for **all** numbers
+- Subtle motion only; respects `prefers-reduced-motion`
+
+## Brand
+
+- Wordmark: "Hula" (Tagalog: *predict / guess*); domain `hulaan.ph` (*predict it*)
+- Tagalog accent words used sparingly for the masa audience
+- 21+ · responsible-play messaging is shipped on the product surfaces
+
+---
 
 © 2026 Hula. All rights reserved.
