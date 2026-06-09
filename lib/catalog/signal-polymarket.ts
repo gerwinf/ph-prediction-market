@@ -73,6 +73,16 @@ export function mapPolymarketEventToCandidate(event: unknown, nowMs: number): Si
   const title = typeof e.title === 'string' ? e.title : ''
   if (!title) return null
 
+  // Drop resolved / past events. Polymarket's `active=true` does NOT exclude
+  // resolved markets, and all-time-volume ordering surfaces huge historical
+  // ones (2024 US election, last season's UCL/Premier League). Belt-and-
+  // suspenders alongside the `closed=false` query param.
+  if (e.closed === true) return null
+  if (typeof e.endDate === 'string') {
+    const end = new Date(e.endDate).getTime()
+    if (Number.isFinite(end) && end < nowMs) return null
+  }
+
   // Pick the most-liquid market that parses to a usable Yes/No price. The event
   // volume already cleared our floor, so individual market volume is ignored.
   const parsed = [...markets]
