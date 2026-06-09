@@ -9,6 +9,7 @@ describe('parseMarket', () => {
       outcomes: 'Argentina,Algeria',
       outcomePrices: '0.78,0.22',
       volume: 50000,
+      endDate: '2026-07-20T00:00:00Z',
     }
 
     const result = parseMarket(raw, 'Argentina Algeria World Cup')
@@ -22,7 +23,13 @@ describe('parseMarket', () => {
         { name: 'Algeria', price: 0.22 },
       ],
       volumeUsd: 50000,
+      endDate: '2026-07-20T00:00:00Z',
     })
+  })
+
+  test('endDate is null when the market has none', () => {
+    const raw = { id: 'm', question: 'q', outcomes: 'Yes,No', outcomePrices: '0.5,0.5', volume: 50000 }
+    expect(parseMarket(raw, 'q')?.endDate).toBeNull()
   })
 
   test('parses JSON-array-string format (real Gamma shape) into structured outcomes', () => {

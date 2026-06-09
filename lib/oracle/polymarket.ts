@@ -22,6 +22,7 @@ export type MirrorPrice = {
   question: string
   outcomes: MirrorOutcome[]
   volumeUsd: number
+  endDate: string | null
 }
 
 const GAMMA_URL = 'https://gamma-api.polymarket.com/markets'
@@ -75,6 +76,7 @@ export function parseMarket(raw: unknown, query: string, opts: ParseOptions = {}
     question,
     outcomes: names.map((name, i) => ({ name, price: prices[i] })),
     volumeUsd,
+    endDate: typeof m.endDate === 'string' ? m.endDate : null,
   }
 }
 
