@@ -29,6 +29,45 @@ function event(overrides: Record<string, unknown> = {}) {
   }
 }
 
+/** A multi-outcome event ("what price will X hit") with bucket sub-markets. */
+function multiEvent(overrides: Record<string, unknown> = {}) {
+  return {
+    slug: 'what-price-will-bitcoin-hit-in-june-2026',
+    title: 'What price will Bitcoin hit in June?',
+    category: 'Crypto',
+    volume: 11_100_000,
+    endDate: isoFromNow(20),
+    markets: [
+      { id: 'btc100', slug: 'btc-100k', question: 'Will Bitcoin reach $100,000 in June?', outcomes: '["Yes","No"]', outcomePrices: '["0.0035","0.9965"]', volume: 1_351_203 },
+      { id: 'btcdip', slug: 'btc-dip-575', question: 'Will Bitcoin dip to $57,500 in June?', outcomes: '["Yes","No"]', outcomePrices: '["0.51","0.49"]', volume: 1_029_245 },
+      { id: 'btc90', slug: 'btc-90k', question: 'Will Bitcoin reach $90,000 in June?', outcomes: '["Yes","No"]', outcomePrices: '["0.0075","0.9925"]', volume: 236_721 },
+    ],
+    ...overrides,
+  }
+}
+
+describe('mapPolymarketEventToCandidate — multi-outcome events', () => {
+  test('picks the most-balanced bucket and uses ITS question as the title', () => {
+    const c = mapPolymarketEventToCandidate(multiEvent(), NOW)!
+    expect(c).not.toBeNull()
+    expect(c.title).toBe('Will Bitcoin dip to $57,500 in June?') // Yes 0.51, closest to 50%
+    expect(c.payload.fallback_pct).toBe(51)
+    expect(c.payload.polymarket_market_id).toBe('btcdip')
+    expect(c.payload.polymarket_slug).toBe('btc-dip-575')
+    expect(c.category).toBe('crypto')
+  })
+
+  test('drops the event when every bucket is extreme (no meaningful binary)', () => {
+    const allExtreme = multiEvent({
+      markets: [
+        { id: 'a', question: 'Will Bitcoin reach $100,000 in June?', outcomes: '["Yes","No"]', outcomePrices: '["0.003","0.997"]', volume: 900_000 },
+        { id: 'b', question: 'Will Bitcoin reach $90,000 in June?', outcomes: '["Yes","No"]', outcomePrices: '["0.02","0.98"]', volume: 800_000 },
+      ],
+    })
+    expect(mapPolymarketEventToCandidate(allExtreme, NOW)).toBeNull()
+  })
+})
+
 describe('mapPolymarketEventToCandidate', () => {
   test('returns null below the $50k volume floor', () => {
     expect(mapPolymarketEventToCandidate(event({ volume: 40_000 }), NOW)).toBeNull()

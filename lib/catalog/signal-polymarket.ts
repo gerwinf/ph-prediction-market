@@ -83,16 +83,41 @@ export function mapPolymarketEventToCandidate(event: unknown, nowMs: number): Si
     if (Number.isFinite(end) && end < nowMs) return null
   }
 
-  // Pick the most-liquid market that parses to a usable Yes/No price. The event
-  // volume already cleared our floor, so individual market volume is ignored.
-  const parsed = [...markets]
-    .sort((a, b) => Number((b as Record<string, unknown>)?.volume ?? 0) - Number((a as Record<string, unknown>)?.volume ?? 0))
-    .map((m) => parseMarket(m, title, { skipVolumeFloor: true }))
-    .find((p) => p !== null)
-  if (!parsed) return null
+  // Parse every sub-market, keeping the raw alongside (we need its own question
+  // and slug for multi-outcome events).
+  const candidates = markets
+    .map((m) => ({ raw: m as Record<string, unknown>, parsed: parseMarket(m, title, { skipVolumeFloor: true }) }))
+    .filter((c): c is { raw: Record<string, unknown>; parsed: NonNullable<typeof c.parsed> } => c.parsed !== null)
+  if (candidates.length === 0) return null
+
+  const yesOf = (c: (typeof candidates)[number]) => c.parsed.outcomes[0]?.price ?? 0
+  const isMulti = markets.length > 1
+
+  // Single-market event: the event title IS the yes/no question — keep it.
+  // Multi-outcome event ("what price will X hit", "who wins"): each sub-market
+  // is one bucket. Pick the most *balanced* bucket (Yes closest to 50% — the
+  // most interesting line) and use ITS own question, so the title and price
+  // agree instead of pairing a scalar title with a stray near-0 bucket.
+  const chosen = isMulti
+    ? candidates.reduce((best, c) => (Math.abs(yesOf(c) - 0.5) < Math.abs(yesOf(best) - 0.5) ? c : best))
+    : [...candidates].sort((a, b) => Number(b.raw.volume ?? 0) - Number(a.raw.volume ?? 0))[0]
+
+  const yesPrice = yesOf(chosen)
+
+  // Drop multi-outcome events with no meaningful binary (every bucket near 0/100
+  // — e.g. far-out price strikes). A genuine single binary at any price is fine.
+  if (isMulti && (yesPrice < 0.05 || yesPrice > 0.95)) return null
+
+  const cardTitle = isMulti && typeof chosen.raw.question === 'string' ? chosen.raw.question : title
+  const marketSlug =
+    isMulti && typeof chosen.raw.slug === 'string'
+      ? chosen.raw.slug
+      : typeof e.slug === 'string'
+        ? e.slug
+        : undefined
 
   const category = typeof e.category === 'string' ? e.category : ''
-  const { tab, weight } = classify(category, title)
+  const { tab, weight } = classify(category, cardTitle)
 
   let endsSoon = false
   if (typeof e.endDate === 'string') {
@@ -102,20 +127,19 @@ export function mapPolymarketEventToCandidate(event: unknown, nowMs: number): Si
 
   const interestScore = volumeScore(volumeUsd) + (endsSoon ? 15 : 0) + weight
 
-  const slug = typeof e.slug === 'string' ? e.slug : undefined
   const payload: BinaryPayload = {
     categories: [tab],
     cat: tab.charAt(0).toUpperCase() + tab.slice(1),
-    fallback_pct: Math.round((parsed.outcomes[0]?.price ?? 0) * 100),
+    fallback_pct: Math.round(yesPrice * 100),
     vol_label: formatUsdVol(volumeUsd),
-    polymarket_market_id: parsed.marketId,
-    ...(slug ? { polymarket_slug: slug } : {}),
+    polymarket_market_id: chosen.parsed.marketId,
+    ...(marketSlug ? { polymarket_slug: marketSlug } : {}),
   }
 
   return {
     kind: 'binary',
     category: tab,
-    title,
+    title: cardTitle,
     status: 'candidate',
     source: 'signal:polymarket',
     interestScore,

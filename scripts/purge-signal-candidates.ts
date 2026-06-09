@@ -1,9 +1,8 @@
 /**
- * Deletes all candidate markets sourced from a signal feed
- * (status='candidate' AND source LIKE 'signal:%'). Use to reset the /ops/markets
- * queue after fixing the ingestion query, then re-run the ingest endpoint.
- *
- * Approved/human/live markets are never touched.
+ * Deletes ALL signal-sourced markets (source LIKE 'signal:%'), in ANY status.
+ * Use to reset the catalog's signal rows after changing the ingestion logic,
+ * then re-run the ingest endpoint to regenerate them. Human-sourced (seed) and
+ * curator-authored markets are never touched.
  *
  *   npx tsx scripts/purge-signal-candidates.ts
  */
@@ -26,7 +25,6 @@ async function main() {
   const { data, error } = await admin
     .from('markets')
     .delete()
-    .eq('status', 'candidate')
     .like('source', 'signal:%')
     .select('id')
 
@@ -34,7 +32,7 @@ async function main() {
     console.error('purge failed:', error.message)
     process.exit(1)
   }
-  console.log(`purged ${data?.length ?? 0} signal candidate(s)`)
+  console.log(`purged ${data?.length ?? 0} signal market(s)`)
 }
 
 main()
