@@ -103,20 +103,22 @@ export async function ingestSignals(admin: Admin, nowMs: number): Promise<Ingest
  * Re-fetch current odds for every approved/live binary market that has a pinned
  * Polymarket market id, and update its stored fallback_pct. The landing grid
  * reads fallback_pct from the catalog, so this is what keeps approved (non-pinned)
- * markets current day-to-day.
+ * markets current day-to-day. Also backfills `closes_at` from the market's
+ * endDate when missing (markets approved before closes_at existed) so they
+ * become eligible for the retire sweep.
  */
-export async function refreshApprovedPrices(admin: Admin): Promise<{ refreshed: number }> {
+export async function refreshApprovedPrices(admin: Admin): Promise<{ refreshed: number; closesBackfilled: number }> {
   const { data, error } = await admin
     .from('markets')
-    .select('id, payload')
+    .select('id, payload, closes_at')
     .eq('kind', 'binary')
     .in('status', ['approved', 'live'])
   if (error) throw new Error(`db_read_failed: ${error.message}`)
 
   const targets = (data ?? [])
-    .map((r) => ({ id: r.id as string, payload: r.payload as BinaryPayload }))
+    .map((r) => ({ id: r.id as string, payload: r.payload as BinaryPayload, closesAt: r.closes_at as string | null }))
     .filter((r) => typeof r.payload?.polymarket_market_id === 'string')
-  if (targets.length === 0) return { refreshed: 0 }
+  if (targets.length === 0) return { refreshed: 0, closesBackfilled: 0 }
 
   const prices = await fetchPolymarketById(
     targets.map((t) => ({ slug: t.id, marketId: t.payload.polymarket_market_id as string })),
@@ -124,15 +126,23 @@ export async function refreshApprovedPrices(admin: Admin): Promise<{ refreshed: 
   const byId = new Map(prices.map((p) => [p.query, p]))
 
   let refreshed = 0
+  let closesBackfilled = 0
   for (const t of targets) {
     const p = byId.get(t.id)
     const yes = p?.outcomes[0]?.price
     if (typeof yes !== 'number') continue
-    const next: BinaryPayload = { ...t.payload, fallback_pct: Math.round(yes * 100) }
-    const { error: upErr } = await admin.from('markets').update({ payload: next }).eq('id', t.id)
+    const update: { payload: BinaryPayload; closes_at?: string } = {
+      payload: { ...t.payload, fallback_pct: Math.round(yes * 100) },
+    }
+    // Backfill the close date for markets approved before closes_at existed.
+    if (!t.closesAt && p?.endDate) {
+      update.closes_at = p.endDate
+      closesBackfilled++
+    }
+    const { error: upErr } = await admin.from('markets').update(update).eq('id', t.id)
     if (!upErr) refreshed++
   }
-  return { refreshed }
+  return { refreshed, closesBackfilled }
 }
 
 /** Retire approved/live markets whose resolution deadline has passed. */

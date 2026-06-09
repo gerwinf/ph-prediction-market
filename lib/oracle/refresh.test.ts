@@ -41,6 +41,7 @@ describe('buildMirrorRow', () => {
       question: 'ARG vs ALG',
       outcomes: [{ name: 'Argentina', price: 0.78 }, { name: 'Algeria', price: 0.22 }],
       volumeUsd: 50000,
+      endDate: null,
     }
     const row = buildMirrorRow('wc-arg-alg', fresh, undefined, NOW_ISO)
     expect(row).toEqual({
