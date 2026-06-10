@@ -38,6 +38,7 @@ type Fixture = {
   starts_at: string
   ends_at: string | null
   status: 'scheduled' | 'live' | 'final' | 'canceled'
+  venue: string | null
 }
 
 function todayISO() {
@@ -88,7 +89,10 @@ export default function HitsEntry() {
   const [showLimitModal, setShowLimitModal] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [liveFixture, setLiveFixture] = useState<Fixture | null>(null)
-  const [upcomingFixture, setUpcomingFixture] = useState<Fixture | null>(null)
+  const [upcomingFixtures, setUpcomingFixtures] = useState<Fixture[]>([])
+  // Which upcoming game the user has picked to pre-buy. Null → the nearest
+  // upcoming game (upcomingFixtures[0]) is the default target.
+  const [selectedFixtureId, setSelectedFixtureId] = useState<string | null>(null)
   const [balance, setBalance] = useState(0)
   const [showSignIn, setShowSignIn] = useState(false)
   const [fixturesLoaded, setFixturesLoaded] = useState(false)
@@ -113,9 +117,15 @@ export default function HitsEntry() {
         const liveFixtures = (j.live as Fixture[]).filter((f) => f.card_type === 'sports')
         const realLive = liveFixtures.find((f) => !f.id.startsWith('demo-'))
         const demoLive = liveFixtures.find((f) => f.id.startsWith('demo-'))
-        const sportsNext = (j.upcoming as Fixture[]).find((f) => f.card_type === 'sports')
+        // Only PBA fixtures (id `pba-…`) have a real /hits event pool today.
+        // Other sports fixtures (e.g. the leftover WC seed game) would fall
+        // back to generic basketball tiles — a broken card — so hide them
+        // until they have their own pool.
+        const sportsUpcoming = (j.upcoming as Fixture[])
+          .filter((f) => f.card_type === 'sports' && f.id.startsWith('pba-'))
+          .sort((a, b) => a.starts_at.localeCompare(b.starts_at))
         setLiveFixture(realLive ?? demoLive ?? null)
-        setUpcomingFixture(sportsNext ?? null)
+        setUpcomingFixtures(sportsUpcoming)
       })
       .catch(() => {
         /* silent — page falls back to demo-only */
@@ -139,8 +149,30 @@ export default function HitsEntry() {
 
   const shouldOfferLimit = session.cards >= 2 && session.limit === 0
 
+  // Hero/buy target. A live fixture from the API is either a real game or the
+  // always-on demo-pba-perpetual filler; split them so real upcoming games
+  // (pre-buy) surface ABOVE the demo. Preference: the user's explicit pick →
+  // real live game → nearest real upcoming → demo filler.
+  const liveIsDemo = liveFixture?.id.startsWith('demo-') ?? false
+  const realLive = liveFixture && !liveIsDemo ? liveFixture : null
+  const demoFixture = liveFixture && liveIsDemo ? liveFixture : null
+  const explicitPick = upcomingFixtures.find((f) => f.id === selectedFixtureId) ?? null
+  const heroFixture =
+    type === 'sports'
+      ? explicitPick ?? realLive ?? upcomingFixtures[0] ?? demoFixture ?? null
+      : null
+  const heroIsDemo = heroFixture?.id.startsWith('demo-') ?? false
+  const isLive = heroFixture !== null && heroFixture.status === 'live'
+  const isUpcoming = heroFixture !== null && heroFixture.status === 'scheduled'
+  // The upcoming game highlighted in the list (the one the main Buy will reserve).
+  const activeUpcomingId = isUpcoming ? heroFixture!.id : null
+
   function handleBuy() {
-    track('buy_clicked', { bet: price, type, mode: liveFixture ? 'live' : 'demo' })
+    track('buy_clicked', {
+      bet: price,
+      type,
+      mode: !heroFixture ? 'demo' : heroFixture.status === 'live' ? 'live' : 'prebuy',
+    })
     if (wouldExceedLimit || wouldExceedBalance) return
     if (shouldOfferLimit) {
       setShowLimitModal(true)
@@ -167,10 +199,12 @@ export default function HitsEntry() {
     }
     writeSession(newSession)
 
-    // Decide mode: only sports cards can go live (daily card stays
-    // demo for now). Daily/forceDemo always stays demo.
-    const goLive = !opts.forceDemo && type === 'sports' && liveFixture !== null
-    const matchId = goLive ? liveFixture!.id : undefined
+    // Decide mode: only sports cards bind to a fixture (daily stays demo for
+    // now). Binds to the hero fixture — whether it's live (join now) or
+    // scheduled (pre-buy: the card sits dormant and lights up at tip-off).
+    // forceDemo always stays demo.
+    const goLive = !opts.forceDemo && type === 'sports' && heroFixture !== null
+    const matchId = goLive ? heroFixture!.id : undefined
 
     try {
       const res = await fetch('/api/cards', {
@@ -192,7 +226,12 @@ export default function HitsEntry() {
       }
       track(
         'card_purchased',
-        { bet: price, type, mode: goLive ? 'live' : 'demo', match_id: matchId ?? null },
+        {
+          bet: price,
+          type,
+          mode: goLive ? (heroFixture!.status === 'live' ? 'live' : 'prebuy') : 'demo',
+          match_id: matchId ?? null,
+        },
         cardId
       )
     } catch (err) {
@@ -219,10 +258,6 @@ export default function HitsEntry() {
     setShowLimitModal(false)
     setTimeout(() => completePurchase(), 120)
   }
-
-  // Determine eyebrow + secondary CTA based on fixture state.
-  const isLive = liveFixture !== null && type === 'sports'
-  const isUpcoming = !isLive && upcomingFixture !== null && type === 'sports'
 
   return (
     <main className="hula-v2">
@@ -303,7 +338,7 @@ export default function HitsEntry() {
               ? 'daily'
               : !fixturesLoaded
                 ? 'loading'
-                : isLive && liveFixture!.id.startsWith('demo-')
+                : isLive && heroIsDemo
                   ? 'demo'
                   : isLive
                     ? 'live'
@@ -328,15 +363,15 @@ export default function HitsEntry() {
           ) : type === 'sports' && isLive ? (
             <>
               <div className="hits-hero-eyebrow">
-                {liveFixture!.id.startsWith('demo-') ? (
+                {heroIsDemo ? (
                   <>DEMO · LIVE</>
                 ) : (
                   <><span className="hits-hero-pulse" /> LIVE NA</>
                 )}
               </div>
-              <div className="hits-hero-title">{liveFixture!.match_label}</div>
+              <div className="hits-hero-title">{heroFixture!.match_label}</div>
               <div className="hits-hero-sub">
-                {liveFixture!.id.startsWith('demo-')
+                {heroIsDemo
                   ? 'Subukan habang naghihintay sa real game'
                   : 'Cells light up habang nangyayari ang laro'}
               </div>
@@ -344,8 +379,11 @@ export default function HitsEntry() {
           ) : type === 'sports' && isUpcoming ? (
             <>
               <div className="hits-hero-eyebrow">SUSUNOD NA LARO</div>
-              <div className="hits-hero-title">{upcomingFixture!.match_label}</div>
-              <div className="hits-hero-sub">{formatStartTime(upcomingFixture!.starts_at)}</div>
+              <div className="hits-hero-title">{heroFixture!.match_label}</div>
+              <div className="hits-hero-sub">
+                {formatStartTime(heroFixture!.starts_at)}
+                {heroFixture!.venue ? ` · ${heroFixture!.venue}` : ''}
+              </div>
             </>
           ) : type === 'sports' ? (
             <>
@@ -416,10 +454,12 @@ export default function HitsEntry() {
               {type === 'daily'
                 ? `Bumili ng daily card · ₱${price} →`
                 : isLive
-                  ? liveFixture!.id.startsWith('demo-')
+                  ? heroIsDemo
                     ? `Subukan ang demo · ₱${price} →`
                     : `Sumali sa LIVE · ₱${price} →`
-                  : `Bumili ng ₱${price} card →`}
+                  : isUpcoming
+                    ? `Reserve ₱${price} card →`
+                    : `Bumili ng ₱${price} card →`}
             </button>
           )}
 
@@ -449,12 +489,48 @@ export default function HitsEntry() {
             {type === 'daily'
               ? 'Daily card · all-day window · no real money yet'
               : isLive
-                ? liveFixture!.id.startsWith('demo-')
+                ? heroIsDemo
                   ? 'Demo · auto-fired events · no real money yet'
                   : 'Live game · cells light up as it happens'
-                : 'Demo only · no real money yet'}
+                : isUpcoming
+                  ? 'Pre-game · reserve now, cells light up at tip-off'
+                  : 'Demo only · no real money yet'}
           </div>
         </section>
+
+        {/* Upcoming PBA games — pick one to reserve a card before tip-off. */}
+        {type === 'sports' && upcomingFixtures.length > 0 && (
+          <section className="hits-upcoming">
+            <div className="hits-upcoming-eyebrow">Mga susunod na laro</div>
+            <div className="hits-upcoming-list">
+              {upcomingFixtures.map((f) => {
+                const active = f.id === activeUpcomingId
+                return (
+                  <button
+                    key={f.id}
+                    type="button"
+                    className="hits-upcoming-row"
+                    data-active={active}
+                    aria-pressed={active}
+                    onClick={() => {
+                      setSelectedFixtureId(f.id)
+                      track('upcoming_selected', { match_id: f.id })
+                    }}
+                  >
+                    <span className="hits-upcoming-info">
+                      <span className="hits-upcoming-teams">{f.match_label}</span>
+                      <span className="hits-upcoming-when">
+                        {formatStartTime(f.starts_at)}
+                        {f.venue ? ` · ${f.venue}` : ''}
+                      </span>
+                    </span>
+                    <span className="hits-upcoming-cta">{active ? 'Selected ✓' : 'Reserve'}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </section>
+        )}
 
         <section className="hits-payouts">
           <div className="hits-payouts-eyebrow">What you can win on a ₱{price} card</div>

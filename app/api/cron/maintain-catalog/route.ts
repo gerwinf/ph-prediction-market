@@ -6,6 +6,7 @@
  *   1. ingest    — pull trending Polymarket events into the candidate queue
  *   2. reprice   — refresh fallback_pct for approved markets with a pinned id
  *   3. retire    — close approved/live markets past their closes_at deadline
+ *   4. pba        — pull the next PBA game from pba.ph → match_fixtures
  *
  * Each step is independent; a failure in one is reported but doesn't block the
  * others. Auth: Authorization: Bearer $CRON_SECRET (Vercel cron sends this
@@ -14,6 +15,8 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '../../../../lib/supabase/admin'
 import { ingestSignals, refreshApprovedPrices, retireEndedMarkets } from '../../../../lib/catalog/maintain'
+import { fetchPbaSchedule } from '../../../../lib/fixtures/fetch-pba'
+import { ingestPbaFixtures } from '../../../../lib/fixtures/maintain'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -43,6 +46,7 @@ export async function GET(req: Request) {
   await step('ingest', () => ingestSignals(admin, now))
   await step('reprice', () => refreshApprovedPrices(admin))
   await step('retire', () => retireEndedMarkets(admin, now))
+  await step('pba', async () => ingestPbaFixtures(admin, await fetchPbaSchedule(), now))
 
   return NextResponse.json(out)
 }

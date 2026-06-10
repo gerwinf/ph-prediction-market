@@ -120,7 +120,54 @@ export async function POST(req: Request) {
     }
   }
 
-  return NextResponse.json({ ok: true, fixture: data, settled: settledCount })
+  // Cancel refund: a canceled game voids every card bought against it. Pre-buy
+  // means tokens were already debited, so return them. Authed users get their
+  // virtual_balance credited back; anonymous cards (balance lives in the
+  // browser's localStorage) are voided without a server-side credit — a Phase 0
+  // limitation. Cards are settled with zero hold so GGR doesn't count them.
+  // Idempotent: only touches not-yet-settled cards (cancellation is normally
+  // pre-tipoff, so in practice that's all of them).
+  let refundedCount = 0
+  if (status === 'canceled') {
+    const canceledAt = new Date().toISOString()
+    const { data: cards, error: readErr } = await admin
+      .from('cards')
+      .select('id, price_php, user_id')
+      .eq('match_id', fixtureId)
+      .is('settled_at', null)
+    if (readErr) {
+      console.error('[fixture-status] cancel refund read failed:', readErr.message)
+    } else {
+      const refundByUser = new Map<string, number>()
+      for (const c of cards ?? []) {
+        const { error: rowErr } = await admin
+          .from('cards')
+          .update({ hold_amount: 0, settled_at: canceledAt })
+          .eq('id', c.id)
+          .is('settled_at', null) // race-safe: skip if settled meanwhile
+        if (rowErr) continue
+        refundedCount++
+        if (c.user_id) {
+          refundByUser.set(c.user_id, (refundByUser.get(c.user_id) ?? 0) + (c.price_php as number))
+        }
+      }
+      // Credit each authed user's balance with the sum of their refunds.
+      for (const [userId, amount] of refundByUser) {
+        const { data: prof } = await admin
+          .from('profiles')
+          .select('virtual_balance')
+          .eq('id', userId)
+          .maybeSingle()
+        if (!prof) continue
+        await admin
+          .from('profiles')
+          .update({ virtual_balance: (prof.virtual_balance as number) + amount })
+          .eq('id', userId)
+      }
+    }
+  }
+
+  return NextResponse.json({ ok: true, fixture: data, settled: settledCount, refunded: refundedCount })
 }
 
 function constantTimeEqual(a: string, b: string): boolean {
