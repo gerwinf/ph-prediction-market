@@ -12,10 +12,14 @@ import fs from 'fs'
 import { fetchPbaSchedule } from '../lib/fixtures/fetch-pba'
 import { ingestPbaFixtures } from '../lib/fixtures/maintain'
 
-const env = fs.readFileSync('.env.local', 'utf-8')
-for (const line of env.split('\n')) {
-  const m = line.match(/^([A-Z_]+)=(.+)$/)
-  if (m) process.env[m[1]] = m[2]
+// Load .env.local if present; otherwise rely on the ambient environment
+// (e.g. when run in CI with the secrets already exported).
+if (fs.existsSync('.env.local')) {
+  const env = fs.readFileSync('.env.local', 'utf-8')
+  for (const line of env.split('\n')) {
+    const m = line.match(/^([A-Z_]+)=(.+)$/)
+    if (m) process.env[m[1]] = m[2]
+  }
 }
 
 async function main() {
