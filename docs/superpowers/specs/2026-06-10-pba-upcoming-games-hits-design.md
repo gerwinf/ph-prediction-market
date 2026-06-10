@@ -48,25 +48,27 @@ code — the work is the ingest pipeline, an upcoming-games list, and a
 
 ### 2. Ingestion + where it runs
 
-**Data-source reality (probed 2026-06-10):** no clean runtime feed exists.
-`pba.ph/schedule` server-renders only the *single next game*; the full list is
-JS-rendered. Inquirer is a JS shell; the stats bucket is private (403);
-asia-basket is historical. So getting "today + next 2-3" requires **rendering
-JS with a real browser**, which a Vercel serverless cron cannot do.
+**Data-source reality (probed 2026-06-10, incl. a headless-browser render):**
+no clean runtime feed exists, AND `pba.ph/schedule` renders only the *single
+next game* even with full JS — there is no full-schedule view (its filters are
+unfinished `Lorem Ipsum` placeholders). Inquirer is a JS shell; the stats bucket
+is private (403); asia-basket is historical.
 
-Chosen path (**Option 1**): a **daily GitHub Action** renders `pba.ph/schedule`
-with Playwright, extracts the rendered games, and upserts to Supabase.
+But that one game **is in the server-rendered HTML**, so a plain `fetch` gets it
+— no browser needed. That collapses the original "Option 1 GitHub Action +
+Playwright" plan into something simpler: parse the next game in the **existing
+daily Vercel cron**. The feed yields one reliable game with accurate
+time/venue/teams; ops adds the next few via the override console.
 
+- `lib/fixtures/fetch-pba.ts` — `parsePbaScheduleHtml` (pure, tested against a
+  captured sample) + `fetchPbaSchedule` (thin `fetch` glue). No Playwright.
 - `lib/fixtures/maintain.ts` → `ingestPbaFixtures(admin, rawGames, nowMs)`: map →
   dedup → upsert. **Idempotent and status-safe**: inserts new games, updates
-  only still-`scheduled` rows, never clobbers `live`/`final`/`canceled`.
-- `scripts/ingest-pba.ts` — launches Playwright, renders the schedule, extracts
-  raw rows via DOM selectors (`.schedule-day`/`.schedule-time-venue`/
-  `.schedule-teams`), then calls `ingestPbaFixtures`. Runnable locally by ops too.
-- `.github/workflows/ingest-pba.yml` — daily cron, runs the script with the
-  Supabase URL + service-role key as repo secrets.
-- Playwright stays **out of `lib/`** (heavy dep) — only the script imports it,
-  so the app bundle and the pure mapper are unaffected.
+  only still-`scheduled` rows, never clobbers `live`/`final`/`canceled`. The
+  insert/update/skip decision is the pure, tested `planFixtureIngest`.
+- Wired as a `pba` step in `app/api/cron/maintain-catalog` (the existing daily
+  cron) — no new cron, no Action, no secrets beyond what's already set.
+- `scripts/ingest-pba.ts` — same fetch→ingest, runnable on demand by ops.
 
 ### 3. Schema migration (non-breaking)
 
