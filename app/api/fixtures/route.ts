@@ -21,7 +21,9 @@ export const revalidate = 0
 export const fetchCache = 'force-no-store'
 
 const HOURS = 60 * 60 * 1000
-const UPCOMING_WINDOW_MS = 8 * HOURS
+// Upcoming reaches 3 days out so the /hits list can show "today + next few"
+// games for pre-buy, not just whatever tips off in the next 8 hours.
+const UPCOMING_WINDOW_MS = 72 * HOURS
 const FINISHED_WINDOW_MS = 4 * HOURS
 
 export async function GET() {
@@ -34,7 +36,7 @@ export async function GET() {
   const nowIso = now.toISOString()
   const { data, error } = await admin
     .from('match_fixtures')
-    .select('id, card_type, match_label, starts_at, ends_at, status')
+    .select('id, card_type, match_label, starts_at, ends_at, status, venue')
     // Upcoming = scheduled AND starts_at in the next 8h (lower bound now()
     // so a stale scheduled fixture from past days doesn't leak as "Next game")
     .or(

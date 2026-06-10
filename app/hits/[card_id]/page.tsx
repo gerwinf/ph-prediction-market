@@ -96,6 +96,9 @@ export default function HitsCardPage({ params }: PageProps) {
   // poll keeps running after catch-up.
   type MatchStatus = 'scheduled' | 'live' | 'final' | 'canceled' | 'unknown'
   const [matchStatus, setMatchStatus] = useState<MatchStatus>(live ? 'unknown' : 'scheduled')
+  // Pre-buy: a card bound to a not-yet-started game. We capture the fixture's
+  // label + tip-off so the pre-game banner can say when cells will light up.
+  const [fixtureInfo, setFixtureInfo] = useState<{ matchLabel: string; startsAt: string } | null>(null)
 
   // Token balance + live wins ticker state.
   const [balance, setBalance] = useState(0)
@@ -128,21 +131,37 @@ export default function HitsCardPage({ params }: PageProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Fetch fixture once when in live mode to drive the badge + final-stop.
+  // Fetch fixture status to drive the badge + final-stop. For a pre-bought
+  // (scheduled) card we keep polling so the card auto-flips to LIVE the moment
+  // ops tips the game off — no reload needed. Polling stops once the game is
+  // live/final/canceled (a live game's event poll takes over from there).
   useEffect(() => {
     if (!live || !matchId) return
     let cancelled = false
-    fetch(`/api/fixtures/${encodeURIComponent(matchId)}`)
-      .then((r) => r.json())
-      .then((j) => {
-        if (cancelled) return
-        if (j.ok && j.fixture) setMatchStatus(j.fixture.status as MatchStatus)
-      })
-      .catch(() => {
+    let interval: ReturnType<typeof setInterval> | null = null
+
+    const load = async () => {
+      try {
+        const res = await fetch(`/api/fixtures/${encodeURIComponent(matchId)}`, { cache: 'no-store' })
+        const j = await res.json()
+        if (cancelled || !j.ok || !j.fixture) return
+        setMatchStatus(j.fixture.status as MatchStatus)
+        setFixtureInfo({ matchLabel: j.fixture.match_label, startsAt: j.fixture.starts_at })
+        // Once it's no longer pre-game, stop the status poll.
+        if (j.fixture.status !== 'scheduled' && j.fixture.status !== 'unknown' && interval) {
+          clearInterval(interval)
+          interval = null
+        }
+      } catch {
         /* swallow — badge stays 'unknown' */
-      })
+      }
+    }
+
+    load()
+    interval = setInterval(load, 15000)
     return () => {
       cancelled = true
+      if (interval) clearInterval(interval)
     }
   }, [live, matchId])
 
@@ -567,6 +586,22 @@ export default function HitsCardPage({ params }: PageProps) {
             {hitIndices.size - 1}/24
           </span>
         </section>
+
+        {live && matchStatus === 'scheduled' && (
+          <section className="hits-pregame-banner">
+            <strong>{fixtureInfo?.matchLabel ?? 'Reserved'}</strong>
+            <span>
+              {fixtureInfo
+                ? `Tip-off ${new Date(fixtureInfo.startsAt).toLocaleString('en-PH', {
+                    weekday: 'short',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true,
+                  })} · mag-iilaw ang cells sa simula ng laro`
+                : 'Mag-iilaw ang cells sa simula ng laro'}
+            </span>
+          </section>
+        )}
 
         <section className="hits-card-meta">
           <span className="hits-card-meta-id">{card_id}</span>
