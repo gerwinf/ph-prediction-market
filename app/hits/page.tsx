@@ -117,8 +117,12 @@ export default function HitsEntry() {
         const liveFixtures = (j.live as Fixture[]).filter((f) => f.card_type === 'sports')
         const realLive = liveFixtures.find((f) => !f.id.startsWith('demo-'))
         const demoLive = liveFixtures.find((f) => f.id.startsWith('demo-'))
+        // Only PBA fixtures (id `pba-…`) have a real /hits event pool today.
+        // Other sports fixtures (e.g. the leftover WC seed game) would fall
+        // back to generic basketball tiles — a broken card — so hide them
+        // until they have their own pool.
         const sportsUpcoming = (j.upcoming as Fixture[])
-          .filter((f) => f.card_type === 'sports')
+          .filter((f) => f.card_type === 'sports' && f.id.startsWith('pba-'))
           .sort((a, b) => a.starts_at.localeCompare(b.starts_at))
         setLiveFixture(realLive ?? demoLive ?? null)
         setUpcomingFixtures(sportsUpcoming)
