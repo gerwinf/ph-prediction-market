@@ -20,6 +20,9 @@ describe('winnerPct', () => {
   it('uses the fallback when slug is undefined', () => {
     expect(winnerPct(prices, undefined, 50)).toBe(50)
   })
+  it('uses the fallback when the first outcome is not "Yes" (misconfigured slug)', () => {
+    expect(winnerPct(prices, 'wc-mex-rsa', 12)).toBe(12)
+  })
 })
 
 describe('matchHomePct', () => {
@@ -31,6 +34,10 @@ describe('matchHomePct', () => {
   })
   it('falls back when slug missing/undefined', () => {
     expect(matchHomePct(prices, undefined, 'Mexico', 33)).toBe(33)
+  })
+  it('falls back when the row is stale', () => {
+    const p: PricesMap = { 'wc-m': { outcomes: [{ name: 'Mexico', price: 0.55 }], is_stale: true, fetched_at: '' } }
+    expect(matchHomePct(p, 'wc-m', 'Mexico', 41)).toBe(41)
   })
 })
 

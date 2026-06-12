@@ -14,10 +14,12 @@ function freshRow(prices: PricesMap, slug: string | undefined): PriceInfo | null
 }
 
 // Winner markets are Yes/No; outcomes[0] is "Yes". Returns a rounded percent.
+// Name-checks the first outcome so a misconfigured (e.g. match-market) slug
+// degrades to the fallback rather than silently returning a wrong probability.
 export function winnerPct(prices: PricesMap, slug: string | undefined, fallback: number): number {
-  const row = freshRow(prices, slug)
-  const yes = row?.outcomes[0]?.price
-  return typeof yes === 'number' ? Math.round(yes * 100) : fallback
+  const yes = freshRow(prices, slug)?.outcomes[0]
+  if (yes?.name !== 'Yes' || typeof yes.price !== 'number') return fallback
+  return Math.round(yes.price * 100)
 }
 
 // Match markets vary in outcome naming. Find the outcome whose name contains the
