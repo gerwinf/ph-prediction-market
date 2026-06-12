@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { CONTENDERS, FIXTURES } from '../../lib/worldcup/fixtures'
-import { selectSpotlight, matchState, flagUrl, countdownParts } from '../../lib/worldcup/state'
+import { selectSpotlight, matchState, flagUrl, countdownParts, type Fixture } from '../../lib/worldcup/state'
 import { allWcSlugs, matchHomePct, type PricesMap } from '../../lib/worldcup/odds'
 
 /* ────────────────────────────────────────────────────────────────────────
@@ -84,6 +84,10 @@ export default function WorldCupHub() {
 
 // --- Stubs filled in Tasks 5–8 -------------------------------------------
 function Flag({ iso, name, size = 80 }: { iso: string; name: string; size?: number }) {
+  const [failed, setFailed] = useState(false)
+  if (failed) {
+    return <span className="wc-flag-chip" style={{ width: size, height: Math.round((size * 3) / 4) }}>{iso.toUpperCase()}</span>
+  }
   return (
     <img
       className="wc-flag"
@@ -92,12 +96,7 @@ function Flag({ iso, name, size = 80 }: { iso: string; name: string; size?: numb
       width={size}
       height={Math.round((size * 3) / 4)}
       loading="lazy"
-      onError={(e) => {
-        const el = e.currentTarget
-        el.style.display = 'none'
-        const chip = el.nextElementSibling as HTMLElement | null
-        if (chip) chip.style.display = 'inline-flex'
-      }}
+      onError={() => setFailed(true)}
     />
   )
 }
@@ -105,7 +104,7 @@ function Flag({ iso, name, size = 80 }: { iso: string; name: string; size?: numb
 function Spotlight({
   fixture, now, prices, onYes,
 }: {
-  fixture: import('../../lib/worldcup/state').Fixture | null
+  fixture: Fixture | null
   now: Date | null
   prices: PricesMap
   onYes: (c: string) => void
@@ -122,11 +121,14 @@ function Spotlight({
   const state = matchState(fixture.kickoffISO, now)
   const cd = countdownParts(fixture.kickoffISO, now)
   const homePct = matchHomePct(prices, fixture.slug, fixture.home.name, fixture.fallback.home)
+  // Live overlay adjusts only the home probability (winner-style market). Draw
+  // stays on the curated fallback and away is the remainder, so the three may not
+  // sum to exactly 100 in edge cases — acceptable for this pre-launch display.
   const drawPct = fixture.fallback.draw
   const awayPct = Math.max(0, 100 - homePct - drawPct)
 
   const badge =
-    state === 'live' ? <span className="wc-badge wc-badge-live"><i /> LIVE</span>
+    state === 'live' ? <span className="wc-badge wc-badge-live"><i aria-hidden="true" /> LIVE</span>
     : state === 'final' ? <span className="wc-badge wc-badge-final">FULL TIME</span>
     : <span className="wc-badge wc-badge-soon">
         {cd.d > 0 ? `${cd.d}d ` : ''}
@@ -142,13 +144,11 @@ function Spotlight({
       <div className="wc-spotlight-match">
         <div className="wc-team">
           <Flag iso={fixture.home.iso} name={fixture.home.name} size={160} />
-          <span className="wc-flag-chip" style={{ display: 'none' }}>{fixture.home.iso.toUpperCase()}</span>
           <span className="wc-team-name">{fixture.home.name}</span>
         </div>
         <div className="wc-spotlight-mid">{badge}<span className="wc-vs">vs</span></div>
         <div className="wc-team">
           <Flag iso={fixture.away.iso} name={fixture.away.name} size={160} />
-          <span className="wc-flag-chip" style={{ display: 'none' }}>{fixture.away.iso.toUpperCase()}</span>
           <span className="wc-team-name">{fixture.away.name}</span>
         </div>
       </div>
