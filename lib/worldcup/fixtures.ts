@@ -14,6 +14,7 @@ export const CONTENDERS: Contender[] = [
   { name: 'France',      iso: 'fr', slug: 'wc-france',    fallbackPct: 16 },
   { name: 'Argentina',   iso: 'ar', slug: 'wc-argentina', fallbackPct: 12 },
   { name: 'Brazil',      iso: 'br', slug: 'wc-brazil',    fallbackPct: 11 },
+  // England has no alpha-2 of its own; 'gb' renders the Union Jack on flagcdn.
   { name: 'England',     iso: 'gb', slug: 'wc-england',   fallbackPct: 10 },
   { name: 'Portugal',    iso: 'pt',                        fallbackPct: 7 },
   { name: 'Germany',     iso: 'de',                        fallbackPct: 6 },
