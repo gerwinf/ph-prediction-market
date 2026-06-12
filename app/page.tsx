@@ -237,7 +237,7 @@ function Hero({ prices }: { prices: PricesMap }) {
         <div>
           <div className="eyebrow">
             <span className="dot" />
-            Pre-launch · Reserve a handle
+            World Cup 2026 is live · Reserve a handle
           </div>
           <h1 className="h1">
             The market for <em>what happens next.</em>

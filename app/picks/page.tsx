@@ -81,20 +81,6 @@ const SPORT_LABEL: Record<Sport, string> = {
 const PROPS: Prop[] = [
   // ─── World Cup 2026 — REAL fixtures verified vs Wikipedia (draw was Dec 2025)
 
-  // Jun 11 · Tournament opener: Mexico vs South Africa, Group A, Estadio Azteca
-  { id: 'wc-lozano-sot', sport: 'wc', kind: 'player',
-    game: 'Mexico vs South Africa · Group A · opener', when: 'Jun 11 · 3:00 AM PHT',
-    player: 'Hirving Lozano', team: 'MEX', stat: 'Shots on target', line: 1.5, unit: 'SoT',
-    photo: wp('Hirving Lozano.png') },
-  { id: 'wc-alvarez-tackles', sport: 'wc', kind: 'player',
-    game: 'Mexico vs South Africa · Group A · opener', when: 'Jun 11 · 3:00 AM PHT',
-    player: 'Edson Álvarez', team: 'MEX', stat: 'Tackles', line: 3.5, unit: 'tackles',
-    photo: wp('Edson Álvarez.png') },
-  { id: 'wc-mex-total-goals', sport: 'wc', kind: 'team',
-    game: 'Mexico vs South Africa · Group A · opener', when: 'Jun 11 · 3:00 AM PHT',
-    player: 'Match total goals', team: 'MEX · RSA', stat: 'Both teams · Total', line: 2.5, unit: 'goals',
-    badge: 'VS', badgeBg: '#0f2419', badgeFg: '#f5f1e3' },
-
   // Jun 16 (Jun 17 PHT) · Argentina vs Algeria, Group J, Arrowhead Stadium Kansas City
   { id: 'wc-messi-goals', sport: 'wc', kind: 'player',
     game: 'Argentina vs Algeria · Group J', when: 'Jun 17 · 9:00 AM PHT',
