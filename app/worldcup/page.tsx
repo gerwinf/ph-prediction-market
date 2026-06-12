@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { CONTENDERS, FIXTURES } from '../../lib/worldcup/fixtures'
-import { selectSpotlight } from '../../lib/worldcup/state'
-import { allWcSlugs, type PricesMap } from '../../lib/worldcup/odds'
+import { selectSpotlight, matchState, flagUrl, countdownParts } from '../../lib/worldcup/state'
+import { allWcSlugs, matchHomePct, type PricesMap } from '../../lib/worldcup/odds'
 
 /* ────────────────────────────────────────────────────────────────────────
  * /worldcup — World Cup 2026 prediction-market hub
@@ -83,8 +83,94 @@ export default function WorldCupHub() {
 }
 
 // --- Stubs filled in Tasks 5–8 -------------------------------------------
-function Spotlight(_: { fixture: import('../../lib/worldcup/state').Fixture | null; now: Date | null; prices: PricesMap; onYes: (c: string) => void }) {
-  return <section className="wc-spotlight">spotlight</section>
+function Flag({ iso, name, size = 80 }: { iso: string; name: string; size?: number }) {
+  return (
+    <img
+      className="wc-flag"
+      src={flagUrl(iso, size)}
+      alt={name}
+      width={size}
+      height={Math.round((size * 3) / 4)}
+      loading="lazy"
+      onError={(e) => {
+        const el = e.currentTarget
+        el.style.display = 'none'
+        const chip = el.nextElementSibling as HTMLElement | null
+        if (chip) chip.style.display = 'inline-flex'
+      }}
+    />
+  )
+}
+
+function Spotlight({
+  fixture, now, prices, onYes,
+}: {
+  fixture: import('../../lib/worldcup/state').Fixture | null
+  now: Date | null
+  prices: PricesMap
+  onYes: (c: string) => void
+}) {
+  if (!fixture || !now) {
+    return (
+      <section className="wc-spotlight" data-empty="true">
+        <div className="wc-spotlight-eyebrow">Next matchday</div>
+        <div className="wc-spotlight-title">Schedule loading…</div>
+      </section>
+    )
+  }
+
+  const state = matchState(fixture.kickoffISO, now)
+  const cd = countdownParts(fixture.kickoffISO, now)
+  const homePct = matchHomePct(prices, fixture.slug, fixture.home.name, fixture.fallback.home)
+  const drawPct = fixture.fallback.draw
+  const awayPct = Math.max(0, 100 - homePct - drawPct)
+
+  const badge =
+    state === 'live' ? <span className="wc-badge wc-badge-live"><i /> LIVE</span>
+    : state === 'final' ? <span className="wc-badge wc-badge-final">FULL TIME</span>
+    : <span className="wc-badge wc-badge-soon">
+        {cd.d > 0 ? `${cd.d}d ` : ''}
+        {String(cd.h).padStart(2, '0')}:{String(cd.m).padStart(2, '0')}:{String(cd.s).padStart(2, '0')}
+      </span>
+
+  return (
+    <section className="wc-spotlight" data-state={state}>
+      <div className="wc-spotlight-eyebrow">
+        {state === 'live' ? 'Happening now' : state === 'final' ? 'Latest result' : 'Up next'} · Group {fixture.group}
+      </div>
+
+      <div className="wc-spotlight-match">
+        <div className="wc-team">
+          <Flag iso={fixture.home.iso} name={fixture.home.name} size={160} />
+          <span className="wc-flag-chip" style={{ display: 'none' }}>{fixture.home.iso.toUpperCase()}</span>
+          <span className="wc-team-name">{fixture.home.name}</span>
+        </div>
+        <div className="wc-spotlight-mid">{badge}<span className="wc-vs">vs</span></div>
+        <div className="wc-team">
+          <Flag iso={fixture.away.iso} name={fixture.away.name} size={160} />
+          <span className="wc-flag-chip" style={{ display: 'none' }}>{fixture.away.iso.toUpperCase()}</span>
+          <span className="wc-team-name">{fixture.away.name}</span>
+        </div>
+      </div>
+
+      {fixture.venue && <div className="wc-spotlight-venue">{fixture.venue}</div>}
+
+      <div className="wc-odds-row">
+        <button className="wc-odd wc-odd-home" onClick={() => onYes(`${fixture.home.name} to win`)}>
+          <span className="wc-odd-lbl">{fixture.home.name}</span>
+          <span className="wc-odd-pct">{homePct}%</span>
+        </button>
+        <button className="wc-odd wc-odd-draw" onClick={() => onYes(`${fixture.home.name} v ${fixture.away.name} — Draw`)}>
+          <span className="wc-odd-lbl">Draw</span>
+          <span className="wc-odd-pct">{drawPct}%</span>
+        </button>
+        <button className="wc-odd wc-odd-away" onClick={() => onYes(`${fixture.away.name} to win`)}>
+          <span className="wc-odd-lbl">{fixture.away.name}</span>
+          <span className="wc-odd-pct">{awayPct}%</span>
+        </button>
+      </div>
+    </section>
+  )
 }
 function WinnerLeaderboard(_: { prices: PricesMap; onYes: (c: string) => void }) {
   return <section className="wc-leaderboard">leaderboard</section>
