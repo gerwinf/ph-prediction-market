@@ -41,20 +41,21 @@ const wp = (filename: string, width = 240) =>
 // either, just the team's primary brand color as a 4px left-edge band). Adds
 // visual recognition without any licensing risk.
 const TEAM_COLOR: Record<string, string> = {
-  // WC 2026
-  MEX:  '#006847',  // Mexico green
-  RSA:  '#007749',  // South Africa green
-  ARG:  '#75aadb',  // Argentina light blue
-  ALG:  '#006633',  // Algeria green
+  // WC 2026 — group stage live
+  BRA:  '#009739',  // Brazil green
+  MAR:  '#c1272d',  // Morocco red
+  USA:  '#3c3b6e',  // USA navy
+  PAR:  '#d52b1e',  // Paraguay red
+  ESP:  '#aa151b',  // Spain red
+  CPV:  '#003893',  // Cape Verde blue
   // PBA
   GIN:  '#c8102e',  // Ginebra red
   TNT:  '#e87a1e',  // TNT orange
   SMB:  '#0a3d8f',  // San Miguel blue
   MAG:  '#1f7a3a',  // Magnolia green
-  // NBA
-  LAL:  '#552583',  // Lakers purple
-  OKC:  '#007ac1',  // Thunder blue
-  BOS:  '#007a33',  // Celtics green
+  // NBA — Finals
+  NYK:  '#f58426',  // Knicks orange
+  SAS:  '#111111',  // Spurs black/silver
   // MLBB
   ECHO: '#1E3A8A',
   BLI:  '#111111',
@@ -70,66 +71,62 @@ const stripeFor = (team?: string): string | null => {
 }
 
 const SPORT_LABEL: Record<Sport, string> = {
-  wc:      'World Cup 2026',
-  pba:     'PBA · Commissioner’s Cup',
-  nba:     'NBA · Conference Finals',
-  mlbb:    'MLBB · MPL-PH S17 Playoffs',
+  wc:      'World Cup 2026 · Group Stage',
+  pba:     'PBA · Comm’s Cup Finals',
+  nba:     'NBA · Finals',
+  mlbb:    'MLBB · MSC 2026 · Paris',
   pool:    'Pool · Pro Tour 2026',
   showbiz: 'Showbiz · Kultura',
 }
 
 const PROPS: Prop[] = [
-  // ─── World Cup 2026 — REAL fixtures verified vs Wikipedia (draw was Dec 2025)
+  // ─── World Cup 2026 — group stage LIVE (verified vs ESPN/FIFA schedule Jun 2026)
+  // ET kickoffs converted to PHT (+12h). Neymar is out injured for Brazil.
 
-  // Jun 11 · Tournament opener: Mexico vs South Africa, Group A, Estadio Azteca
-  { id: 'wc-lozano-sot', sport: 'wc', kind: 'player',
-    game: 'Mexico vs South Africa · Group A · opener', when: 'Jun 11 · 3:00 AM PHT',
-    player: 'Hirving Lozano', team: 'MEX', stat: 'Shots on target', line: 1.5, unit: 'SoT',
-    photo: wp('Hirving Lozano.png') },
-  { id: 'wc-alvarez-tackles', sport: 'wc', kind: 'player',
-    game: 'Mexico vs South Africa · Group A · opener', when: 'Jun 11 · 3:00 AM PHT',
-    player: 'Edson Álvarez', team: 'MEX', stat: 'Tackles', line: 3.5, unit: 'tackles',
-    photo: wp('Edson Álvarez.png') },
-  { id: 'wc-mex-total-goals', sport: 'wc', kind: 'team',
-    game: 'Mexico vs South Africa · Group A · opener', when: 'Jun 11 · 3:00 AM PHT',
-    player: 'Match total goals', team: 'MEX · RSA', stat: 'Both teams · Total', line: 2.5, unit: 'goals',
+  // Jun 13 ET · Brazil vs Morocco, Group C, MetLife Stadium (East Rutherford)
+  { id: 'wc-vini-sot', sport: 'wc', kind: 'player',
+    game: 'Brazil vs Morocco · Group C', when: 'Jun 14 · 6:00 AM PHT',
+    player: 'Vinícius Júnior', team: 'BRA', stat: 'Shots on target', line: 1.5, unit: 'SoT',
+    photo: wp('2023 05 06 Final de la Copa del Rey - 52879242230 (cropped).jpg') },
+  { id: 'wc-raphinha-goals', sport: 'wc', kind: 'player',
+    game: 'Brazil vs Morocco · Group C', when: 'Jun 14 · 6:00 AM PHT',
+    player: 'Raphinha', team: 'BRA', stat: 'Goals', line: 0.5, unit: 'goals',
+    photo: wp('Raphael Dias Belloli 2023.jpg') },
+  { id: 'wc-bra-total-goals', sport: 'wc', kind: 'team',
+    game: 'Brazil vs Morocco · Group C', when: 'Jun 14 · 6:00 AM PHT',
+    player: 'Match total goals', team: 'BRA · MAR', stat: 'Both teams · Total', line: 2.5, unit: 'goals',
     badge: 'VS', badgeBg: '#0f2419', badgeFg: '#f5f1e3' },
 
-  // Jun 16 (Jun 17 PHT) · Argentina vs Algeria, Group J, Arrowhead Stadium Kansas City
-  { id: 'wc-messi-goals', sport: 'wc', kind: 'player',
-    game: 'Argentina vs Algeria · Group J', when: 'Jun 17 · 9:00 AM PHT',
-    player: 'Lionel Messi', team: 'ARG', stat: 'Goals', line: 0.5, unit: 'goals',
-    photo: wp('Lionel Messi White House 2026 (3x4 cropped).jpg') },
-  { id: 'wc-lautaro-sot', sport: 'wc', kind: 'player',
-    game: 'Argentina vs Algeria · Group J', when: 'Jun 17 · 9:00 AM PHT',
-    player: 'Lautaro Martínez', team: 'ARG', stat: 'Shots on target', line: 2.5, unit: 'SoT',
-    photo: wp('Lautaro Martinez ARGENTINA VS VENEZUELA 2017.jpg') },
-  { id: 'wc-mahrez-goals', sport: 'wc', kind: 'player',
-    game: 'Argentina vs Algeria · Group J', when: 'Jun 17 · 9:00 AM PHT',
-    player: 'Riyad Mahrez', team: 'ALG', stat: 'Goals', line: 0.5, unit: 'goals',
-    photo: wp('Mahrez 2021.jpg') },
+  // Jun 12 ET · USA vs Paraguay, Group D, SoFi Stadium (Inglewood)
+  { id: 'wc-pulisic-sot', sport: 'wc', kind: 'player',
+    game: 'USA vs Paraguay · Group D', when: 'Jun 13 · 9:00 AM PHT',
+    player: 'Christian Pulisic', team: 'USA', stat: 'Shots on target', line: 1.5, unit: 'SoT',
+    photo: wp('Christian Pulisic USMNT v Belgium Mar 28 2026-73 (cropped).jpg') },
 
-  // ─── PBA Commissioner's Cup — REAL semifinals (2nd conf of PBA Season 50)
-  // Verified May 2026: semis are TNT vs Meralco and Ginebra vs Rain or Shine,
-  // May 20–Jun 3. (sources in ~/.claude/plans/goofy-percolating-turing.md)
-  { id: 'pba-pogoy-pts', sport: 'pba', kind: 'player',
-    game: 'TNT vs Meralco · Comm’s Cup semis', when: 'May 20–Jun 3 · 7:00 PM PHT',
-    player: 'RR Pogoy', team: 'TNT', stat: 'Points', line: 19.5, unit: 'pts',
-    photo: wp('Bongbong Marcos in Dominican Republic v Philippines FBWC 2 Pogoy (cropped).jpg') },
-  { id: 'pba-newsome-pts', sport: 'pba', kind: 'player',
-    game: 'TNT vs Meralco · Comm’s Cup semis', when: 'May 20–Jun 3 · 7:00 PM PHT',
-    player: 'Chris Newsome', team: 'MER', stat: 'Points', line: 16.5, unit: 'pts',
-    photo: wp('Chris Newsome at the 2023 SEA Games (cropped).png') },
+  // Jun 15 ET · Spain vs Cape Verde, Group H, Mercedes-Benz Stadium (Atlanta)
+  // Yamal eased back from injury (~15–20 min) — low line.
+  { id: 'wc-yamal-sot', sport: 'wc', kind: 'player',
+    game: 'Spain vs Cape Verde · Group H', when: 'Jun 16 · 1:00 AM PHT',
+    player: 'Lamine Yamal', team: 'ESP', stat: 'Shots on target', line: 0.5, unit: 'SoT',
+    photo: wp('Lamine Yamal in 2025.jpg') },
+
+  // ─── PBA Commissioner's Cup FINALS — Ginebra vs TNT (best-of-7, live Jun 2026)
+  // Verified Jun 2026: TNT & Ginebra advanced from the semis; remaining games
+  // Jun 14 (G6) / Jun 17 (G7) if necessary.
   { id: 'pba-brownlee-pts', sport: 'pba', kind: 'player',
-    game: 'Ginebra vs Rain or Shine · Comm’s Cup semis', when: 'May 20–Jun 3 · 4:30 PM PHT',
+    game: 'Ginebra vs TNT · Comm’s Cup Finals', when: 'Jun 14 · 7:30 PM PHT',
     player: 'Justin Brownlee', team: 'GIN', stat: 'Points (import)', line: 28.5, unit: 'pts',
     photo: wp('Brownlee w. bottle SEA Games 2023 (cropped).png') },
   { id: 'pba-thompson-ast', sport: 'pba', kind: 'player',
-    game: 'Ginebra vs Rain or Shine · Comm’s Cup semis', when: 'May 20–Jun 3 · 4:30 PM PHT',
+    game: 'Ginebra vs TNT · Comm’s Cup Finals', when: 'Jun 14 · 7:30 PM PHT',
     player: 'Scottie Thompson', team: 'GIN', stat: 'Assists', line: 6.5, unit: 'ast',
     photo: wp('PBA - Scottie Thompson - 2021.jpg') },
+  { id: 'pba-pogoy-pts', sport: 'pba', kind: 'player',
+    game: 'Ginebra vs TNT · Comm’s Cup Finals', when: 'Jun 14 · 7:30 PM PHT',
+    player: 'RR Pogoy', team: 'TNT', stat: 'Points', line: 19.5, unit: 'pts',
+    photo: wp('Bongbong Marcos in Dominican Republic v Philippines FBWC 2 Pogoy (cropped).jpg') },
   { id: 'pba-ginebra-pts', sport: 'pba', kind: 'team',
-    game: 'Ginebra vs Rain or Shine · Comm’s Cup semis', when: 'May 20–Jun 3 · 4:30 PM PHT',
+    game: 'Ginebra vs TNT · Comm’s Cup Finals', when: 'Jun 14 · 7:30 PM PHT',
     player: 'Barangay Ginebra', team: 'GIN', stat: 'Team total points', line: 102.5, unit: 'pts',
     badge: 'GIN', badgeBg: '#B22234', badgeFg: '#ffffff' },
 
@@ -152,34 +149,33 @@ const PROPS: Prop[] = [
     player: 'Match total racks', team: 'PH · DE', stat: 'Both players · Total', line: 13.5, unit: 'racks',
     badge: 'VS', badgeBg: '#0f2419', badgeFg: '#f5f1e3' },
 
-  // ─── NBA — REAL Conference Finals, live May 18–30 2026
-  // West: OKC Thunder vs San Antonio Spurs (SGA vs Wembanyama).
-  // East: NY Knicks vs Cleveland Cavaliers. (Lakers eliminated in R2.)
-  { id: 'nba-sga-pts', sport: 'nba', kind: 'player',
-    game: 'Thunder vs Spurs · West Finals', when: 'May 18–30 · 8:30 AM PHT',
-    player: 'Shai Gilgeous-Alexander', team: 'OKC', stat: 'Points', line: 31.5, unit: 'pts',
-    photo: wp('Shai Gilgeous-Alexander - Thunder vs. Wizards.png') },
+  // ─── NBA FINALS — Knicks vs Spurs, live Jun 2026 (Knicks lead the series).
+  // Game 5 Jun 13 ET = Jun 14 PHT; G6 Jun 17 / G7 Jun 20 PHT if necessary.
+  { id: 'nba-brunson-pts', sport: 'nba', kind: 'player',
+    game: 'Knicks vs Spurs · NBA Finals', when: 'Jun 14 · 8:30 AM PHT',
+    player: 'Jalen Brunson', team: 'NYK', stat: 'Points', line: 28.5, unit: 'pts',
+    photo: wp('Jalen Brunson 2023 (cropped).jpg') },
+  { id: 'nba-towns-reb', sport: 'nba', kind: 'player',
+    game: 'Knicks vs Spurs · NBA Finals', when: 'Jun 14 · 8:30 AM PHT',
+    player: 'Karl-Anthony Towns', team: 'NYK', stat: 'Rebounds', line: 11.5, unit: 'reb',
+    photo: wp('Karl-Anthony Towns (51914283512) (cropped) (cropped).jpg') },
   { id: 'nba-wemby-blk', sport: 'nba', kind: 'player',
-    game: 'Thunder vs Spurs · West Finals', when: 'May 18–30 · 8:30 AM PHT',
+    game: 'Knicks vs Spurs · NBA Finals', when: 'Jun 14 · 8:30 AM PHT',
     player: 'Victor Wembanyama', team: 'SAS', stat: 'Blocks', line: 3.5, unit: 'blk',
     photo: wp('Victor Wembanyama San Antonio Spurs 2024.jpg') },
   { id: 'nba-wemby-pts', sport: 'nba', kind: 'player',
-    game: 'Thunder vs Spurs · West Finals', when: 'May 18–30 · 8:30 AM PHT',
+    game: 'Knicks vs Spurs · NBA Finals', when: 'Jun 14 · 8:30 AM PHT',
     player: 'Victor Wembanyama', team: 'SAS', stat: 'Points', line: 24.5, unit: 'pts',
     photo: wp('Victor Wembanyama San Antonio Spurs 2024.jpg') },
-  { id: 'nba-brunson-pts', sport: 'nba', kind: 'player',
-    game: 'Knicks vs Cavaliers · East Finals', when: 'May 18–30 · 8:00 AM PHT',
-    player: 'Jalen Brunson', team: 'NYK', stat: 'Points', line: 28.5, unit: 'pts',
-    photo: wp('Jalen Brunson 2023 (cropped).jpg') },
 
-  // ─── MLBB — MPL-PH Season 17 Playoffs, May 27–31 2026
-  // ECHO vs Blacklist remains the marquee rivalry.
+  // ─── MLBB — MSC 2026 (Mid-Season Cup), Paris, early Jul 2026.
+  // ECHO carries the PH flag; lines illustrative.
   { id: 'mlbb-echo-maps', sport: 'mlbb', kind: 'team',
-    game: 'ECHO vs Blacklist · S17 Playoffs', when: 'May 27–31 · 6:00 PM PHT',
+    game: 'ECHO · MSC 2026 group stage', when: 'Early Jul · Paris',
     player: 'ECHO', team: 'ECHO', stat: 'Maps won', line: 2.5, unit: 'maps',
     badge: 'E', badgeBg: '#1E3A8A', badgeFg: '#ffffff' },
   { id: 'mlbb-kills', sport: 'mlbb', kind: 'team',
-    game: 'ECHO vs Blacklist · S17 Playoffs', when: 'May 27–31 · 6:00 PM PHT',
+    game: 'ECHO vs Blacklist · MSC 2026', when: 'Early Jul · Paris',
     player: 'Match total kills', team: 'ECHO · BLI', stat: 'Both teams · Total', line: 28.5, unit: 'kills',
     badge: 'VS', badgeBg: '#0f2419', badgeFg: '#f5f1e3' },
 
@@ -615,7 +611,7 @@ export default function PicksPage() {
       <section className="shell picks-hero">
         <div className="eyebrow">
           <span className="dot" />
-          World Cup 2026 soft launch · Jun 11
+          World Cup 2026 · Group stage live now
         </div>
         <h1 className="h1 picks-h1">
           Hula kada game. <em>Sahod kada oras.</em>
