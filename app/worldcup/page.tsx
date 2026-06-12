@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { CONTENDERS, FIXTURES } from '../../lib/worldcup/fixtures'
 import { selectSpotlight, matchState, flagUrl, countdownParts, type Fixture } from '../../lib/worldcup/state'
@@ -58,6 +58,7 @@ export default function WorldCupHub() {
 
   return (
     <main className="hula-v2 wc">
+      <h1 className="sr-only">World Cup 2026 prediction markets</h1>
       <header className="wc-header">
         <Link href="/" className="wc-back">← Hula</Link>
         <span className="wc-wordmark">World Cup <em>2026</em></span>
@@ -82,7 +83,6 @@ export default function WorldCupHub() {
   )
 }
 
-// --- Stubs filled in Tasks 5–8 -------------------------------------------
 function Flag({ iso, name, size = 80 }: { iso: string; name: string; size?: number }) {
   const [failed, setFailed] = useState(false)
   if (failed) {
@@ -222,10 +222,15 @@ function MatchGrid({
   onYes: (c: string) => void
 }) {
   if (fixtures.length === 0) return null
+  // Title tracks reality: once every grid fixture has kicked off, "Upcoming"
+  // would be wrong, so fall back to "Match results".
+  const anyPending = fixtures.some(
+    (f) => (now ? matchState(f.kickoffISO, now) : 'scheduled') !== 'final'
+  )
   return (
     <section className="wc-grid">
       <div className="wc-section-head">
-        <h2 className="wc-section-title">Upcoming matches</h2>
+        <h2 className="wc-section-title">{anyPending ? 'Upcoming matches' : 'Match results'}</h2>
         <span className="wc-section-note">Tap a team to follow the market</span>
       </div>
       <div className="wc-grid-list">
@@ -280,6 +285,15 @@ function CtaStrip() {
 function WaitlistModal({ context, onClose }: { context: string; onClose: () => void }) {
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  // Dismiss on Escape and pull focus into the dialog when it opens.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    inputRef.current?.focus()
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -300,10 +314,10 @@ function WaitlistModal({ context, onClose }: { context: string; onClose: () => v
 
   return (
     <div className="wc-modal" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="wc-modal-card">
+      <div className="wc-modal-card" role="dialog" aria-modal="true" aria-labelledby="wc-modal-title">
         <button className="wc-modal-x" onClick={onClose} aria-label="Close">×</button>
         <div className="wc-modal-eyebrow">World Cup 2026</div>
-        <h3 className="wc-modal-title">{context}</h3>
+        <h3 className="wc-modal-title" id="wc-modal-title">{context}</h3>
         <p className="wc-modal-sub">
           We&apos;re pre-launch. Drop your email and we&apos;ll let you trade this market the moment we go live.
         </p>
@@ -312,6 +326,7 @@ function WaitlistModal({ context, onClose }: { context: string; onClose: () => v
         ) : (
           <form className="wc-modal-form" onSubmit={submit}>
             <input
+              ref={inputRef}
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}

@@ -23,6 +23,10 @@ describe('winnerPct', () => {
   it('uses the fallback when the first outcome is not "Yes" (misconfigured slug)', () => {
     expect(winnerPct(prices, 'wc-mex-rsa', 12)).toBe(12)
   })
+  it('returns 0% (not the fallback) for a resolved-No market where price is 0', () => {
+    const p: PricesMap = { 'wc-x': { outcomes: [{ name: 'Yes', price: 0 }], is_stale: false, fetched_at: '' } }
+    expect(winnerPct(p, 'wc-x', 30)).toBe(0)
+  })
 })
 
 describe('matchHomePct', () => {
