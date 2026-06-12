@@ -2909,7 +2909,7 @@ button:focus {
   font-family: var(--ff-sans);
   padding-bottom: 56px;
 }
-.wc-max, .wc-header, .wc-spotlight, .wc-section-head, .wc-leaderboard-list,
+.wc-max, .wc-header, .wc-spotlight, .wc-leaderboard-list,
 .wc-grid-list, .wc-cta { max-width: 1120px; margin-inline: auto; }
 
 /* header — mirrors the landing nav */
@@ -2985,12 +2985,6 @@ button:focus {
 .wc-odd-lbl { font-family: var(--ff-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); }
 .wc-odd-pct { font-family: var(--ff-mono); font-size: 18px; font-weight: 600; }
 
-/* section heads — landing kicker/title */
-.wc-section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin: 40px 0 18px; padding: 0 4px; flex-wrap: wrap; }
-@media (max-width: 720px) { .wc-section-head { margin: 32px 16px 14px; } }
-.wc-section-title { font-family: var(--ff-sans); font-size: 32px; line-height: 1.0; letter-spacing: -0.03em; font-weight: 600; margin: 0; }
-.wc-section-note { font-family: var(--ff-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-3); }
-
 /* leaderboard */
 .wc-leaderboard-list { display: flex; flex-direction: column; gap: 8px; }
 @media (max-width: 720px) { .wc-leaderboard-list { margin-inline: 16px; } }
@@ -3007,27 +3001,9 @@ button:focus {
 .wc-lb-bar > i { display: block; height: 100%; background: var(--accent); }
 .wc-lb-pct { font-family: var(--ff-mono); font-size: 15px; font-weight: 600; min-width: 40px; text-align: right; }
 
-/* match grid — market cards */
-.wc-grid-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-@media (max-width: 960px) { .wc-grid-list { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 640px) { .wc-grid-list { grid-template-columns: 1fr; margin-inline: 16px; } }
-.wc-card { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 18px; transition: border-color .12s ease; }
-.wc-card:hover { border-color: var(--ink); }
-.wc-card[data-state="live"] { border-color: rgba(31,122,58,.45); }
-.wc-card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.wc-card-group { font-family: var(--ff-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-3); }
-.wc-card-when { font-family: var(--ff-mono); font-size: 11px; color: var(--ink-3); }
-.wc-card-teams { display: flex; flex-direction: column; gap: 6px; }
-.wc-card-team {
-  display: grid; grid-template-columns: 28px 1fr auto; align-items: center; gap: 12px;
-  padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line-2);
-  background: var(--bg); color: var(--ink); cursor: pointer; text-align: left; transition: all .12s ease;
-}
-.wc-card-team:hover { background: var(--up); border-color: var(--up); color: #fff; }
-.wc-card-team:hover .wc-card-team-pct { color: #fff; }
-.wc-card-flag { border-radius: 3px; border: 1px solid var(--line-2); object-fit: cover; }
-.wc-card-team-name { font-family: var(--ff-sans); font-size: 14px; font-weight: 500; }
-.wc-card-team-pct { font-family: var(--ff-mono); font-size: 14px; font-weight: 600; color: var(--ink-2); }
+/* match grid base — dense card styles are appended further below */
+.wc-grid-list { display: grid; gap: 16px; }
+@media (max-width: 640px) { .wc-grid-list { margin-inline: 16px; } }
 
 /* CTA — landing-style band */
 .wc-cta {
@@ -3065,3 +3041,44 @@ button:focus {
 /* footer */
 .wc-foot { text-align: center; font-family: var(--ff-mono); font-size: 11px; letter-spacing: 0.04em; color: var(--ink-3); margin: 36px 24px 0; }
 .wc-foot strong { color: var(--ink-2); font-weight: 600; }
+
+/* tabs — Limitless-style market nav, Hula colors */
+.wc-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin: 30px auto 0; padding: 0 4px; flex-wrap: wrap; }
+@media (max-width: 720px) { .wc-tabs { margin-inline: 16px; } }
+.wc-tab {
+  padding: 11px 14px; font-family: var(--ff-sans); font-size: 14px; font-weight: 450; color: var(--ink-3);
+  background: none; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 8px; transition: color .12s, border-color .12s;
+}
+.wc-tab:hover { color: var(--ink); }
+.wc-tab[data-active="true"] { color: var(--ink); border-bottom-color: var(--accent); font-weight: 500; }
+.wc-tab-count { font-family: var(--ff-mono); font-size: 10px; color: var(--ink-3); background: var(--bg-2); padding: 2px 6px; border-radius: 5px; }
+.wc-tab[data-active="true"] .wc-tab-count { background: var(--ink); color: var(--bg); }
+
+/* panel note (replaces big section titles under the tabs) */
+.wc-panel-note { max-width: 1120px; margin: 18px auto 14px; padding: 0 4px; font-family: var(--ff-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-3); }
+@media (max-width: 720px) { .wc-panel-note { margin-inline: 16px; } }
+
+/* dense match grid (Limitless layout) */
+.wc-grid-list { grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 14px; }
+@media (max-width: 640px) { .wc-grid-list { grid-template-columns: 1fr; } }
+.wc-mcard { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 12px; transition: border-color .12s ease; }
+.wc-mcard:hover { border-color: var(--line-2); }
+.wc-mcard[data-state="live"] { border-color: rgba(31,122,58,.45); }
+.wc-mcard-top { display: flex; justify-content: space-between; align-items: center; }
+.wc-mcard-group { font-family: var(--ff-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-3); }
+.wc-mcard-when { font-family: var(--ff-mono); font-size: 11px; color: var(--ink-3); }
+.wc-mcard-teams { display: flex; flex-direction: column; gap: 8px; }
+.wc-mcard-team { display: flex; align-items: center; gap: 10px; }
+.wc-mcard-flag { border-radius: 3px; border: 1px solid var(--line-2); object-fit: cover; }
+.wc-mcard-name { font-family: var(--ff-sans); font-size: 15px; font-weight: 550; letter-spacing: -0.01em; }
+.wc-mcard-odds { display: grid; grid-template-columns: 1fr 0.74fr 1fr; gap: 6px; }
+.wc-codd {
+  display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 4px; border-radius: 9px;
+  border: 1px solid var(--line-2); background: var(--bg); color: var(--ink); cursor: pointer; transition: all .12s ease; min-width: 0;
+}
+.wc-codd-team:hover { background: var(--up); border-color: var(--up); color: #fff; }
+.wc-codd-team:hover .wc-codd-lbl { color: rgba(255,255,255,.78); }
+.wc-codd-draw:hover { border-color: var(--ink); }
+.wc-codd-lbl { font-family: var(--ff-mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.wc-codd-pct { font-family: var(--ff-mono); font-size: 15px; font-weight: 600; }

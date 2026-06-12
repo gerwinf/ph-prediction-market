@@ -22,6 +22,7 @@ export default function WorldCupHub() {
   const [now, setNow] = useState<Date | null>(null)
   const [prices, setPrices] = useState<PricesMap>({})
   const [waitlistFor, setWaitlistFor] = useState<string | null>(null)
+  const [tab, setTab] = useState<'matches' | 'winner'>('matches')
 
   // Mount: capture `now` (deferred to client to avoid hydration mismatch) and
   // tick every second so countdowns + live/final transitions stay current.
@@ -68,8 +69,20 @@ export default function WorldCupHub() {
       </header>
 
       <Spotlight fixture={spotlight} now={now} prices={prices} onYes={setWaitlistFor} />
-      <WinnerLeaderboard prices={prices} onYes={setWaitlistFor} />
-      <MatchGrid fixtures={gridFixtures} now={now} prices={prices} onYes={setWaitlistFor} />
+
+      <nav className="wc-tabs" aria-label="World Cup markets">
+        <button className="wc-tab" data-active={tab === 'matches'} aria-pressed={tab === 'matches'} onClick={() => setTab('matches')}>
+          Matches<span className="wc-tab-count">{gridFixtures.length}</span>
+        </button>
+        <button className="wc-tab" data-active={tab === 'winner'} aria-pressed={tab === 'winner'} onClick={() => setTab('winner')}>
+          Who wins the Cup<span className="wc-tab-count">{CONTENDERS.length}</span>
+        </button>
+      </nav>
+
+      {tab === 'matches'
+        ? <MatchGrid fixtures={gridFixtures} now={now} prices={prices} onYes={setWaitlistFor} />
+        : <WinnerLeaderboard prices={prices} onYes={setWaitlistFor} />}
+
       <CtaStrip />
 
       {waitlistFor && (
@@ -181,10 +194,7 @@ function WinnerLeaderboard({ prices, onYes }: { prices: PricesMap; onYes: (c: st
 
   return (
     <section className="wc-leaderboard">
-      <div className="wc-section-head">
-        <h2 className="wc-section-title">Who wins the World Cup?</h2>
-        <span className="wc-section-note">Live odds · updated continuously</span>
-      </div>
+      <div className="wc-panel-note">Champion odds · live · tap to follow a market</div>
       <div className="wc-leaderboard-list">
         {rows.map((r) => (
           <button key={r.name} className="wc-lb-row" onClick={() => onYes(`${r.name} to win the World Cup`)}>
@@ -222,42 +232,47 @@ function MatchGrid({
   onYes: (c: string) => void
 }) {
   if (fixtures.length === 0) return null
-  // Title tracks reality: once every grid fixture has kicked off, "Upcoming"
-  // would be wrong, so fall back to "Match results".
-  const anyPending = fixtures.some(
-    (f) => (now ? matchState(f.kickoffISO, now) : 'scheduled') !== 'final'
-  )
   return (
     <section className="wc-grid">
-      <div className="wc-section-head">
-        <h2 className="wc-section-title">{anyPending ? 'Upcoming matches' : 'Match results'}</h2>
-        <span className="wc-section-note">Tap a team to follow the market</span>
-      </div>
+      <div className="wc-panel-note">Tap a team or draw to follow that market</div>
       <div className="wc-grid-list">
         {fixtures.map((f) => {
           const state = now ? matchState(f.kickoffISO, now) : 'scheduled'
           const homePct = matchHomePct(prices, f.slug, f.home.name, f.fallback.home)
-          const awayPct = Math.max(0, 100 - homePct - f.fallback.draw)
+          const drawPct = f.fallback.draw
+          const awayPct = Math.max(0, 100 - homePct - drawPct)
           return (
-            <article key={f.id} className="wc-card" data-state={state}>
-              <div className="wc-card-head">
-                <span className="wc-card-group">Group {f.group}</span>
-                <span className="wc-card-when">
+            <article key={f.id} className="wc-mcard" data-state={state}>
+              <div className="wc-mcard-top">
+                <span className="wc-mcard-group">Group {f.group}</span>
+                <span className="wc-mcard-when">
                   {state === 'live' ? <span className="wc-badge wc-badge-live"><i aria-hidden="true" /> LIVE</span>
                    : state === 'final' ? 'Full time'
                    : kickoffLabel(f.kickoffISO)}
                 </span>
               </div>
-              <div className="wc-card-teams">
-                <button className="wc-card-team" onClick={() => onYes(`${f.home.name} to win`)}>
-                  <img className="wc-card-flag" src={flagUrl(f.home.iso, 40)} alt={f.home.name} width={28} height={21} loading="lazy" onError={(e) => { e.currentTarget.style.visibility = 'hidden' }} />
-                  <span className="wc-card-team-name">{f.home.name}</span>
-                  <span className="wc-card-team-pct">{homePct}%</span>
+              <div className="wc-mcard-teams">
+                <span className="wc-mcard-team">
+                  <img className="wc-mcard-flag" src={flagUrl(f.home.iso, 40)} alt={f.home.name} width={26} height={20} loading="lazy" onError={(e) => { e.currentTarget.style.visibility = 'hidden' }} />
+                  <span className="wc-mcard-name">{f.home.name}</span>
+                </span>
+                <span className="wc-mcard-team">
+                  <img className="wc-mcard-flag" src={flagUrl(f.away.iso, 40)} alt={f.away.name} width={26} height={20} loading="lazy" onError={(e) => { e.currentTarget.style.visibility = 'hidden' }} />
+                  <span className="wc-mcard-name">{f.away.name}</span>
+                </span>
+              </div>
+              <div className="wc-mcard-odds">
+                <button className="wc-codd wc-codd-team" onClick={() => onYes(`${f.home.name} to beat ${f.away.name}`)}>
+                  <span className="wc-codd-lbl">{f.home.name}</span>
+                  <span className="wc-codd-pct">{homePct}%</span>
                 </button>
-                <button className="wc-card-team" onClick={() => onYes(`${f.away.name} to win`)}>
-                  <img className="wc-card-flag" src={flagUrl(f.away.iso, 40)} alt={f.away.name} width={28} height={21} loading="lazy" onError={(e) => { e.currentTarget.style.visibility = 'hidden' }} />
-                  <span className="wc-card-team-name">{f.away.name}</span>
-                  <span className="wc-card-team-pct">{awayPct}%</span>
+                <button className="wc-codd wc-codd-draw" onClick={() => onYes(`${f.home.name} v ${f.away.name} — Draw`)}>
+                  <span className="wc-codd-lbl">Draw</span>
+                  <span className="wc-codd-pct">{drawPct}%</span>
+                </button>
+                <button className="wc-codd wc-codd-team" onClick={() => onYes(`${f.away.name} to beat ${f.home.name}`)}>
+                  <span className="wc-codd-lbl">{f.away.name}</span>
+                  <span className="wc-codd-pct">{awayPct}%</span>
                 </button>
               </div>
             </article>
