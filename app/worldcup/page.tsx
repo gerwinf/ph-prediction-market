@@ -206,8 +206,61 @@ function WinnerLeaderboard({ prices, onYes }: { prices: PricesMap; onYes: (c: st
     </section>
   )
 }
-function MatchGrid(_: { fixtures: import('../../lib/worldcup/state').Fixture[]; now: Date | null; prices: PricesMap; onYes: (c: string) => void }) {
-  return <section className="wc-grid">grid</section>
+function kickoffLabel(kickoffISO: string): string {
+  const d = new Date(kickoffISO)
+  const day = d.toLocaleDateString('en-PH', { weekday: 'short', month: 'short', day: 'numeric' })
+  const time = d.toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true })
+  return `${day} · ${time}`
+}
+
+function MatchGrid({
+  fixtures, now, prices, onYes,
+}: {
+  fixtures: Fixture[]
+  now: Date | null
+  prices: PricesMap
+  onYes: (c: string) => void
+}) {
+  if (fixtures.length === 0) return null
+  return (
+    <section className="wc-grid">
+      <div className="wc-section-head">
+        <h2 className="wc-section-title">Upcoming matches</h2>
+        <span className="wc-section-note">Tap a team to follow the market</span>
+      </div>
+      <div className="wc-grid-list">
+        {fixtures.map((f) => {
+          const state = now ? matchState(f.kickoffISO, now) : 'scheduled'
+          const homePct = matchHomePct(prices, f.slug, f.home.name, f.fallback.home)
+          const awayPct = Math.max(0, 100 - homePct - f.fallback.draw)
+          return (
+            <article key={f.id} className="wc-card" data-state={state}>
+              <div className="wc-card-head">
+                <span className="wc-card-group">Group {f.group}</span>
+                <span className="wc-card-when">
+                  {state === 'live' ? <span className="wc-badge wc-badge-live"><i aria-hidden="true" /> LIVE</span>
+                   : state === 'final' ? 'Full time'
+                   : kickoffLabel(f.kickoffISO)}
+                </span>
+              </div>
+              <div className="wc-card-teams">
+                <button className="wc-card-team" onClick={() => onYes(`${f.home.name} to win`)}>
+                  <img className="wc-card-flag" src={flagUrl(f.home.iso, 40)} alt={f.home.name} width={28} height={21} loading="lazy" onError={(e) => { e.currentTarget.style.visibility = 'hidden' }} />
+                  <span className="wc-card-team-name">{f.home.name}</span>
+                  <span className="wc-card-team-pct">{homePct}%</span>
+                </button>
+                <button className="wc-card-team" onClick={() => onYes(`${f.away.name} to win`)}>
+                  <img className="wc-card-flag" src={flagUrl(f.away.iso, 40)} alt={f.away.name} width={28} height={21} loading="lazy" onError={(e) => { e.currentTarget.style.visibility = 'hidden' }} />
+                  <span className="wc-card-team-name">{f.away.name}</span>
+                  <span className="wc-card-team-pct">{awayPct}%</span>
+                </button>
+              </div>
+            </article>
+          )
+        })}
+      </div>
+    </section>
+  )
 }
 function CtaStrip() {
   return <section className="wc-cta">cta</section>
