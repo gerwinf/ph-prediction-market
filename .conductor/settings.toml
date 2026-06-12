@@ -1,0 +1,22 @@
+"$schema" = "https://conductor.build/schemas/settings.repo.schema.json"
+
+# Copy gitignored static files (Supabase/Twilio/ops env) into each NEW
+# workspace, sourced from the repo root checkout's matching files.
+# `.env*` is Conductor's default copy pattern; stated explicitly here so the
+# intent is visible and survives future changes to the default.
+file_include_globs = ".env*\n"
+
+[scripts]
+# Install deps on workspace creation (hard-fail if it breaks), then best-effort
+# fast-forward the root checkout so new workspaces branch from latest main.
+# npm install must succeed; the root pull is wrapped so its failure is tolerated.
+setup = "npm install && (git -C \"$CONDUCTOR_ROOT_PATH\" fetch --prune origin && git -C \"$CONDUCTOR_ROOT_PATH\" pull --ff-only || true)"
+
+# Run button: Next dev server on this workspace's assigned port so multiple
+# workspaces run side by side without colliding.
+run = "npm run dev -- -p $CONDUCTOR_PORT"
+
+# Web servers use separate ports, so workspaces can run concurrently.
+# NOTE: they still share ONE Supabase — give everyday workspaces a sandbox DB
+# (separate Supabase project) before relying on this for parallel data work.
+run_mode = "concurrent"
