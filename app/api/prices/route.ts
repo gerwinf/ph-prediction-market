@@ -1,20 +1,21 @@
 /**
- * GET /api/prices?events=wc-arg-alg,nba-okc-sas
+ * GET /api/prices?events=wc-argentina,nba-knicks
  *
  * Returns imported Polymarket reference prices for the requested event slugs:
  *
- *   { "wc-arg-alg": { outcomes, is_stale, fetched_at }, ... }
+ *   { "wc-argentina": { outcomes, is_stale, fetched_at }, ... }
  *
  * Public — prices are non-sensitive. Lazy refresh: a requested slug whose
  * cached mirror_prices row is missing or older than the TTL is re-fetched from
- * Polymarket inline and upserted. (No cron — Vercel Hobby caps cron at
- * once-per-day; the table is the cache.) Unknown slugs are simply omitted, so
- * an all-unknown request returns {} (never 404).
+ * Polymarket (by pinned market id) inline and upserted. (No cron — Vercel Hobby
+ * caps cron at once-per-day; the table is the cache.) Slugs without a pinned id
+ * in LIVE_MARKETS are simply omitted, so an all-unknown request returns {}
+ * (never 404) — and never a wrong search hit.
  */
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '../../../lib/supabase/admin'
-import { SLUG_TO_QUERY, LIVE_MARKETS } from '../../../lib/oracle/slugs'
-import { fetchPolymarketPrices, fetchPolymarketById } from '../../../lib/oracle/polymarket'
+import { LIVE_MARKETS } from '../../../lib/oracle/slugs'
+import { fetchPolymarketById } from '../../../lib/oracle/polymarket'
 import { selectSlugsToRefresh, buildMirrorRow } from '../../../lib/oracle/refresh'
 
 export const dynamic = 'force-dynamic'
@@ -55,25 +56,21 @@ export async function GET(req: Request) {
   const bySlug = new Map<string, Row>((existing ?? []).map((r) => [r.event_slug as string, r as Row]))
   const fetchedAt = Object.fromEntries(slugs.map((s) => [s, bySlug.get(s)?.fetched_at ?? null]))
 
-  const known = { ...SLUG_TO_QUERY, ...LIVE_MARKETS }
-  const toRefresh = selectSlugsToRefresh(slugs, known, fetchedAt, Date.now())
+  const toRefresh = selectSlugsToRefresh(slugs, LIVE_MARKETS, fetchedAt, Date.now())
 
   if (toRefresh.length > 0) {
-    // Live markets fetch by pinned id (reliable); legacy /picks slugs fetch by
-    // fuzzy search. Both tag results with the app slug via MirrorPrice.query.
-    const byIdSlugs = toRefresh.filter((s) => s in LIVE_MARKETS)
-    const bySearchSlugs = toRefresh.filter((s) => s in SLUG_TO_QUERY)
+    // Prices resolve ONLY by pinned Gamma id (reliable). Slugs without a pinned
+    // id never reach here (filtered out by selectSlugsToRefresh against
+    // LIVE_MARKETS) — they keep their fallback rather than a wrong search hit.
+    const idPrices = await fetchPolymarketById(
+      toRefresh.map((s) => ({ slug: s, marketId: LIVE_MARKETS[s].id })),
+    )
 
-    const [idPrices, searchPrices] = await Promise.all([
-      fetchPolymarketById(byIdSlugs.map((s) => ({ slug: s, marketId: LIVE_MARKETS[s].id }))),
-      fetchPolymarketPrices(bySearchSlugs.map((s) => SLUG_TO_QUERY[s])),
-    ])
-
-    const bySlugResult = new Map([...idPrices, ...searchPrices].map((p) => [p.query, p]))
+    const bySlugResult = new Map(idPrices.map((p) => [p.query, p]))
     const nowIso = new Date().toISOString()
 
     const upserts = toRefresh.map((slug) =>
-      buildMirrorRow(slug, bySlugResult.get(slug) ?? bySlugResult.get(SLUG_TO_QUERY[slug] ?? ''), bySlug.get(slug), nowIso),
+      buildMirrorRow(slug, bySlugResult.get(slug), bySlug.get(slug), nowIso),
     )
 
     const { error: upsertErr } = await admin

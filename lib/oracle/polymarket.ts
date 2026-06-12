@@ -5,10 +5,12 @@
  * CLOB. We import the implied win probability as a *context* signal next to
  * /picks player props — NOT a 1:1 price mapping and NOT a settlement oracle.
  *
- * Gamma is a public REST API (no key). `/markets?search=<q>&active=true` returns
- * an array of markets. Each market's `outcomes` and `outcomePrices` arrive as
- * either a JSON-encoded array string (`'["Argentina","Algeria"]'`) or a plain
- * comma-separated string (`'0.78,0.22'`) — we tolerate both.
+ * Gamma is a public REST API (no key). We resolve prices ONLY by pinned market
+ * id (`GET /markets/<id>`) — never by `?search=`, which does not filter and
+ * returns unrelated default markets. Each market's `outcomes` and
+ * `outcomePrices` arrive as either a JSON-encoded array string
+ * (`'["Argentina","Algeria"]'`) or a plain comma-separated string
+ * (`'0.78,0.22'`) — we tolerate both.
  *
  * Refresh is lazy-on-read (see app/api/prices) because Vercel Hobby caps cron
  * at once-per-day — same constraint that pushed demo events to seed-on-buy.
@@ -78,48 +80,6 @@ export function parseMarket(raw: unknown, query: string, opts: ParseOptions = {}
     volumeUsd,
     endDate: typeof m.endDate === 'string' ? m.endDate : null,
   }
-}
-
-/**
- * Fetch and parse Polymarket prices for each query. A query that errors or
- * returns nothing usable contributes no rows (never throws) — the caller
- * decides how to mark the corresponding slug stale. `fetchImpl` is injectable
- * for testing.
- */
-export async function fetchPolymarketPrices(
-  queries: string[],
-  fetchImpl: typeof fetch = fetch,
-): Promise<MirrorPrice[]> {
-  const results: MirrorPrice[] = []
-
-  await Promise.all(
-    queries.map(async (query) => {
-      try {
-        const url = new URL(GAMMA_URL)
-        url.searchParams.set('search', query)
-        url.searchParams.set('active', 'true')
-        url.searchParams.set('limit', '5')
-
-        const res = await fetchImpl(url.toString())
-        if (!res.ok) return
-
-        const markets = (await res.json()) as unknown[]
-        if (!Array.isArray(markets)) return
-
-        for (const raw of markets) {
-          const parsed = parseMarket(raw, query)
-          if (parsed) {
-            results.push(parsed)
-            break // one (most-liquid) market per query is enough for context
-          }
-        }
-      } catch {
-        // Swallow per-query failures — caller marks the slug stale.
-      }
-    }),
-  )
-
-  return results
 }
 
 /**
