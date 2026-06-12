@@ -72,7 +72,7 @@ export const MARKETS: Record<CategoryKey, MarketRow[]> = {
     { cat: 'Reg',  q: 'BSP licenses a peso-pegged stablecoin in 2026', pct: 28, d: +9, vol: '₱702K' },
   ],
   weather: [
-    { cat: 'Storm',   q: 'Signal No. 3 declared in Metro Manila this May',   pct: 22, d: -2,  vol: '₱614K' },
+    { cat: 'Storm',   q: 'Signal No. 3 declared in Metro Manila before August', pct: 22, d: -2,  vol: '₱614K' },
     { cat: 'Storm',   q: 'At least 20 named typhoons by end of 2026',         pct: 67, d: +4,  vol: '₱430K' },
     { cat: 'Heat',    q: 'Heat index in Manila exceeds 50°C this year',       pct: 81, d: +12, vol: '₱290K' },
     { cat: 'Rain',    q: 'Habagat causes class suspensions in NCR this June', pct: 73, d: +3,  vol: '₱204K' },
