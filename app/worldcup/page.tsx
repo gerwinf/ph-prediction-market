@@ -263,8 +263,69 @@ function MatchGrid({
   )
 }
 function CtaStrip() {
-  return <section className="wc-cta">cta</section>
+  return (
+    <section className="wc-cta">
+      <h2 className="wc-cta-title">Trade the World Cup. <em>Settled in pesos.</em></h2>
+      <p className="wc-cta-sub">Get in before the final — founding members trade zero-fee for life.</p>
+      <button className="wc-cta-btn" onClick={() => {
+        const el = document.getElementById('wc-waitlist-anchor')
+        el?.scrollIntoView({ behavior: 'smooth' })
+      }}>
+        Reserve your handle →
+      </button>
+      <span id="wc-waitlist-anchor" />
+    </section>
+  )
 }
-function WaitlistModal(_: { context: string; onClose: () => void }) {
-  return null
+function WaitlistModal({ context, onClose }: { context: string; onClose: () => void }) {
+  const [email, setEmail] = useState('')
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!email.trim()) return
+    setStatus('loading')
+    try {
+      const res = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, source: 'worldcup', why: context }),
+      })
+      setStatus(res.ok ? 'success' : 'error')
+      if (res.ok) setEmail('')
+    } catch {
+      setStatus('error')
+    }
+  }
+
+  return (
+    <div className="wc-modal" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="wc-modal-card">
+        <button className="wc-modal-x" onClick={onClose} aria-label="Close">×</button>
+        <div className="wc-modal-eyebrow">World Cup 2026</div>
+        <h3 className="wc-modal-title">{context}</h3>
+        <p className="wc-modal-sub">
+          We&apos;re pre-launch. Drop your email and we&apos;ll let you trade this market the moment we go live.
+        </p>
+        {status === 'success' ? (
+          <div className="wc-modal-done">You&apos;re in — salamat! We&apos;ll be in touch.</div>
+        ) : (
+          <form className="wc-modal-form" onSubmit={submit}>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="your@email.ph"
+              disabled={status === 'loading'}
+              required
+            />
+            <button type="submit" className="wc-cta-btn" disabled={status === 'loading' || !email.trim()}>
+              {status === 'loading' ? 'Loading…' : 'Notify me →'}
+            </button>
+            {status === 'error' && <div className="wc-modal-err">Something broke. Try again.</div>}
+          </form>
+        )}
+      </div>
+    </div>
+  )
 }
