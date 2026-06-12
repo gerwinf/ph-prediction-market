@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { CONTENDERS, FIXTURES } from '../../lib/worldcup/fixtures'
 import { selectSpotlight, matchState, flagUrl, countdownParts, type Fixture } from '../../lib/worldcup/state'
-import { allWcSlugs, matchHomePct, type PricesMap } from '../../lib/worldcup/odds'
+import { allWcSlugs, matchHomePct, winnerPct, type PricesMap } from '../../lib/worldcup/odds'
 
 /* ────────────────────────────────────────────────────────────────────────
  * /worldcup — World Cup 2026 prediction-market hub
@@ -172,8 +172,39 @@ function Spotlight({
     </section>
   )
 }
-function WinnerLeaderboard(_: { prices: PricesMap; onYes: (c: string) => void }) {
-  return <section className="wc-leaderboard">leaderboard</section>
+function WinnerLeaderboard({ prices, onYes }: { prices: PricesMap; onYes: (c: string) => void }) {
+  // Overlay live odds, then sort high→low by the (live-or-fallback) pct.
+  const rows = CONTENDERS
+    .map((c) => ({ ...c, pct: winnerPct(prices, c.slug, c.fallbackPct) }))
+    .sort((a, b) => b.pct - a.pct)
+  const max = Math.max(...rows.map((r) => r.pct), 1)
+
+  return (
+    <section className="wc-leaderboard">
+      <div className="wc-section-head">
+        <h2 className="wc-section-title">Who wins the World Cup?</h2>
+        <span className="wc-section-note">Live odds · updated continuously</span>
+      </div>
+      <div className="wc-leaderboard-list">
+        {rows.map((r) => (
+          <button key={r.name} className="wc-lb-row" onClick={() => onYes(`${r.name} to win the World Cup`)}>
+            <img
+              className="wc-lb-flag"
+              src={flagUrl(r.iso, 40)}
+              alt={r.name}
+              width={28}
+              height={21}
+              loading="lazy"
+              onError={(e) => { e.currentTarget.style.visibility = 'hidden' }}
+            />
+            <span className="wc-lb-name">{r.name}</span>
+            <span className="wc-lb-bar"><i style={{ width: `${(r.pct / max) * 100}%` }} /></span>
+            <span className="wc-lb-pct">{r.pct}%</span>
+          </button>
+        ))}
+      </div>
+    </section>
+  )
 }
 function MatchGrid(_: { fixtures: import('../../lib/worldcup/state').Fixture[]; now: Date | null; prices: PricesMap; onYes: (c: string) => void }) {
   return <section className="wc-grid">grid</section>
