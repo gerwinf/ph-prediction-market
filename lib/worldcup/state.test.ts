@@ -28,6 +28,12 @@ describe('matchState', () => {
   it('is final well after kickoff', () => {
     expect(matchState(KICK, after)).toBe('final')
   })
+  it('is live exactly at kickoff (lower boundary inclusive)', () => {
+    expect(matchState(KICK, new Date(KICK))).toBe('live')
+  })
+  it('is final exactly at kickoff + 120 min (upper boundary exclusive)', () => {
+    expect(matchState(KICK, new Date('2026-06-12T20:00:00.000Z'))).toBe('final')
+  })
 })
 
 describe('selectSpotlight', () => {
@@ -37,6 +43,11 @@ describe('selectSpotlight', () => {
 
   it('prefers a live match', () => {
     expect(selectSpotlight([done, upcoming, live], during)?.id).toBe('live')
+  })
+  it('picks the earliest kickoff when multiple matches are live', () => {
+    const liveEarly = fx('early', '2026-06-12T17:00:00.000Z')
+    const liveLate = fx('late', '2026-06-12T18:00:00.000Z')
+    expect(selectSpotlight([liveLate, liveEarly], during)?.id).toBe('early')
   })
   it('falls back to the nearest upcoming when none live', () => {
     expect(selectSpotlight([done, upcoming], before)?.id).toBe('upcoming')
