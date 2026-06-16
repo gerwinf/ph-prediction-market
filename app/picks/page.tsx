@@ -11,7 +11,7 @@ import { useState, useEffect, FormEvent } from 'react'
  * Not linked from / — share URL manually for validation tests only.
  * ──────────────────────────────────────────────────────────────────────── */
 
-type Sport = 'wc' | 'pba' | 'nba' | 'mlbb' | 'pool' | 'showbiz'
+type Sport = 'wc' | 'pba' | 'mlbb' | 'pool' | 'showbiz'
 
 type Prop = {
   id: string
@@ -53,9 +53,6 @@ const TEAM_COLOR: Record<string, string> = {
   TNT:  '#e87a1e',  // TNT orange
   SMB:  '#0a3d8f',  // San Miguel blue
   MAG:  '#1f7a3a',  // Magnolia green
-  // NBA — Finals
-  NYK:  '#f58426',  // Knicks orange
-  SAS:  '#111111',  // Spurs black/silver
   // MLBB
   ECHO: '#1E3A8A',
   BLI:  '#111111',
@@ -73,7 +70,6 @@ const stripeFor = (team?: string): string | null => {
 const SPORT_LABEL: Record<Sport, string> = {
   wc:      'World Cup 2026 · Group Stage',
   pba:     'PBA · Comm’s Cup Finals',
-  nba:     'NBA · Finals',
   mlbb:    'MLBB · MSC 2026 · Paris',
   pool:    'Pool · Pro Tour 2026',
   showbiz: 'Showbiz · Kultura',
@@ -148,25 +144,6 @@ const PROPS: Prop[] = [
     game: 'Biado vs Filler · race to 9', when: 'Sat · 9:00 PM PHT',
     player: 'Match total racks', team: 'PH · DE', stat: 'Both players · Total', line: 13.5, unit: 'racks',
     badge: 'VS', badgeBg: '#0f2419', badgeFg: '#f5f1e3' },
-
-  // ─── NBA FINALS — Knicks vs Spurs, live Jun 2026 (Knicks lead the series).
-  // Game 5 Jun 13 ET = Jun 14 PHT; G6 Jun 17 / G7 Jun 20 PHT if necessary.
-  { id: 'nba-brunson-pts', sport: 'nba', kind: 'player',
-    game: 'Knicks vs Spurs · NBA Finals', when: 'Jun 14 · 8:30 AM PHT',
-    player: 'Jalen Brunson', team: 'NYK', stat: 'Points', line: 28.5, unit: 'pts',
-    photo: wp('Jalen Brunson 2023 (cropped).jpg') },
-  { id: 'nba-towns-reb', sport: 'nba', kind: 'player',
-    game: 'Knicks vs Spurs · NBA Finals', when: 'Jun 14 · 8:30 AM PHT',
-    player: 'Karl-Anthony Towns', team: 'NYK', stat: 'Rebounds', line: 11.5, unit: 'reb',
-    photo: wp('Karl-Anthony Towns (51914283512) (cropped) (cropped).jpg') },
-  { id: 'nba-wemby-blk', sport: 'nba', kind: 'player',
-    game: 'Knicks vs Spurs · NBA Finals', when: 'Jun 14 · 8:30 AM PHT',
-    player: 'Victor Wembanyama', team: 'SAS', stat: 'Blocks', line: 3.5, unit: 'blk',
-    photo: wp('Victor Wembanyama San Antonio Spurs 2024.jpg') },
-  { id: 'nba-wemby-pts', sport: 'nba', kind: 'player',
-    game: 'Knicks vs Spurs · NBA Finals', when: 'Jun 14 · 8:30 AM PHT',
-    player: 'Victor Wembanyama', team: 'SAS', stat: 'Points', line: 24.5, unit: 'pts',
-    photo: wp('Victor Wembanyama San Antonio Spurs 2024.jpg') },
 
   // ─── MLBB — MSC 2026 (Mid-Season Cup), Paris, early Jul 2026.
   // ECHO carries the PH flag; lines illustrative.
@@ -554,7 +531,7 @@ function LockInForm({
           className="picks-lockin-textarea"
           value={why}
           onChange={(e) => setWhy(e.target.value)}
-          placeholder="e.g. multiplier too low for the risk · entry size right · would prefer NBA props · etc."
+          placeholder="e.g. multiplier too low for the risk · entry size right · would prefer more World Cup props · etc."
           rows={2}
           disabled={status === 'loading'}
         />
@@ -595,7 +572,7 @@ export default function PicksPage() {
     if (pickCount < 3 && mode === 'flex') setMode('power')
   }, [pickCount, mode])
 
-  const sports: Sport[] = ['wc', 'pba', 'nba', 'mlbb', 'pool', 'showbiz']
+  const sports: Sport[] = ['wc', 'pba', 'mlbb', 'pool', 'showbiz']
 
   return (
     <main className="hula-v2 picks-page">
@@ -617,7 +594,7 @@ export default function PicksPage() {
           Hula kada game. <em>Sahod kada oras.</em>
         </h1>
         <p className="lede">
-          Pumili ng <strong>MORE</strong> or <strong>LESS</strong> sa 2–6 player props. Mas marami, mas malaki ang multiplier — up to <strong>×25</strong>. PBA, MLBB, World Cup, NBA, Pool. Bayad sa GCash bago mag-dinner, sigurado.
+          Pumili ng <strong>MORE</strong> or <strong>LESS</strong> sa 2–6 player props. Mas marami, mas malaki ang multiplier — up to <strong>×25</strong>. PBA, MLBB, World Cup, Pool. Bayad sa GCash bago mag-dinner, sigurado.
         </p>
         <div className="picks-trust-chips">
           <span className="picks-trust-chip"><span className="picks-trust-dot" />PAGCOR-licensed</span>

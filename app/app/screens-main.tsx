@@ -388,7 +388,7 @@ export function WalletScreen({ onDeposit, onWithdraw }: { onDeposit: () => void;
   const activity = [
     { t: 'Deposit', d: 'PDAX → Hula', a: '+₱2,000.00', when: 'Today 8:42 AM', pos: true, hash: '0x4f2a…91c3' },
     { t: 'Buy', d: 'Ginebra YES @ 58¢', a: '−₱1,160.00', when: 'Yesterday', pos: false, hash: '0x8b3e…5a40' },
-    { t: 'Settled', d: 'Lakers Game 7 NO · won', a: '+₱6,000.00', when: '3 days ago', pos: true, hash: '0x12bc…77d0' },
+    { t: 'Settled', d: 'TNT semis G5 NO · won', a: '+₱6,000.00', when: '3 days ago', pos: true, hash: '0x12bc…77d0' },
     { t: 'Withdraw', d: 'Hula → PDAX → BPI', a: '−₱5,000.00', when: '5 days ago', pos: false, hash: '0xa19f…0ee2' },
   ]
   return (
