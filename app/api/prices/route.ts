@@ -1,5 +1,5 @@
 /**
- * GET /api/prices?events=wc-argentina,nba-knicks
+ * GET /api/prices?events=wc-argentina,wc-france
  *
  * Returns imported Polymarket reference prices for the requested event slugs:
  *

@@ -132,18 +132,18 @@ export const HULA_MARKETS: Market[] = [
     img: 'linear-gradient(135deg, #DB2777 0%, #581C87 100%)',
   },
   {
-    id: 'NBA-FIN-26',
-    cat: 'NBA',
-    catLabel: 'NBA Finals 2026',
+    id: 'WC-FIN-26',
+    cat: 'Football',
+    catLabel: 'World Cup 2026',
     type: 'binary',
-    title: 'Will the Celtics repeat as NBA champions?',
-    subtitle: 'Playoffs · Round 2',
-    yes: 31, no: 69, prevYes: 33,
+    title: 'Will Brazil win the 2026 FIFA World Cup?',
+    subtitle: 'Group stage · live now',
+    yes: 14, no: 86, prevYes: 12,
     volume: 198400, liquidity: 51200,
-    movers: [36, 34, 33, 31, 32, 30, 31, 31],
-    closes: 'Closes Jun 22, 2026',
-    resolution: 'NBA-official box score · Pyth oracle',
-    img: 'linear-gradient(135deg, #008348 0%, #042F1A 100%)',
+    movers: [11, 12, 12, 13, 12, 14, 13, 14],
+    closes: 'Closes Jul 19, 2026',
+    resolution: 'FIFA-official result · Pyth oracle',
+    img: 'linear-gradient(135deg, #009739 0%, #042F1A 100%)',
   },
 ]
 
@@ -151,7 +151,6 @@ export const HULA_CATEGORIES = [
   { id: 'all', label: 'All' },
   { id: 'Football', label: 'Football' },
   { id: 'PBA', label: 'PBA' },
-  { id: 'NBA', label: 'NBA' },
   { id: 'MLBB', label: 'MLBB' },
   { id: 'Boxing', label: 'Boxing' },
   { id: 'Pageants', label: 'Pageants' },
@@ -224,8 +223,8 @@ export type ResolvedPosition = {
 
 export const HULA_POSITIONS_RESOLVED: ResolvedPosition[] = [
   {
-    id: 'p4', marketId: 'NBA-G7',
-    market: 'Lakers win Game 7',
+    id: 'p4', marketId: 'PBA-SF-G5',
+    market: 'TNT win semis Game 5',
     outcome: 'NO', shares: 150, avgPrice: 60, settledPrice: 100,
     cost: 9000, payout: 15000, profit: 6000, status: 'won',
     settledAt: 'Apr 26',

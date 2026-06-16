@@ -15,7 +15,7 @@ export type TickerItem = { mkt: string; pct: number; slug?: string }
 export const TICKER_DATA: TickerItem[] = [
   { mkt: 'Argentina win WC 2026',            pct: 9,  slug: 'wc-argentina' },
   { mkt: 'BTC tops $120k in 2026',           pct: 11, slug: 'crypto-btc-120k' },
-  { mkt: 'Knicks win NBA Finals',            pct: 78, slug: 'nba-knicks' },
+  { mkt: 'France win WC 2026',               pct: 16, slug: 'wc-france' },
   { mkt: 'Signal No. 3 hits Manila in May',  pct: 22 },
   { mkt: 'Bea top-5 at Miss Universe 2026',  pct: 48 },
   { mkt: 'BINI sells out MOA · Jun 20',      pct: 88 },
@@ -41,7 +41,7 @@ export type MarketRow = { cat: string; q: string; pct: number; d: number; vol: s
 export const MARKETS: Record<CategoryKey, MarketRow[]> = {
   trending: [
     { cat: 'World Cup', q: 'Argentina win the 2026 FIFA World Cup',            pct: 9,  d: +2,  vol: '₱6.1M', slug: 'wc-argentina' },
-    { cat: 'NBA',       q: 'The Knicks win the 2026 NBA Finals',               pct: 78, d: +5,  vol: '₱4.0M', slug: 'nba-knicks' },
+    { cat: 'World Cup', q: 'France win the 2026 FIFA World Cup',               pct: 16, d: +3,  vol: '₱4.0M', slug: 'wc-france' },
     { cat: 'Showbiz',   q: 'Bea Millan-Windorski places top-5 at Miss Universe 2026', pct: 48, d: +7, vol: '₱1.3M' },
     { cat: 'Crypto',    q: 'Bitcoin tops $120,000 by Dec 31, 2026',             pct: 11, d: +6,  vol: '₱5.4M', slug: 'crypto-btc-120k' },
     { cat: 'MLBB',      q: 'ECHO wins MPL-PH Season 17',                        pct: 44, d: +9,  vol: '₱2.2M' },
@@ -49,9 +49,9 @@ export const MARKETS: Record<CategoryKey, MarketRow[]> = {
   ],
   sports: [
     { cat: 'World Cup', q: 'Argentina win the 2026 FIFA World Cup',             pct: 9,  d: +2,  vol: '₱6.1M', slug: 'wc-argentina' },
-    { cat: 'NBA',       q: 'The Knicks win the 2026 NBA Finals',                pct: 78, d: +5,  vol: '₱4.0M', slug: 'nba-knicks' },
+    { cat: 'World Cup', q: 'Brazil win the 2026 FIFA World Cup',                pct: 14, d: +4,  vol: '₱4.0M', slug: 'wc-brazil' },
     { cat: 'PBA',       q: 'Ginebra wins the 2026 PBA Commissioner’s Cup',       pct: 41, d: -3,  vol: '₱2.8M' },
-    { cat: 'NBA',       q: 'Wembanyama outscores SGA in the West Finals series', pct: 38, d: +4,  vol: '₱1.9M' },
+    { cat: 'World Cup', q: 'Spain win the 2026 FIFA World Cup',                 pct: 11, d: +3,  vol: '₱1.9M', slug: 'wc-spain' },
     { cat: 'Boxing',    q: 'Manny Pacquiao announces a return bout in 2026',     pct: 17, d: +1,  vol: '₱2.7M' },
     { cat: 'F1',        q: "Max Verstappen wins the 2026 Drivers' Championship", pct: 41, d: -6,  vol: '₱783K' },
   ],
