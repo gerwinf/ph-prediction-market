@@ -73,20 +73,47 @@ export async function GET(req: Request) {
 
   const rows = data ?? []
   const cardsSold = rows.length
-  const totalWagered = rows.reduce((s, r) => s + (r.price_php ?? 0), 0)
-  const totalPaid = rows.reduce((s, r) => s + (r.score ?? 0), 0)
+  const cardsWagered = rows.reduce((s, r) => s + (r.price_php ?? 0), 0)
+  const cardsPaid = rows.reduce((s, r) => s + (r.score ?? 0), 0)
   // Prefer stored hold_amount; fall back to wager − payout for any row that
   // predates the column being populated.
-  const totalHold = rows.reduce(
+  const cardsHold = rows.reduce(
     (s, r) => s + (r.hold_amount ?? (r.price_php ?? 0) - (r.score ?? 0)),
     0
   )
+
+  // Fixed-odds market-maker positions share the same GGR paradigm (migration
+  // 012: hold = stake − payout, settled_at on resolution). Aggregate them
+  // alongside cards so the operator GGR view isn't blind to the betting book.
+  const { data: posData, error: posErr } = await admin
+    .from('positions')
+    .select('stake, payout, hold_amount')
+    .eq('operator_id', operator)
+    .not('settled_at', 'is', null)
+    .gte('settled_at', sinceIso)
+  if (posErr) {
+    return NextResponse.json(
+      { ok: false, error: 'db_error', message: posErr.message },
+      { status: 500 }
+    )
+  }
+  const posRows = posData ?? []
+  const posWagered = posRows.reduce((s, r) => s + (r.stake ?? 0), 0)
+  const posPaid = posRows.reduce((s, r) => s + (r.payout ?? 0), 0)
+  const posHold = posRows.reduce(
+    (s, r) => s + (r.hold_amount ?? (r.stake ?? 0) - (r.payout ?? 0)),
+    0
+  )
+
+  const totalWagered = cardsWagered + posWagered
+  const totalPaid = cardsPaid + posPaid
+  const totalHold = cardsHold + posHold
   const holdPct = totalWagered > 0 ? Math.round((totalHold / totalWagered) * 1000) / 10 : 0
 
   // Projection: scale observed wager-per-card to the target player count,
   // then apply the scenario hold rate. Independent of the (volatile)
   // observed hold — these are scenario models for the operator's book.
-  const wagerPerCard = cardsSold > 0 ? totalWagered / cardsSold : 0
+  const wagerPerCard = cardsSold > 0 ? cardsWagered / cardsSold : 0
   const projectedWageredAtTarget = wagerPerCard * targetPlayers
   const projections = [0.02, 0.05, 0.1].map((rate) => ({
     hold_rate: rate,
@@ -105,6 +132,10 @@ export async function GET(req: Request) {
         total_paid: totalPaid,
         total_hold: totalHold,
         hold_pct: holdPct,
+      },
+      by_mechanic: {
+        cards: { wagered: cardsWagered, paid: cardsPaid, hold: cardsHold },
+        markets: { bets: posRows.length, wagered: posWagered, paid: posPaid, hold: posHold },
       },
       projections,
       note:
