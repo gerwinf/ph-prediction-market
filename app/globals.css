@@ -3062,7 +3062,7 @@ button:focus {
 .wc-foot strong { color: var(--ink-2); font-weight: 600; }
 
 /* tabs — Limitless-style market nav, Hula colors */
-.wc-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin: 30px auto 0; padding: 0 4px; flex-wrap: wrap; }
+.wc-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); max-width: 1120px; margin: 30px auto 0; padding: 0 4px; flex-wrap: wrap; }
 @media (max-width: 720px) { .wc-tabs { margin-inline: 16px; } }
 .wc-tab {
   padding: 11px 14px; font-family: var(--ff-sans); font-size: 14px; font-weight: 450; color: var(--ink-3);
