@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, FormEvent } from 'react'
+import Link from 'next/link'
 import {
   CATEGORIES,
   MARKETS as SEED_MARKETS,
@@ -52,6 +53,31 @@ function liveSlugs(markets: Record<CategoryKey, MarketRow[]>): string[] {
       ].filter(Boolean) as string[],
     ),
   )
+}
+
+// Marquee spotlight for the current "big event." This is the one knob to turn
+// when the next major event takes over the highlight slot (Olympics, national
+// elections, an NBA Finals run…): point `href` at its hub and rewrite the copy.
+// Set to `null` to drop the spotlight section, nav pill, and hero link entirely.
+type FeaturedEventConfig = {
+  tag: string        // mono kicker, e.g. "Featured event · Live now"
+  title: string      // wordmark lead, e.g. "World Cup"
+  titleEm: string    // accented tail, e.g. "2026"
+  blurb: string
+  href: string       // route to the event hub
+  cta: string        // button label
+  meta: string       // small mono note under the CTA
+}
+
+const FEATURED_EVENT: FeaturedEventConfig | null = {
+  tag: 'Featured event · Live now',
+  title: 'World Cup',
+  titleEm: '2026',
+  blurb:
+    'Every match and every contender, priced live and settled in pesos — from the group stage to the final.',
+  href: '/worldcup',
+  cta: 'Enter the hub →',
+  meta: 'Live odds · 48 nations',
 }
 
 function LogoMono() {
@@ -106,6 +132,11 @@ function Nav({ onBurger }: { onBurger: () => void }) {
           <a href="#markets">Sports</a>
           <a href="#markets">Showbiz</a>
           <a href="#how">How it works</a>
+          {FEATURED_EVENT && (
+            <Link className="nav-event" href={FEATURED_EVENT.href}>
+              {FEATURED_EVENT.title} {FEATURED_EVENT.titleEm}
+            </Link>
+          )}
         </div>
       </div>
       <div className="nav-r">
@@ -142,6 +173,11 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
         <a href="#markets" onClick={go('markets')}>Markets</a>
         <a href="#how" onClick={go('how')}>How it works</a>
         <a href="#waitlist" onClick={go('waitlist')}>Reserve handle</a>
+        {FEATURED_EVENT && (
+          <Link className="mobile-menu-event" href={FEATURED_EVENT.href} onClick={onClose}>
+            {FEATURED_EVENT.title} {FEATURED_EVENT.titleEm} →
+          </Link>
+        )}
       </div>
       <div className="mobile-menu-foot">
         <a className="btn btn-primary btn-lg" href="#waitlist" onClick={go('waitlist')}>Hulaan na →</a>
@@ -179,6 +215,29 @@ function FeaturedCard({ prices }: { prices: PricesMap }) {
         </button>
       </div>
     </div>
+  )
+}
+
+// Reusable highlight band for the current marquee event (see FEATURED_EVENT).
+// Renders nothing when no event is configured. Sits between the hero and the
+// live-market grid so the biggest story of the moment gets top billing.
+function FeaturedEvent() {
+  const e = FEATURED_EVENT
+  if (!e) return null
+  return (
+    <section className="section shell event-section">
+      <Link href={e.href} className="event-spotlight">
+        <div className="event-spotlight-l">
+          <span className="event-tag"><span className="event-dot" />{e.tag}</span>
+          <h2 className="event-title">{e.title} <em>{e.titleEm}</em></h2>
+          <p className="event-blurb">{e.blurb}</p>
+        </div>
+        <div className="event-spotlight-r">
+          <span className="event-cta">{e.cta}</span>
+          <span className="event-meta">{e.meta}</span>
+        </div>
+      </Link>
+    </section>
   )
 }
 
@@ -235,10 +294,17 @@ function Hero({ prices }: { prices: PricesMap }) {
     <section className="hero shell">
       <div className="hero-grid">
         <div>
-          <div className="eyebrow">
-            <span className="dot" />
-            World Cup 2026 is live · Reserve a handle
-          </div>
+          {FEATURED_EVENT ? (
+            <Link href={FEATURED_EVENT.href} className="eyebrow eyebrow-link">
+              <span className="dot" />
+              {FEATURED_EVENT.title} {FEATURED_EVENT.titleEm} is live →
+            </Link>
+          ) : (
+            <div className="eyebrow">
+              <span className="dot" />
+              Reserve a handle
+            </div>
+          )}
           <h1 className="h1">
             The market for <em>what happens next.</em>
           </h1>
@@ -503,6 +569,7 @@ export default function Home() {
       <Ticker prices={prices} />
       <Nav onBurger={() => setMenuOpen(true)} />
       <Hero prices={prices} />
+      <FeaturedEvent />
       <Markets prices={prices} markets={markets} />
       <HowItWorks />
       <Pullquote />

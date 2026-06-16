@@ -173,6 +173,13 @@ button:focus {
   letter-spacing: -0.005em;
 }
 .hula-v2 .nav-links a:hover { color: var(--accent); }
+.hula-v2 .nav-links a.nav-event {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--accent); font-weight: 500;
+}
+.hula-v2 .nav-links a.nav-event::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+}
 @media (max-width: 720px) { .hula-v2 .nav-links { display: none; } }
 
 /* buttons */
@@ -229,6 +236,8 @@ button:focus {
   text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-3);
   padding-bottom: 18px;
 }
+.hula-v2 a.eyebrow-link { text-decoration: none; transition: color 0.15s ease; }
+.hula-v2 a.eyebrow-link:hover { color: var(--accent); }
 .hula-v2 .eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
   box-shadow: 0 0 0 4px rgba(232,122,30,.22); animation: hula-pulse 2.2s infinite; }
 @keyframes hula-pulse {
@@ -314,6 +323,68 @@ button:focus {
 .hula-v2 .bet-btn.yes:hover .lbl { color: rgba(255,255,255,.75); }
 .hula-v2 .bet-btn.no:hover  { background: var(--down); color: #fff; border-color: var(--down); }
 .hula-v2 .bet-btn.no:hover .lbl  { color: rgba(255,255,255,.75); }
+
+/* featured-event spotlight — marquee band for the current big event */
+.hula-v2 .event-spotlight {
+  display: flex; align-items: center; justify-content: space-between; gap: 32px;
+  padding: 36px 40px;
+  border: 1px solid var(--line-2); border-radius: 20px;
+  background: linear-gradient(120deg, var(--paper) 0%, var(--bg-2) 100%);
+  position: relative; overflow: hidden; text-decoration: none; color: var(--ink);
+  transition: border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+.hula-v2 .event-spotlight::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px;
+  background: var(--accent);
+}
+.hula-v2 .event-spotlight:hover {
+  border-color: var(--ink); transform: translateY(-2px);
+  box-shadow: 0 24px 48px -28px rgba(15,36,25,.28);
+}
+.hula-v2 .event-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--ff-mono); font-size: 11px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--accent);
+}
+.hula-v2 .event-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--accent);
+  animation: event-pulse 2s infinite;
+}
+@keyframes event-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(232,122,30,.45); }
+  70%  { box-shadow: 0 0 0 8px rgba(232,122,30,0); }
+  100% { box-shadow: 0 0 0 0 rgba(232,122,30,0); }
+}
+.hula-v2 .event-title {
+  font-family: var(--ff-sans); font-weight: 600;
+  font-size: clamp(30px, 4.5vw, 46px); line-height: 1; letter-spacing: -0.03em;
+  margin: 14px 0 0;
+}
+.hula-v2 .event-title em { font-style: italic; color: var(--accent); }
+.hula-v2 .event-blurb {
+  font-size: 15px; line-height: 1.5; color: var(--ink-2);
+  max-width: 48ch; margin: 12px 0 0;
+}
+.hula-v2 .event-spotlight-r {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 12px; flex-shrink: 0;
+}
+.hula-v2 .event-cta {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 52px; padding: 0 26px; border-radius: 12px;
+  background: var(--ink); color: #fff;
+  font-family: var(--ff-sans); font-weight: 500; font-size: 15px; white-space: nowrap;
+  transition: background 0.18s ease;
+}
+.hula-v2 .event-spotlight:hover .event-cta { background: var(--accent); }
+.hula-v2 .event-meta {
+  font-family: var(--ff-mono); font-size: 11px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--ink-3);
+}
+@media (max-width: 720px) {
+  .hula-v2 .event-spotlight { flex-direction: column; align-items: flex-start; gap: 24px; padding: 28px 24px; }
+  .hula-v2 .event-spotlight-r { align-items: flex-start; width: 100%; }
+  .hula-v2 .event-cta { width: 100%; }
+}
 
 /* sections */
 .hula-v2 .section { padding-top: 72px; padding-bottom: 72px; border-top: 1px solid var(--line); }
@@ -627,6 +698,7 @@ button:focus {
   border-bottom: 1px solid var(--line);
 }
 .hula-v2 .mobile-menu-links a:hover { color: var(--accent); }
+.hula-v2 .mobile-menu-links a.mobile-menu-event { color: var(--accent); }
 .hula-v2 .mobile-menu-foot {
   padding: 24px; padding-bottom: max(24px, env(safe-area-inset-bottom));
   display: flex; flex-direction: column; gap: 10px;
