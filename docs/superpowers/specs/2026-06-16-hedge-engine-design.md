@@ -2,8 +2,12 @@
 
 Branch: `gerwinf/cold-start-market-maker`
 Date: 2026-06-16
-Status: REVIEWED (eng, 2026-06-16) — D-loop2 resolved → async hedge queue. Gated on the
-extended feasibility spike (esp. clientOrderId support) before the full build.
+Status: ON HOLD / DEFERRED (2026-06-16) — eng-reviewed and ready, but blocked by PH regulatory
+reality: real-money prediction markets are not licensable in the PH short-term, and PAGCOR has
+ordered Polymarket blocked. Revive only for a different jurisdiction or a counsel-approved
+offshore/treasury structure. The shippable PH path is the virtual-currency fixed-odds bot
+(`2026-06-16-cold-start-market-maker-design.md`). Eng review (async hedge queue, F1/F2 fixes)
+preserved below for when this is picked back up.
 Parent: hedged-CLOB direction (supersedes `2026-06-16-cold-start-market-maker-design.md`)
 
 ## Context

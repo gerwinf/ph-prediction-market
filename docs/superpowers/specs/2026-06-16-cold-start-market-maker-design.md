@@ -3,11 +3,13 @@
 
 Branch: `gerwinf/cold-start-market-maker`
 Date: 2026-06-16
-Status: SUPERSEDED (2026-06-16) — replaced by the hedged-CLOB direction (Stefan/Gnosis):
-own CLOB + bot that mirrors Polymarket and hedges every fill (riskless principal), real pesos
-+ USDC hedge. This house-book/fixed-odds design assumed the house carries risk; the hedged model
-does not. Pure odds math (`lib/mm/odds.ts`) and Polymarket anchoring may be reused; the house-book
-`place_bet`/`settle_market` RPCs are not. New spec to follow.
+Status: ACTIVE (re-confirmed 2026-06-16) — this is the shippable PH path. The hedged-CLOB
+real-money direction is DEFERRED: PH reporting (May 2026) confirms real-money prediction markets
+are not licensable in the PH short-term (no PAGCOR license for any prediction-market platform; a
+legal expert sees "no short-term pathway"), and PAGCOR has ordered Polymarket blocked. So the
+PH product stays virtual-currency, where this fixed-odds house book needs no prediction-market
+license. The hedged CLOB (`2026-06-16-hedge-engine-design.md`) is held for a future/different
+jurisdiction. House carries the (virtual) risk; no hedging.
 
 ## Problem
 
