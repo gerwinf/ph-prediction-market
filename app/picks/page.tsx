@@ -82,32 +82,32 @@ const SPORT_LABEL: Record<Sport, string> = {
 const PROPS: Prop[] = [
   // ─── World Cup 2026 — group stage LIVE (verified vs ESPN/FIFA schedule Jun 2026)
   // ET kickoffs converted to PHT (+12h). Neymar is out injured for Brazil.
+  // Matchday 2 fixtures, upcoming as of 2026-06-16.
 
-  // Jun 13 ET · Brazil vs Morocco, Group C, MetLife Stadium (East Rutherford)
+  // Jun 19 ET · Brazil vs Haiti, Group C
   { id: 'wc-vini-sot', sport: 'wc', kind: 'player',
-    game: 'Brazil vs Morocco · Group C', when: 'Jun 14 · 6:00 AM PHT',
+    game: 'Brazil vs Haiti · Group C', when: 'Jun 20 · 9:00 AM PHT',
     player: 'Vinícius Júnior', team: 'BRA', stat: 'Shots on target', line: 1.5, unit: 'SoT',
     photo: wp('2023 05 06 Final de la Copa del Rey - 52879242230 (cropped).jpg') },
   { id: 'wc-raphinha-goals', sport: 'wc', kind: 'player',
-    game: 'Brazil vs Morocco · Group C', when: 'Jun 14 · 6:00 AM PHT',
+    game: 'Brazil vs Haiti · Group C', when: 'Jun 20 · 9:00 AM PHT',
     player: 'Raphinha', team: 'BRA', stat: 'Goals', line: 0.5, unit: 'goals',
     photo: wp('Raphael Dias Belloli 2023.jpg') },
   { id: 'wc-bra-total-goals', sport: 'wc', kind: 'team',
-    game: 'Brazil vs Morocco · Group C', when: 'Jun 14 · 6:00 AM PHT',
-    player: 'Match total goals', team: 'BRA · MAR', stat: 'Both teams · Total', line: 2.5, unit: 'goals',
+    game: 'Brazil vs Haiti · Group C', when: 'Jun 20 · 9:00 AM PHT',
+    player: 'Match total goals', team: 'BRA · HAI', stat: 'Both teams · Total', line: 2.5, unit: 'goals',
     badge: 'VS', badgeBg: '#0f2419', badgeFg: '#f5f1e3' },
 
-  // Jun 12 ET · USA vs Paraguay, Group D, SoFi Stadium (Inglewood)
+  // Jun 19 ET · USA vs Australia, Group D, Seattle (Lumen Field)
   { id: 'wc-pulisic-sot', sport: 'wc', kind: 'player',
-    game: 'USA vs Paraguay · Group D', when: 'Jun 13 · 9:00 AM PHT',
+    game: 'USA vs Australia · Group D', when: 'Jun 20 · 3:00 AM PHT',
     player: 'Christian Pulisic', team: 'USA', stat: 'Shots on target', line: 1.5, unit: 'SoT',
     photo: wp('Christian Pulisic USMNT v Belgium Mar 28 2026-73 (cropped).jpg') },
 
-  // Jun 15 ET · Spain vs Cape Verde, Group H, Mercedes-Benz Stadium (Atlanta)
-  // Yamal eased back from injury (~15–20 min) — low line.
+  // Jun 21 ET · Spain vs Saudi Arabia, Group H
   { id: 'wc-yamal-sot', sport: 'wc', kind: 'player',
-    game: 'Spain vs Cape Verde · Group H', when: 'Jun 16 · 1:00 AM PHT',
-    player: 'Lamine Yamal', team: 'ESP', stat: 'Shots on target', line: 0.5, unit: 'SoT',
+    game: 'Spain vs Saudi Arabia · Group H', when: 'Jun 22 · 12:00 AM PHT',
+    player: 'Lamine Yamal', team: 'ESP', stat: 'Shots on target', line: 1.5, unit: 'SoT',
     photo: wp('Lamine Yamal in 2025.jpg') },
 
   // ─── PBA Commissioner's Cup FINALS — Ginebra vs TNT (best-of-7, live Jun 2026)
