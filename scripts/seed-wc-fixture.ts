@@ -28,12 +28,13 @@ const SLUG = 'wc-argentina' // pinned in lib/oracle/slugs.ts LIVE_MARKETS (id 55
 const FIXTURE_ID = 'wc-arg-alg-2026-06-16'
 
 // Argentina vs Algeria — World Cup 2026 Group J, Arrowhead Stadium, Kansas City.
-// Jun 16 local (Jun 17 PHT). Genuinely upcoming as of today (2026-06-12).
+// Kickoff Jun 16 8:00 PM CDT = Jun 17 01:00 UTC = Jun 17 9:00 AM PHT.
+// Genuinely upcoming as of today (2026-06-16).
 const FIXTURE = {
   id: FIXTURE_ID,
   card_type: 'sports' as const,
   match_label: 'Argentina vs Algeria — World Cup 2026 · Group J',
-  starts_at: '2026-06-16T20:00:00+00:00',
+  starts_at: '2026-06-17T01:00:00+00:00',
   status: 'scheduled' as const,
   source: 'manual:wc',
   venue: 'Arrowhead Stadium, Kansas City',

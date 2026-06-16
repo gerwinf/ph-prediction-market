@@ -40,24 +40,24 @@ export type Market = MarketBinary | Market3way
 
 export const HULA_MARKETS: Market[] = [
   {
-    id: 'WC26-ARG-MEX',
+    id: 'WC26-ARG-ALG',
     cat: 'Football',
     catLabel: 'World Cup 2026',
     type: '3way',
-    title: 'Argentina vs Mexico — Group Stage',
-    subtitle: 'Estadio Azteca · Jun 11, 8:00 PM PHT',
+    title: 'Argentina vs Algeria — Group Stage',
+    subtitle: 'Arrowhead Stadium · Jun 17, 9:00 AM PHT',
     outcomes: [
-      { id: 'home', label: 'Argentina', sub: 'HOME', price: 52, prev: 49 },
-      { id: 'draw', label: 'Draw',      sub: 'DRAW', price: 26, prev: 28 },
-      { id: 'away', label: 'Mexico',    sub: 'AWAY', price: 22, prev: 23 },
+      { id: 'home', label: 'Argentina', sub: 'HOME', price: 71, prev: 69 },
+      { id: 'draw', label: 'Draw',      sub: 'DRAW', price: 19, prev: 21 },
+      { id: 'away', label: 'Algeria',   sub: 'AWAY', price: 10, prev: 11 },
     ],
     volume: 312500, liquidity: 92800,
     movers: {
-      home: [44, 46, 48, 49, 50, 51, 52, 52],
-      draw: [30, 29, 28, 27, 28, 27, 26, 26],
-      away: [26, 25, 24, 24, 22, 22, 22, 22],
+      home: [64, 66, 68, 69, 70, 70, 71, 71],
+      draw: [24, 23, 22, 21, 20, 20, 19, 19],
+      away: [12, 11, 10, 10, 10, 10, 10, 10],
     },
-    closes: 'Closes at kickoff · Jun 11, 8:00 PM',
+    closes: 'Closes at kickoff · Jun 17, 9:00 AM',
     resolution: 'FIFA-official feed via Pyth oracle',
     img: 'linear-gradient(135deg, #75AADB 0%, #1E3A8A 100%)',
   },
@@ -178,10 +178,10 @@ export const HULA_POSITIONS_OPEN: OpenPosition[] = [
     cost: 11600, value: 12800, status: 'open',
   },
   {
-    id: 'p2', marketId: 'WC26-ARG-MEX',
-    market: 'Argentina vs Mexico',
-    outcome: 'Argentina (HOME)', shares: 100, avgPrice: 48, currentPrice: 52,
-    cost: 4800, value: 5200, status: 'open',
+    id: 'p2', marketId: 'WC26-ARG-ALG',
+    market: 'Argentina vs Algeria',
+    outcome: 'Argentina (HOME)', shares: 100, avgPrice: 68, currentPrice: 71,
+    cost: 6800, value: 7100, status: 'open',
   },
 ]
 
