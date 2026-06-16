@@ -31,14 +31,13 @@ const T = (name: string, iso: string): Team => ({ name, iso })
 // realistic and refresh as matchdays pass.
 export const FIXTURES: Fixture[] = [
   {
-    id: 'wc-mex-rsa',
-    home: T('Mexico', 'mx'),
-    away: T('South Africa', 'za'),
-    group: 'A',
-    kickoffISO: '2026-06-12T22:00:00.000Z',
-    venue: 'Estadio Azteca',
-    slug: 'wc-mex-rsa',
-    fallback: { home: 55, draw: 25, away: 20 },
+    id: 'wc-eng-usa',
+    home: T('England', 'gb'),
+    away: T('USA', 'us'),
+    group: 'D',
+    kickoffISO: '2026-06-16T23:00:00.000Z',
+    venue: 'MetLife Stadium',
+    fallback: { home: 52, draw: 26, away: 22 },
   },
   {
     id: 'wc-arg-alg',
@@ -60,6 +59,15 @@ export const FIXTURES: Fixture[] = [
     fallback: { home: 47, draw: 27, away: 26 },
   },
   {
+    id: 'wc-ned-ger',
+    home: T('Netherlands', 'nl'),
+    away: T('Germany', 'de'),
+    group: 'H',
+    kickoffISO: '2026-06-19T19:00:00.000Z',
+    venue: 'Lincoln Financial Field',
+    fallback: { home: 40, draw: 28, away: 32 },
+  },
+  {
     id: 'wc-bra-fra',
     home: T('Brazil', 'br'),
     away: T('France', 'fr'),
@@ -67,5 +75,14 @@ export const FIXTURES: Fixture[] = [
     kickoffISO: '2026-06-20T22:00:00.000Z',
     venue: 'SoFi Stadium',
     fallback: { home: 41, draw: 28, away: 31 },
+  },
+  {
+    id: 'wc-por-mar',
+    home: T('Portugal', 'pt'),
+    away: T('Morocco', 'ma'),
+    group: 'E',
+    kickoffISO: '2026-06-21T22:00:00.000Z',
+    venue: 'AT&T Stadium',
+    fallback: { home: 56, draw: 26, away: 18 },
   },
 ]
