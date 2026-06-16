@@ -2909,7 +2909,7 @@ button:focus {
   font-family: var(--ff-sans);
   padding-bottom: 56px;
 }
-.wc-max, .wc-header, .wc-spotlight, .wc-leaderboard-list,
+.wc-max, .wc-header, .wc-spotlight,
 .wc-grid-list, .wc-cta { max-width: 1120px; margin-inline: auto; }
 
 /* header — mirrors the landing nav */
@@ -2985,21 +2985,40 @@ button:focus {
 .wc-odd-lbl { font-family: var(--ff-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); }
 .wc-odd-pct { font-family: var(--ff-mono); font-size: 18px; font-weight: 600; }
 
-/* leaderboard */
-.wc-leaderboard-list { display: flex; flex-direction: column; gap: 8px; }
-@media (max-width: 720px) { .wc-leaderboard-list { margin-inline: 16px; } }
-.wc-lb-row {
-  display: grid; grid-template-columns: 30px 1fr 2.4fr auto; align-items: center; gap: 14px;
-  padding: 14px 18px; border-radius: 14px; border: 1px solid var(--line);
-  background: var(--paper); color: var(--ink); cursor: pointer; text-align: left;
-  transition: border-color .12s ease;
+/* winner market — Polymarket-style ranked Yes/No rows */
+.wc-win-list { max-width: 1120px; margin-inline: auto; display: flex; flex-direction: column; }
+@media (max-width: 720px) { .wc-win-list { margin-inline: 16px; } }
+.wc-win-row {
+  display: grid; grid-template-columns: 22px 30px minmax(0,1fr) auto auto; align-items: center; gap: 14px;
+  padding: 12px 6px; border-bottom: 1px solid var(--line);
 }
-.wc-lb-row:hover { border-color: var(--ink); }
-.wc-lb-flag { border-radius: 3px; border: 1px solid var(--line-2); object-fit: cover; }
-.wc-lb-name { font-family: var(--ff-sans); font-size: 15px; font-weight: 550; letter-spacing: -0.01em; }
-.wc-lb-bar { height: 8px; border-radius: 999px; background: var(--bg-2); overflow: hidden; }
-.wc-lb-bar > i { display: block; height: 100%; background: var(--accent); }
-.wc-lb-pct { font-family: var(--ff-mono); font-size: 15px; font-weight: 600; min-width: 40px; text-align: right; }
+.wc-win-row:first-child { border-top: 1px solid var(--line); }
+.wc-win-rank { font-family: var(--ff-mono); font-size: 12px; color: var(--ink-3); text-align: right; }
+.wc-win-flag { border-radius: 3px; border: 1px solid var(--line-2); object-fit: cover; }
+.wc-win-id { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.wc-win-name { font-family: var(--ff-sans); font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+.wc-win-vol { font-family: var(--ff-mono); font-size: 10px; letter-spacing: 0.04em; color: var(--ink-3); }
+.wc-win-prob { display: inline-flex; align-items: baseline; gap: 7px; justify-content: flex-end; min-width: 78px; }
+.wc-win-pct { font-family: var(--ff-mono); font-size: 22px; font-weight: 500; letter-spacing: -0.01em; }
+.wc-win-delta { font-family: var(--ff-mono); font-size: 11px; font-weight: 500; }
+.wc-win-delta[data-dir="up"] { color: var(--up); }
+.wc-win-delta[data-dir="down"] { color: var(--down); }
+.wc-win-bets { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.wc-bet {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 1px; width: 72px;
+  padding: 7px 10px; border-radius: 9px; cursor: pointer; transition: all .12s ease; border: 1px solid transparent;
+}
+.wc-bet-lbl { font-family: var(--ff-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; }
+.wc-bet-val { font-family: var(--ff-mono); font-size: 14px; font-weight: 600; }
+.wc-bet-yes { background: rgba(31,122,58,.10); color: var(--up); border-color: rgba(31,122,58,.22); }
+.wc-bet-yes:hover { background: var(--up); color: #fff; border-color: var(--up); }
+.wc-bet-no { background: rgba(176,50,39,.09); color: var(--down); border-color: rgba(176,50,39,.20); }
+.wc-bet-no:hover { background: var(--down); color: #fff; border-color: var(--down); }
+@media (max-width: 480px) {
+  .wc-win-row { grid-template-columns: 18px 26px minmax(0,1fr) auto; gap: 10px; row-gap: 10px; }
+  .wc-win-bets { grid-column: 1 / -1; }
+  .wc-bet { width: 100%; align-items: center; }
+}
 
 /* match grid base — dense card styles are appended further below */
 .wc-grid-list { display: grid; gap: 16px; }

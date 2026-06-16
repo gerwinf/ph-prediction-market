@@ -190,27 +190,46 @@ function WinnerLeaderboard({ prices, onYes }: { prices: PricesMap; onYes: (c: st
   const rows = CONTENDERS
     .map((c) => ({ ...c, pct: winnerPct(prices, c.slug, c.fallbackPct) }))
     .sort((a, b) => b.pct - a.pct)
-  const max = Math.max(...rows.map((r) => r.pct), 1)
 
   return (
     <section className="wc-leaderboard">
-      <div className="wc-panel-note">Champion odds · live · tap to follow a market</div>
-      <div className="wc-leaderboard-list">
-        {rows.map((r) => (
-          <button key={r.name} className="wc-lb-row" onClick={() => onYes(`${r.name} to win the World Cup`)}>
+      <div className="wc-panel-note">Champion market · price = chance · YES pays ₱100</div>
+      <div className="wc-win-list">
+        {rows.map((r, i) => (
+          <div key={r.name} className="wc-win-row">
+            <span className="wc-win-rank">{i + 1}</span>
             <img
-              className="wc-lb-flag"
+              className="wc-win-flag"
               src={flagUrl(r.iso, 40)}
               alt={r.name}
-              width={28}
-              height={21}
+              width={30}
+              height={22}
               loading="lazy"
               onError={(e) => { e.currentTarget.style.visibility = 'hidden' }}
             />
-            <span className="wc-lb-name">{r.name}</span>
-            <span className="wc-lb-bar"><i style={{ width: `${(r.pct / max) * 100}%` }} /></span>
-            <span className="wc-lb-pct">{r.pct}%</span>
-          </button>
+            <span className="wc-win-id">
+              <span className="wc-win-name">{r.name}</span>
+              <span className="wc-win-vol">Vol {r.vol}</span>
+            </span>
+            <span className="wc-win-prob">
+              <span className="wc-win-pct">{r.pct}%</span>
+              {r.delta !== 0 && (
+                <span className="wc-win-delta" data-dir={r.delta > 0 ? 'up' : 'down'}>
+                  {r.delta > 0 ? '▲' : '▼'} {Math.abs(r.delta)}
+                </span>
+              )}
+            </span>
+            <span className="wc-win-bets">
+              <button className="wc-bet wc-bet-yes" onClick={() => onYes(`${r.name} to win the World Cup — YES`)}>
+                <span className="wc-bet-lbl">Yes</span>
+                <span className="wc-bet-val">₱{r.pct}</span>
+              </button>
+              <button className="wc-bet wc-bet-no" onClick={() => onYes(`${r.name} to win the World Cup — NO`)}>
+                <span className="wc-bet-lbl">No</span>
+                <span className="wc-bet-val">₱{100 - r.pct}</span>
+              </button>
+            </span>
+          </div>
         ))}
       </div>
     </section>

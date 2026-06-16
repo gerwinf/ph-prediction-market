@@ -5,20 +5,23 @@ export type Contender = {
   iso: string        // ISO 3166-1 alpha-2, lowercase (flagcdn key)
   slug?: string      // winner-market slug in lib/oracle/slugs.ts LIVE_MARKETS
   fallbackPct: number
+  vol: string        // curated market-depth label (PH-scale), Polymarket-style
+  delta: number      // curated 24h move in pct points (+/-); 0 = flat
 }
 
 // Winner leaderboard. Live odds overlay onto fallbackPct where `slug` resolves.
 // Ordered high→low by fallback; the page re-sorts by live pct after overlay.
+// `vol`/`delta` are curated flavor (market depth + 24h move) — Polymarket-style.
 export const CONTENDERS: Contender[] = [
-  { name: 'Spain',       iso: 'es', slug: 'wc-spain',     fallbackPct: 17 },
-  { name: 'France',      iso: 'fr', slug: 'wc-france',    fallbackPct: 16 },
-  { name: 'Argentina',   iso: 'ar', slug: 'wc-argentina', fallbackPct: 12 },
-  { name: 'Brazil',      iso: 'br', slug: 'wc-brazil',    fallbackPct: 11 },
+  { name: 'Spain',       iso: 'es', slug: 'wc-spain',     fallbackPct: 17, vol: '₱5.2M', delta: 1 },
+  { name: 'France',      iso: 'fr', slug: 'wc-france',    fallbackPct: 16, vol: '₱4.8M', delta: -1 },
+  { name: 'Argentina',   iso: 'ar', slug: 'wc-argentina', fallbackPct: 12, vol: '₱6.1M', delta: 2 },
+  { name: 'Brazil',      iso: 'br', slug: 'wc-brazil',    fallbackPct: 11, vol: '₱3.4M', delta: -1 },
   // England has no alpha-2 of its own; 'gb' renders the Union Jack on flagcdn.
-  { name: 'England',     iso: 'gb', slug: 'wc-england',   fallbackPct: 10 },
-  { name: 'Portugal',    iso: 'pt',                        fallbackPct: 7 },
-  { name: 'Germany',     iso: 'de',                        fallbackPct: 6 },
-  { name: 'Netherlands', iso: 'nl',                        fallbackPct: 5 },
+  { name: 'England',     iso: 'gb', slug: 'wc-england',   fallbackPct: 10, vol: '₱2.9M', delta: 1 },
+  { name: 'Portugal',    iso: 'pt',                        fallbackPct: 7,  vol: '₱1.8M', delta: 0 },
+  { name: 'Germany',     iso: 'de',                        fallbackPct: 6,  vol: '₱2.1M', delta: -2 },
+  { name: 'Netherlands', iso: 'nl',                        fallbackPct: 5,  vol: '₱1.5M', delta: 1 },
 ]
 
 const T = (name: string, iso: string): Team => ({ name, iso })
