@@ -26,29 +26,19 @@ export const CONTENDERS: Contender[] = [
 
 const T = (name: string, iso: string): Team => ({ name, iso })
 
-// Spotlight + match grid. `slug` points at a SLUG_TO_QUERY match market when one
-// exists; otherwise the curated `fallback` odds are shown. Keep kickoffISO times
+// Spotlight + match grid, ordered by kickoff. A `slug` would point at a pinned
+// match market in lib/oracle/slugs.ts (LIVE_MARKETS) when one exists; none do
+// today, so every match shows its curated `fallback` odds. Keep kickoffISO times
 // realistic and refresh as matchdays pass.
 export const FIXTURES: Fixture[] = [
   {
-    id: 'wc-mex-rsa',
-    home: T('Mexico', 'mx'),
-    away: T('South Africa', 'za'),
-    group: 'A',
-    kickoffISO: '2026-06-12T22:00:00.000Z',
-    venue: 'Estadio Azteca',
-    slug: 'wc-mex-rsa',
-    fallback: { home: 55, draw: 25, away: 20 },
-  },
-  {
-    id: 'wc-arg-alg',
+    id: 'wc-arg-cro',
     home: T('Argentina', 'ar'),
-    away: T('Algeria', 'dz'),
+    away: T('Croatia', 'hr'),
     group: 'J',
-    kickoffISO: '2026-06-17T01:00:00.000Z',
+    kickoffISO: '2026-06-17T19:00:00.000Z',
     venue: 'Arrowhead Stadium',
-    slug: 'wc-arg-alg',
-    fallback: { home: 68, draw: 20, away: 12 },
+    fallback: { home: 58, draw: 24, away: 18 },
   },
   {
     id: 'wc-esp-por',
@@ -58,6 +48,15 @@ export const FIXTURES: Fixture[] = [
     kickoffISO: '2026-06-18T19:00:00.000Z',
     venue: 'MetLife Stadium',
     fallback: { home: 47, draw: 27, away: 26 },
+  },
+  {
+    id: 'wc-ger-jpn',
+    home: T('Germany', 'de'),
+    away: T('Japan', 'jp'),
+    group: 'D',
+    kickoffISO: '2026-06-19T19:00:00.000Z',
+    venue: 'Lincoln Financial Field',
+    fallback: { home: 60, draw: 23, away: 17 },
   },
   {
     id: 'wc-bra-fra',
