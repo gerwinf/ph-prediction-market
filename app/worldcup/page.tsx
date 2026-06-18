@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
-import { CONTENDERS, FIXTURES } from '../../lib/worldcup/fixtures'
+import { CONTENDERS, FIXTURES, type Contender } from '../../lib/worldcup/fixtures'
 import { selectSpotlight, matchState, flagUrl, countdownParts, type Fixture } from '../../lib/worldcup/state'
 import { allWcSlugs, matchHomePct, winnerPct, type PricesMap } from '../../lib/worldcup/odds'
 
@@ -23,6 +23,8 @@ export default function WorldCupHub() {
   const [prices, setPrices] = useState<PricesMap>({})
   const [waitlistFor, setWaitlistFor] = useState<string | null>(null)
   const [tab, setTab] = useState<'matches' | 'winner'>('matches')
+  const [fixtures, setFixtures] = useState<Fixture[]>(FIXTURES)
+  const [contenders, setContenders] = useState<Contender[]>(CONTENDERS)
 
   // Mount: capture `now` (deferred to client to avoid hydration mismatch) and
   // tick every second so countdowns + live/final transitions stay current.
@@ -32,9 +34,24 @@ export default function WorldCupHub() {
     return () => clearInterval(id)
   }, [])
 
+  // Load operator-curated WC data. Any failure keeps the hardcoded seed; the
+  // endpoint itself also falls back per-kind, so this is belt-and-suspenders.
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/worldcup')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (cancelled || !data) return
+        if (Array.isArray(data.fixtures)) setFixtures(data.fixtures)
+        if (Array.isArray(data.contenders)) setContenders(data.contenders)
+      })
+      .catch(() => { /* keep hardcoded seed */ })
+    return () => { cancelled = true }
+  }, [])
+
   // Best-effort live odds. Any failure keeps the curated fallbacks.
   useEffect(() => {
-    const slugs = allWcSlugs(CONTENDERS, FIXTURES)
+    const slugs = allWcSlugs(contenders, fixtures)
     if (slugs.length === 0) return
     let cancelled = false
     fetch(`/api/prices?events=${slugs.join(',')}`)
@@ -42,15 +59,15 @@ export default function WorldCupHub() {
       .then((data: PricesMap) => { if (!cancelled) setPrices(data) })
       .catch(() => { /* keep fallbacks */ })
     return () => { cancelled = true }
-  }, [])
+  }, [fixtures, contenders])
 
   const spotlight = useMemo(
-    () => (now ? selectSpotlight(FIXTURES, now) : null),
-    [now]
+    () => (now ? selectSpotlight(fixtures, now) : null),
+    [now, fixtures]
   )
   const gridFixtures = useMemo(
-    () => FIXTURES.filter((f) => f.id !== spotlight?.id),
-    [spotlight]
+    () => fixtures.filter((f) => f.id !== spotlight?.id),
+    [fixtures, spotlight]
   )
 
   const updatedLabel = now
@@ -75,13 +92,13 @@ export default function WorldCupHub() {
           Matches<span className="wc-tab-count">{gridFixtures.length}</span>
         </button>
         <button className="wc-tab" data-active={tab === 'winner'} aria-pressed={tab === 'winner'} onClick={() => setTab('winner')}>
-          Who wins the Cup<span className="wc-tab-count">{CONTENDERS.length}</span>
+          Who wins the Cup<span className="wc-tab-count">{contenders.length}</span>
         </button>
       </nav>
 
       {tab === 'matches'
         ? <MatchGrid fixtures={gridFixtures} now={now} prices={prices} onYes={setWaitlistFor} />
-        : <WinnerLeaderboard prices={prices} onYes={setWaitlistFor} />}
+        : <WinnerLeaderboard contenders={contenders} prices={prices} onYes={setWaitlistFor} />}
 
       <CtaStrip />
 
@@ -185,9 +202,9 @@ function Spotlight({
     </section>
   )
 }
-function WinnerLeaderboard({ prices, onYes }: { prices: PricesMap; onYes: (c: string) => void }) {
+function WinnerLeaderboard({ contenders, prices, onYes }: { contenders: Contender[]; prices: PricesMap; onYes: (c: string) => void }) {
   // Overlay live odds, then sort high→low by the (live-or-fallback) pct.
-  const rows = CONTENDERS
+  const rows = contenders
     .map((c) => ({ ...c, pct: winnerPct(prices, c.slug, c.fallbackPct) }))
     .sort((a, b) => b.pct - a.pct)
 
