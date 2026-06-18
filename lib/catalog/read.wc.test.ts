@@ -73,8 +73,8 @@ describe('mapWcFixtureRow', () => {
       },
     })
     const f = mapWcFixtureRow(row as never)
-    expect(f.venue).toBeUndefined()
-    expect(f.slug).toBeUndefined()
+    expect('venue' in f).toBe(false)
+    expect('slug' in f).toBe(false)
     expect(f.id).toBe('row-uuid-1')
   })
 })
@@ -106,7 +106,7 @@ describe('mapWcContenderRow', () => {
       payload: { name: 'Germany', iso: 'de', fallback_pct: 6, vol: '₱2.1M', delta: -2 },
     })
     const c = mapWcContenderRow(row as never)
-    expect(c.slug).toBeUndefined()
+    expect('slug' in c).toBe(false)
     expect(c.fallbackPct).toBe(6)
   })
 })
