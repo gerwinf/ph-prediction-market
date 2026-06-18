@@ -26,45 +26,65 @@ export const CONTENDERS: Contender[] = [
 
 const T = (name: string, iso: string): Team => ({ name, iso })
 
-// Spotlight + match grid, ordered by kickoff. A `slug` would point at a pinned
-// match market in lib/oracle/slugs.ts (LIVE_MARKETS) when one exists; none do
-// today, so every match shows its curated `fallback` odds. Keep kickoffISO times
-// realistic and refresh as matchdays pass.
+// Spotlight + match grid, ordered by kickoff. Real FIFA World Cup 2026 group-stage
+// fixtures (refreshed 2026-06-18; kickoffs in UTC). A `slug` would point at a pinned
+// match market in lib/oracle/slugs.ts (LIVE_MARKETS) when one exists; none do today,
+// so every match shows its curated `fallback` odds. Refresh as matchdays pass — or
+// seed the catalog (scripts/seed-worldcup-catalog.ts) to manage these from
+// /ops/markets without a deploy.
 export const FIXTURES: Fixture[] = [
   {
-    id: 'wc-arg-cro',
-    home: T('Argentina', 'ar'),
-    away: T('Croatia', 'hr'),
-    group: 'J',
-    kickoffISO: '2026-06-17T19:00:00.000Z',
-    venue: 'Arrowhead Stadium',
-    fallback: { home: 58, draw: 24, away: 18 },
+    id: 'wc-mex-kor',
+    home: T('Mexico', 'mx'),
+    away: T('South Korea', 'kr'),
+    group: 'A',
+    kickoffISO: '2026-06-19T03:00:00.000Z',
+    venue: 'Estadio Akron, Guadalajara',
+    fallback: { home: 50, draw: 27, away: 23 },
   },
   {
-    id: 'wc-esp-por',
-    home: T('Spain', 'es'),
-    away: T('Portugal', 'pt'),
-    group: 'E',
-    kickoffISO: '2026-06-18T19:00:00.000Z',
-    venue: 'MetLife Stadium',
-    fallback: { home: 47, draw: 27, away: 26 },
-  },
-  {
-    id: 'wc-ger-jpn',
-    home: T('Germany', 'de'),
-    away: T('Japan', 'jp'),
+    id: 'wc-usa-aus',
+    home: T('United States', 'us'),
+    away: T('Australia', 'au'),
     group: 'D',
     kickoffISO: '2026-06-19T19:00:00.000Z',
-    venue: 'Lincoln Financial Field',
-    fallback: { home: 60, draw: 23, away: 17 },
+    venue: 'Lumen Field, Seattle',
+    fallback: { home: 52, draw: 26, away: 22 },
   },
   {
-    id: 'wc-bra-fra',
+    id: 'wc-bra-hai',
     home: T('Brazil', 'br'),
-    away: T('France', 'fr'),
+    away: T('Haiti', 'ht'),
     group: 'C',
-    kickoffISO: '2026-06-20T22:00:00.000Z',
-    venue: 'SoFi Stadium',
-    fallback: { home: 41, draw: 28, away: 31 },
+    kickoffISO: '2026-06-20T01:00:00.000Z',
+    venue: 'Lincoln Financial Field, Philadelphia',
+    fallback: { home: 84, draw: 11, away: 5 },
+  },
+  {
+    id: 'wc-ned-swe',
+    home: T('Netherlands', 'nl'),
+    away: T('Sweden', 'se'),
+    group: 'F',
+    kickoffISO: '2026-06-20T17:00:00.000Z',
+    venue: 'NRG Stadium, Houston',
+    fallback: { home: 56, draw: 25, away: 19 },
+  },
+  {
+    id: 'wc-ger-civ',
+    home: T('Germany', 'de'),
+    away: T('Ivory Coast', 'ci'),
+    group: 'E',
+    kickoffISO: '2026-06-20T20:00:00.000Z',
+    venue: 'BMO Field, Toronto',
+    fallback: { home: 68, draw: 20, away: 12 },
+  },
+  {
+    id: 'wc-esp-ksa',
+    home: T('Spain', 'es'),
+    away: T('Saudi Arabia', 'sa'),
+    group: 'H',
+    kickoffISO: '2026-06-21T16:00:00.000Z',
+    venue: 'Mercedes-Benz Stadium, Atlanta',
+    fallback: { home: 80, draw: 14, away: 6 },
   },
 ]
