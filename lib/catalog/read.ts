@@ -12,7 +12,11 @@ import type {
   CatalogEventCell,
   BinaryPayload,
   EventCellPayload,
+  WcFixturePayload,
+  WcContenderPayload,
 } from './types'
+import type { Fixture } from '../worldcup/state'
+import type { Contender } from '../worldcup/fixtures'
 
 const LIVE_STATUSES = ['approved', 'live']
 
@@ -97,6 +101,80 @@ export async function fetchApprovedEventCellsForFixture(
       source: r.source,
       payload: (r.payload ?? {}) as EventCellPayload,
     }))
+  } catch {
+    return []
+  }
+}
+
+/* ── World Cup adapters ──────────────────────────────────────────────────
+ * The /worldcup hub reads two WC kinds. Mappers convert the snake_case jsonb
+ * payload + the row's own id into the page's camelCase Fixture/Contender shapes.
+ * Both fetchers return [] on any failure → the page keeps its hardcoded data.
+ * ──────────────────────────────────────────────────────────────────────── */
+
+/** One wc_fixture row → a render-ready Fixture (row id becomes the fixture id). */
+export function mapWcFixtureRow(row: Row): Fixture {
+  const p = (row.payload ?? {}) as WcFixturePayload
+  const f: Fixture = {
+    id: row.id,
+    home: p.home,
+    away: p.away,
+    group: p.group,
+    kickoffISO: p.kickoff_iso,
+    fallback: p.fallback,
+  }
+  if (p.venue !== undefined) f.venue = p.venue
+  if (p.slug !== undefined) f.slug = p.slug
+  return f
+}
+
+/** Map + sort fixtures ascending by kickoff — the order the grid renders in. */
+export function mapWcFixtureRows(rows: Row[]): Fixture[] {
+  return rows.map(mapWcFixtureRow).sort((a, b) => a.kickoffISO.localeCompare(b.kickoffISO))
+}
+
+/** One wc_contender row → a render-ready Contender. */
+export function mapWcContenderRow(row: Row): Contender {
+  const p = (row.payload ?? {}) as WcContenderPayload
+  const c: Contender = {
+    name: p.name,
+    iso: p.iso,
+    fallbackPct: p.fallback_pct,
+    vol: p.vol,
+    delta: p.delta,
+  }
+  if (p.slug !== undefined) c.slug = p.slug
+  return c
+}
+
+/** Approved/live WC fixtures, sorted by kickoff. [] on any failure. */
+export async function fetchApprovedWcFixtures(): Promise<Fixture[]> {
+  try {
+    const admin = createAdminClient()
+    const { data, error } = await admin
+      .from('markets')
+      .select(SELECT)
+      .eq('kind', 'wc_fixture')
+      .in('status', LIVE_STATUSES)
+    if (error || !data) return []
+    return mapWcFixtureRows(data as Row[])
+  } catch {
+    return []
+  }
+}
+
+/** Approved/live WC contenders. [] on any failure. The page re-sorts by pct. */
+export async function fetchApprovedWcContenders(): Promise<Contender[]> {
+  try {
+    const admin = createAdminClient()
+    const { data, error } = await admin
+      .from('markets')
+      .select(SELECT)
+      .eq('kind', 'wc_contender')
+      .in('status', LIVE_STATUSES)
+      .order('interest_score', { ascending: false })
+    if (error || !data) return []
+    return (data as Row[]).map(mapWcContenderRow)
   } catch {
     return []
   }
