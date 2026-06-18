@@ -11,7 +11,7 @@
  */
 import type { EventCategory, GameEvent } from '../hits/types'
 
-export type MarketKind = 'binary' | 'event_cell'
+export type MarketKind = 'binary' | 'event_cell' | 'wc_fixture' | 'wc_contender'
 export type MarketStatus = 'candidate' | 'approved' | 'live' | 'retired'
 
 /**
@@ -43,6 +43,38 @@ export type EventCellPayload = {
   rarity: GameEvent['rarity']
   team?: string
   player?: string
+}
+
+/**
+ * World Cup match-card payload (kind='wc_fixture'). Snake_case mirrors the DB;
+ * the read adapter maps it to the page's camelCase `Fixture` (lib/worldcup/state).
+ * - `kickoff_iso`: ISO 8601 UTC kickoff time. Fixtures render ordered by this.
+ * - `slug`: optional LIVE_MARKETS key (lib/oracle/slugs) for a live odds overlay.
+ * - `fallback`: curated home/draw/away percentages shown until a live feed resolves.
+ */
+export type WcFixturePayload = {
+  home: { name: string; iso: string }
+  away: { name: string; iso: string }
+  group: string
+  kickoff_iso: string
+  venue?: string
+  slug?: string
+  fallback: { home: number; draw: number; away: number }
+}
+
+/**
+ * World Cup winner-leaderboard payload (kind='wc_contender'). Snake_case mirrors
+ * the DB; the read adapter maps it to the page's camelCase `Contender`.
+ * - `fallback_pct`: curated championship probability shown until a live feed resolves.
+ * - `vol` / `delta`: curated flavor (market depth label + 24h move in pct points).
+ */
+export type WcContenderPayload = {
+  name: string
+  iso: string
+  slug?: string
+  fallback_pct: number
+  vol: string
+  delta: number
 }
 
 /** A raw catalog row (either kind). */
