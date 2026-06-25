@@ -187,7 +187,8 @@ export default function OpsMarketsPage() {
   const active = TABS.find((t) => t.key === tab)!
   const rows = markets
     .filter((m) => active.statuses.includes(m.status))
-    .sort((a, b) => b.interestScore - a.interestScore)
+    // Newest first; interest score breaks ties (e.g. rows bulk-inserted by a seed).
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.interestScore - a.interestScore)
   const counts = Object.fromEntries(
     TABS.map((t) => [t.key, markets.filter((m) => t.statuses.includes(m.status)).length]),
   ) as Record<Tab, number>
