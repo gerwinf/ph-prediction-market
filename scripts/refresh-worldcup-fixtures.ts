@@ -7,9 +7,10 @@
  *
  * On each run it pulls the current + upcoming matches (resolved teams only),
  * REPLACES all `wc_fixture` rows with that set, and leaves `wc_contender` rows
- * untouched. Curated `fallback` odds are preserved across runs (matched on the
- * FIFA match id); brand-new fixtures get a neutral default until an operator
- * tweaks them in /ops/markets.
+ * untouched. The FIFA API carries no betting prices, so `fallback` odds are
+ * derived from a built-in team-strength table (favorites favored, even sides →
+ * higher draw %). Re-derived every run; edit STRENGTH to tune. Operators can
+ * still override odds per-row in /ops/markets, but a re-run recomputes them.
  *
  * Manual, idempotent — run it whenever you want the board to roll forward:
  *   npx tsx scripts/refresh-worldcup-fixtures.ts            # next ~8 days
@@ -31,7 +32,8 @@ const ID_COMPETITION = '17' // FIFA World Cup
 const ID_SEASON = '285023' // 2026 (Canada/Mexico/USA)
 const DEFAULT_FORWARD_DAYS = 8
 const MAX_FIXTURES = 12 // keep the /worldcup grid focused
-const DEFAULT_FALLBACK = { home: 40, draw: 30, away: 30 }
+const HOME_ADV = 3 // slight bump for the FIFA-designated "home" side
+const ELO_SCALE = 20 // strength points per ~order-of-magnitude odds shift
 
 // FIFA 3-letter country codes → ISO 3166-1 alpha-2 (lowercase, flagcdn keys).
 // England renders the Union Jack ('gb') to match the contenders board; Scotland
@@ -50,6 +52,38 @@ const FIFA_TO_ISO: Record<string, string> = {
 const NAME_OVERRIDE: Record<string, string> = {
   KOR: 'South Korea', IRN: 'Iran', TUR: 'Türkiye', USA: 'United States',
   CIV: 'Ivory Coast', RSA: 'South Africa',
+}
+
+// Rough team strength (0–100) used ONLY to derive curated fallback odds — the
+// FIFA API carries no betting prices. Approximate, tiered by recent form/quality;
+// tweak any value to taste. Unknown codes default to 70 (mid).
+const STRENGTH: Record<string, number> = {
+  ARG: 94, FRA: 93, ESP: 93, BRA: 91, ENG: 90, GER: 88, POR: 88, NED: 86,
+  BEL: 85, CRO: 83, URU: 83, MAR: 82, SUI: 80, COL: 80, SEN: 79, JPN: 78,
+  USA: 78, NOR: 78, MEX: 77, TUR: 76, CIV: 76, AUT: 76, EGY: 75, ECU: 75,
+  ALG: 74, SWE: 74, KOR: 74, CAN: 74, CZE: 73, IRN: 73, COD: 72, AUS: 72,
+  PAR: 72, SCO: 72, GHA: 70, TUN: 70, BIH: 70, RSA: 67, QAT: 67, PAN: 66,
+  KSA: 65, UZB: 65, IRQ: 64, JOR: 63, NZL: 61, HAI: 60, CPV: 60, CUW: 56,
+}
+
+const strengthOf = (code?: string): number => (code && STRENGTH[code]) || 70
+
+/**
+ * Derive home/draw/away percentages (summing to 100) from team strength via an
+ * Elo-style expected score, with draws likelier when the sides are even.
+ */
+function deriveFallback(homeCode?: string, awayCode?: string): WcFixturePayload['fallback'] {
+  const sh = strengthOf(homeCode) + HOME_ADV
+  const sa = strengthOf(awayCode)
+  const expHome = 1 / (1 + Math.pow(10, (sa - sh) / ELO_SCALE)) // 0..1 expected score
+  let draw = 0.3 - 0.4 * Math.abs(expHome - 0.5) // ~30% when even → shrinks when lopsided
+  draw = Math.max(0.1, Math.min(0.32, draw))
+  const home = Math.max(0.03, expHome - draw / 2)
+  const away = Math.max(0.03, 1 - expHome - draw / 2)
+  const total = home + draw + away
+  const h = Math.round((home / total) * 100)
+  const d = Math.round((draw / total) * 100)
+  return { home: h, draw: d, away: 100 - h - d }
 }
 
 type Loc = { Locale: string; Description: string }
@@ -138,20 +172,15 @@ async function main() {
     { auth: { autoRefreshToken: false, persistSession: false } },
   )
 
-  // Read existing wc_fixture rows to (a) preserve curated odds by FIFA match id
-  // and (b) know what to clear out.
+  // Read existing wc_fixture rows just to know what we're clearing out. Odds are
+  // re-derived from team strength every run, so there's nothing to carry over.
   const { data: existing, error: readErr } = await admin
     .from('markets')
-    .select('id, payload')
+    .select('id')
     .eq('kind', 'wc_fixture')
   if (readErr) {
     console.error('❌ could not read existing fixtures:', readErr.message)
     process.exit(1)
-  }
-  const oddsByFifaId = new Map<string, WcFixturePayload['fallback']>()
-  for (const r of existing ?? []) {
-    const p = (r.payload ?? {}) as { fifa_match_id?: string; fallback?: WcFixturePayload['fallback'] }
-    if (p.fifa_match_id && p.fallback) oddsByFifaId.set(p.fifa_match_id, p.fallback)
   }
 
   const rows: FixtureRow[] = window.map((m) => ({
@@ -169,7 +198,7 @@ async function main() {
       group: groupLabel(m),
       kickoff_iso: new Date(m.Date).toISOString(),
       venue: venueLabel(m) || undefined,
-      fallback: oddsByFifaId.get(m.IdMatch) ?? DEFAULT_FALLBACK,
+      fallback: deriveFallback(m.Home?.IdCountry, m.Away?.IdCountry),
       fifa_match_id: m.IdMatch,
     },
   }))
