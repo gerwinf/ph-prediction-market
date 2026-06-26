@@ -85,10 +85,13 @@ export async function GET(req: Request) {
     }
   }
 
-  const response: Record<string, { outcomes: unknown; is_stale: boolean; fetched_at: string }> = {}
+  const response: Record<
+    string,
+    { outcomes: unknown; is_stale: boolean; fetched_at: string; volume_usd: number | null }
+  > = {}
   for (const slug of slugs) {
     const r = bySlug.get(slug)
-    if (r) response[slug] = { outcomes: r.outcomes, is_stale: r.is_stale, fetched_at: r.fetched_at }
+    if (r) response[slug] = { outcomes: r.outcomes, is_stale: r.is_stale, fetched_at: r.fetched_at, volume_usd: r.volume_usd }
   }
 
   return NextResponse.json(response)
