@@ -3173,3 +3173,54 @@ button:focus {
 .wc-codd-draw:hover { border-color: var(--ink); }
 .wc-codd-lbl { font-family: var(--ff-mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 .wc-codd-pct { font-family: var(--ff-mono); font-size: 15px; font-weight: 600; }
+
+/* ── /worldcup/[id] — single market detail page ─────────────────────────── */
+.wc-detail-hero, .wc-detail-panel, .wc-detail-stats, .wc-detail-rules {
+  max-width: 1120px; margin-inline: auto;
+}
+.wc-detail-hero {
+  background: var(--paper); border: 1px solid var(--line); border-radius: 18px;
+  padding: 28px 24px; margin-top: 18px; text-align: center;
+}
+@media (max-width: 720px) { .wc-detail-hero { margin-inline: 16px; padding: 22px 18px; } }
+.wc-detail-hero[data-state="live"] { border-color: rgba(31,122,58,.45); }
+.wc-detail-eyebrow {
+  font-family: var(--ff-mono); font-size: 11px; text-transform: uppercase;
+  letter-spacing: 0.12em; color: var(--ink-3);
+}
+.wc-detail-panel { margin-top: 16px; }
+@media (max-width: 720px) { .wc-detail-panel { margin-inline: 16px; } }
+.wc-detail-stats { margin-top: 16px; display: flex; gap: 12px; }
+@media (max-width: 720px) { .wc-detail-stats { margin-inline: 16px; } }
+.wc-detail-stat {
+  background: var(--paper); border: 1px solid var(--line); border-radius: 14px;
+  padding: 16px 18px; display: flex; flex-direction: column; gap: 4px; flex: 1;
+}
+.wc-detail-stat-val { font-family: var(--ff-mono); font-size: 22px; font-weight: 600; }
+.wc-detail-stat-lbl {
+  font-family: var(--ff-mono); font-size: 10px; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--ink-3);
+}
+.wc-detail-rules {
+  margin-top: 16px; background: var(--paper); border: 1px solid var(--line);
+  border-radius: 14px; padding: 20px 22px;
+}
+@media (max-width: 720px) { .wc-detail-rules { margin-inline: 16px; } }
+.wc-detail-rules-title {
+  font-family: var(--ff-sans); font-size: 16px; font-weight: 600;
+  letter-spacing: -0.01em; margin: 0 0 8px;
+}
+.wc-detail-rules-body {
+  font-family: var(--ff-sans); font-size: 14px; line-height: 1.55;
+  color: var(--ink-2); margin: 0 0 16px;
+}
+.wc-detail-meta { display: flex; gap: 28px; margin: 0 0 14px; flex-wrap: wrap; }
+.wc-detail-meta dt {
+  font-family: var(--ff-mono); font-size: 10px; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--ink-3);
+}
+.wc-detail-meta dd { font-family: var(--ff-mono); font-size: 13px; margin: 2px 0 0; }
+.wc-detail-disclaimer {
+  font-family: var(--ff-mono); font-size: 11px; letter-spacing: 0.04em;
+  color: var(--ink-3); margin: 0;
+}
