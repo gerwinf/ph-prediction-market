@@ -161,7 +161,7 @@ function Spotlight({
   return (
     <section className="wc-spotlight" data-state={state}>
       <div className="wc-spotlight-eyebrow">
-        {state === 'live' ? 'Happening now' : state === 'final' ? 'Latest result' : 'Up next'} · Group {fixture.group}
+        {state === 'live' ? 'Happening now' : state === 'final' ? 'Latest result' : 'Up next'} · {groupLabel(fixture.group)}
       </div>
 
       <div className="wc-spotlight-match">
@@ -245,6 +245,11 @@ function WinnerLeaderboard({ contenders, prices, onYes }: { contenders: Contende
     </section>
   )
 }
+// Group-stage codes ("A".."L") render as "Group A"; knockout stage names
+// (e.g. "Round of 32", "Quarter-final") render as-is.
+function groupLabel(group: string): string {
+  return /^[A-Z]$/i.test(group) ? `Group ${group}` : group
+}
 function kickoffLabel(kickoffISO: string): string {
   const d = new Date(kickoffISO)
   const day = d.toLocaleDateString('en-PH', { weekday: 'short', month: 'short', day: 'numeric' })
@@ -273,7 +278,7 @@ function MatchGrid({
           return (
             <article key={f.id} className="wc-mcard" data-state={state}>
               <div className="wc-mcard-top">
-                <span className="wc-mcard-group">Group {f.group}</span>
+                <span className="wc-mcard-group">{groupLabel(f.group)}</span>
                 <span className="wc-mcard-when">
                   {state === 'live' ? <span className="wc-badge wc-badge-live"><i aria-hidden="true" /> LIVE</span>
                    : state === 'final' ? 'Full time'
