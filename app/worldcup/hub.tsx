@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { type Contender } from '../../lib/worldcup/fixtures'
 import { selectSpotlight, matchState, flagUrl, countdownParts, type Fixture } from '../../lib/worldcup/state'
 import { allWcSlugs, liveVol, matchHomePct, winnerPct, type PricesMap } from '../../lib/worldcup/odds'
+import { Flag, WaitlistModal, groupLabel, kickoffLabel } from './shared'
 
 /* ────────────────────────────────────────────────────────────────────────
  * /worldcup — World Cup 2026 prediction-market hub
@@ -78,7 +79,7 @@ export default function WorldCupHub({
         </span>
       </header>
 
-      <Spotlight fixture={spotlight} now={now} prices={prices} onYes={setWaitlistFor} />
+      <Spotlight fixture={spotlight} now={now} prices={prices} />
 
       <nav className="wc-tabs" aria-label="World Cup markets">
         <button className="wc-tab" data-active={tab === 'matches'} aria-pressed={tab === 'matches'} onClick={() => setTab('matches')}>
@@ -90,7 +91,7 @@ export default function WorldCupHub({
       </nav>
 
       {tab === 'matches'
-        ? <MatchGrid fixtures={gridFixtures} now={now} prices={prices} onYes={setWaitlistFor} />
+        ? <MatchGrid fixtures={gridFixtures} now={now} prices={prices} />
         : <WinnerLeaderboard contenders={contenders} prices={prices} onYes={setWaitlistFor} />}
 
       <CtaStrip />
@@ -106,31 +107,12 @@ export default function WorldCupHub({
   )
 }
 
-function Flag({ iso, name, size = 80 }: { iso: string; name: string; size?: number }) {
-  const [failed, setFailed] = useState(false)
-  if (failed) {
-    return <span className="wc-flag-chip" style={{ width: size, height: Math.round((size * 3) / 4) }}>{iso.toUpperCase()}</span>
-  }
-  return (
-    <img
-      className="wc-flag"
-      src={flagUrl(iso, size)}
-      alt={name}
-      width={size}
-      height={Math.round((size * 3) / 4)}
-      loading="lazy"
-      onError={() => setFailed(true)}
-    />
-  )
-}
-
 function Spotlight({
-  fixture, now, prices, onYes,
+  fixture, now, prices,
 }: {
   fixture: Fixture | null
   now: Date | null
   prices: PricesMap
-  onYes: (c: string) => void
 }) {
   if (!fixture || !now) {
     return (
@@ -159,40 +141,44 @@ function Spotlight({
       </span>
 
   return (
-    <section className="wc-spotlight" data-state={state}>
-      <div className="wc-spotlight-eyebrow">
-        {state === 'live' ? 'Happening now' : state === 'final' ? 'Latest result' : 'Up next'} · {groupLabel(fixture.group)}
-      </div>
-
-      <div className="wc-spotlight-match">
-        <div className="wc-team">
-          <Flag iso={fixture.home.iso} name={fixture.home.name} size={160} />
-          <span className="wc-team-name">{fixture.home.name}</span>
+    <Link href={`/worldcup/${fixture.id}`} className="wc-spotlight-link">
+      <section className="wc-spotlight" data-state={state}>
+        <div className="wc-spotlight-eyebrow">
+          {state === 'live' ? 'Happening now' : state === 'final' ? 'Latest result' : 'Up next'} · {groupLabel(fixture.group)}
         </div>
-        <div className="wc-spotlight-mid">{badge}<span className="wc-vs">vs</span></div>
-        <div className="wc-team">
-          <Flag iso={fixture.away.iso} name={fixture.away.name} size={160} />
-          <span className="wc-team-name">{fixture.away.name}</span>
+
+        <div className="wc-spotlight-match">
+          <div className="wc-team">
+            <Flag iso={fixture.home.iso} name={fixture.home.name} size={160} />
+            <span className="wc-team-name">{fixture.home.name}</span>
+          </div>
+          <div className="wc-spotlight-mid">{badge}<span className="wc-vs">vs</span></div>
+          <div className="wc-team">
+            <Flag iso={fixture.away.iso} name={fixture.away.name} size={160} />
+            <span className="wc-team-name">{fixture.away.name}</span>
+          </div>
         </div>
-      </div>
 
-      {fixture.venue && <div className="wc-spotlight-venue">{fixture.venue}</div>}
+        {fixture.venue && <div className="wc-spotlight-venue">{fixture.venue}</div>}
 
-      <div className="wc-odds-row">
-        <button className="wc-odd wc-odd-home" onClick={() => onYes(`${fixture.home.name} to win`)}>
-          <span className="wc-odd-lbl">{fixture.home.name}</span>
-          <span className="wc-odd-pct">{homePct}%</span>
-        </button>
-        <button className="wc-odd wc-odd-draw" onClick={() => onYes(`${fixture.home.name} v ${fixture.away.name} — Draw`)}>
-          <span className="wc-odd-lbl">Draw</span>
-          <span className="wc-odd-pct">{drawPct}%</span>
-        </button>
-        <button className="wc-odd wc-odd-away" onClick={() => onYes(`${fixture.away.name} to win`)}>
-          <span className="wc-odd-lbl">{fixture.away.name}</span>
-          <span className="wc-odd-pct">{awayPct}%</span>
-        </button>
-      </div>
-    </section>
+        <div className="wc-odds-row">
+          <span className="wc-odd wc-odd-home">
+            <span className="wc-odd-lbl">{fixture.home.name}</span>
+            <span className="wc-odd-pct">{homePct}%</span>
+          </span>
+          <span className="wc-odd wc-odd-draw">
+            <span className="wc-odd-lbl">Draw</span>
+            <span className="wc-odd-pct">{drawPct}%</span>
+          </span>
+          <span className="wc-odd wc-odd-away">
+            <span className="wc-odd-lbl">{fixture.away.name}</span>
+            <span className="wc-odd-pct">{awayPct}%</span>
+          </span>
+        </div>
+
+        <div className="wc-spotlight-cta">View market →</div>
+      </section>
+    </Link>
   )
 }
 function WinnerLeaderboard({ contenders, prices, onYes }: { contenders: Contender[]; prices: PricesMap; onYes: (c: string) => void }) {
@@ -245,30 +231,17 @@ function WinnerLeaderboard({ contenders, prices, onYes }: { contenders: Contende
     </section>
   )
 }
-// Group-stage codes ("A".."L") render as "Group A"; knockout stage names
-// (e.g. "Round of 32", "Quarter-final") render as-is.
-function groupLabel(group: string): string {
-  return /^[A-Z]$/i.test(group) ? `Group ${group}` : group
-}
-function kickoffLabel(kickoffISO: string): string {
-  const d = new Date(kickoffISO)
-  const day = d.toLocaleDateString('en-PH', { weekday: 'short', month: 'short', day: 'numeric' })
-  const time = d.toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true })
-  return `${day} · ${time}`
-}
-
 function MatchGrid({
-  fixtures, now, prices, onYes,
+  fixtures, now, prices,
 }: {
   fixtures: Fixture[]
   now: Date | null
   prices: PricesMap
-  onYes: (c: string) => void
 }) {
   if (fixtures.length === 0) return null
   return (
     <section className="wc-grid">
-      <div className="wc-panel-note">Tap a team or draw to follow that market</div>
+      <div className="wc-panel-note">Tap a match to open its market</div>
       <div className="wc-grid-list">
         {fixtures.map((f) => {
           const state = now ? matchState(f.kickoffISO, now) : 'scheduled'
@@ -276,40 +249,42 @@ function MatchGrid({
           const drawPct = f.fallback.draw
           const awayPct = Math.max(0, 100 - homePct - drawPct)
           return (
-            <article key={f.id} className="wc-mcard" data-state={state}>
-              <div className="wc-mcard-top">
-                <span className="wc-mcard-group">{groupLabel(f.group)}</span>
-                <span className="wc-mcard-when">
-                  {state === 'live' ? <span className="wc-badge wc-badge-live"><i aria-hidden="true" /> LIVE</span>
-                   : state === 'final' ? 'Full time'
-                   : kickoffLabel(f.kickoffISO)}
-                </span>
-              </div>
-              <div className="wc-mcard-teams">
-                <span className="wc-mcard-team">
-                  <img className="wc-mcard-flag" src={flagUrl(f.home.iso, 40)} alt={f.home.name} width={26} height={20} loading="lazy" onError={(e) => { e.currentTarget.style.visibility = 'hidden' }} />
-                  <span className="wc-mcard-name">{f.home.name}</span>
-                </span>
-                <span className="wc-mcard-team">
-                  <img className="wc-mcard-flag" src={flagUrl(f.away.iso, 40)} alt={f.away.name} width={26} height={20} loading="lazy" onError={(e) => { e.currentTarget.style.visibility = 'hidden' }} />
-                  <span className="wc-mcard-name">{f.away.name}</span>
-                </span>
-              </div>
-              <div className="wc-mcard-odds">
-                <button className="wc-codd wc-codd-team" onClick={() => onYes(`${f.home.name} to beat ${f.away.name}`)}>
-                  <span className="wc-codd-lbl">{f.home.name}</span>
-                  <span className="wc-codd-pct">{homePct}%</span>
-                </button>
-                <button className="wc-codd wc-codd-draw" onClick={() => onYes(`${f.home.name} v ${f.away.name} — Draw`)}>
-                  <span className="wc-codd-lbl">Draw</span>
-                  <span className="wc-codd-pct">{drawPct}%</span>
-                </button>
-                <button className="wc-codd wc-codd-team" onClick={() => onYes(`${f.away.name} to beat ${f.home.name}`)}>
-                  <span className="wc-codd-lbl">{f.away.name}</span>
-                  <span className="wc-codd-pct">{awayPct}%</span>
-                </button>
-              </div>
-            </article>
+            <Link key={f.id} href={`/worldcup/${f.id}`} className="wc-mcard-link">
+              <article className="wc-mcard" data-state={state}>
+                <div className="wc-mcard-top">
+                  <span className="wc-mcard-group">{groupLabel(f.group)}</span>
+                  <span className="wc-mcard-when">
+                    {state === 'live' ? <span className="wc-badge wc-badge-live"><i aria-hidden="true" /> LIVE</span>
+                     : state === 'final' ? 'Full time'
+                     : kickoffLabel(f.kickoffISO)}
+                  </span>
+                </div>
+                <div className="wc-mcard-teams">
+                  <span className="wc-mcard-team">
+                    <img className="wc-mcard-flag" src={flagUrl(f.home.iso, 40)} alt={f.home.name} width={26} height={20} loading="lazy" onError={(e) => { e.currentTarget.style.visibility = 'hidden' }} />
+                    <span className="wc-mcard-name">{f.home.name}</span>
+                  </span>
+                  <span className="wc-mcard-team">
+                    <img className="wc-mcard-flag" src={flagUrl(f.away.iso, 40)} alt={f.away.name} width={26} height={20} loading="lazy" onError={(e) => { e.currentTarget.style.visibility = 'hidden' }} />
+                    <span className="wc-mcard-name">{f.away.name}</span>
+                  </span>
+                </div>
+                <div className="wc-mcard-odds">
+                  <span className="wc-codd wc-codd-team">
+                    <span className="wc-codd-lbl">{f.home.name}</span>
+                    <span className="wc-codd-pct">{homePct}%</span>
+                  </span>
+                  <span className="wc-codd wc-codd-draw">
+                    <span className="wc-codd-lbl">Draw</span>
+                    <span className="wc-codd-pct">{drawPct}%</span>
+                  </span>
+                  <span className="wc-codd wc-codd-team">
+                    <span className="wc-codd-lbl">{f.away.name}</span>
+                    <span className="wc-codd-pct">{awayPct}%</span>
+                  </span>
+                </div>
+              </article>
+            </Link>
           )
         })}
       </div>
@@ -329,67 +304,5 @@ function CtaStrip() {
       </button>
       <span id="wc-waitlist-anchor" />
     </section>
-  )
-}
-function WaitlistModal({ context, onClose }: { context: string; onClose: () => void }) {
-  const [email, setEmail] = useState('')
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  // Dismiss on Escape and pull focus into the dialog when it opens.
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
-    window.addEventListener('keydown', onKey)
-    inputRef.current?.focus()
-    return () => window.removeEventListener('keydown', onKey)
-  }, [onClose])
-
-  async function submit(e: React.FormEvent) {
-    e.preventDefault()
-    if (!email.trim()) return
-    setStatus('loading')
-    try {
-      const res = await fetch('/api/waitlist', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, source: 'worldcup', why: context }),
-      })
-      setStatus(res.ok ? 'success' : 'error')
-      if (res.ok) setEmail('')
-    } catch {
-      setStatus('error')
-    }
-  }
-
-  return (
-    <div className="wc-modal" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="wc-modal-card" role="dialog" aria-modal="true" aria-labelledby="wc-modal-title">
-        <button className="wc-modal-x" onClick={onClose} aria-label="Close">×</button>
-        <div className="wc-modal-eyebrow">World Cup 2026</div>
-        <h3 className="wc-modal-title" id="wc-modal-title">{context}</h3>
-        <p className="wc-modal-sub">
-          We&apos;re pre-launch. Drop your email and we&apos;ll let you trade this market the moment we go live.
-        </p>
-        {status === 'success' ? (
-          <div className="wc-modal-done">You&apos;re in — salamat! We&apos;ll be in touch.</div>
-        ) : (
-          <form className="wc-modal-form" onSubmit={submit}>
-            <input
-              ref={inputRef}
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="your@email.ph"
-              disabled={status === 'loading'}
-              required
-            />
-            <button type="submit" className="wc-cta-btn" disabled={status === 'loading' || !email.trim()}>
-              {status === 'loading' ? 'Loading…' : 'Notify me →'}
-            </button>
-            {status === 'error' && <div className="wc-modal-err">Something broke. Try again.</div>}
-          </form>
-        )}
-      </div>
-    </div>
   )
 }
