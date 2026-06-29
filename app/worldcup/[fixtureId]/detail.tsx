@@ -108,7 +108,7 @@ export default function MarketDetail({ fixture }: { fixture: Fixture }) {
         <p className="wc-detail-rules-body">{resolutionText(fixture)}</p>
         <dl className="wc-detail-meta">
           <div><dt>Closes</dt><dd>{kickoffLabel(fixture.kickoffISO)}</dd></div>
-          <div><dt>Source</dt><dd>{fixture.slug ? 'Live odds via Polymarket' : 'Curated odds'}</dd></div>
+          <div><dt>Source</dt><dd>{vol.live ? 'Live odds via Polymarket' : 'Curated odds'}</dd></div>
         </dl>
         <p className="wc-detail-disclaimer">21+ only · Pre-launch — no real bets yet</p>
       </section>

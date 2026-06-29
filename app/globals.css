@@ -3048,7 +3048,7 @@ button:focus {
 .wc-odds-row { display: grid; grid-template-columns: 1fr 0.8fr 1fr; gap: 8px; max-width: 460px; margin: 0 auto; }
 .wc-odd {
   display: flex; flex-direction: column; gap: 4px; padding: 12px 10px; border-radius: 12px;
-  border: 1px solid var(--line-2); background: var(--bg); color: var(--ink); cursor: pointer;
+  border: 1px solid var(--line-2); background: var(--bg); color: var(--ink);
   transition: all .12s ease;
 }
 .wc-odd:hover { border-color: var(--ink); }
@@ -3166,7 +3166,7 @@ button:focus {
 .wc-mcard-odds { display: grid; grid-template-columns: 1fr 0.74fr 1fr; gap: 6px; }
 .wc-codd {
   display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 4px; border-radius: 9px;
-  border: 1px solid var(--line-2); background: var(--bg); color: var(--ink); cursor: pointer; transition: all .12s ease; min-width: 0;
+  border: 1px solid var(--line-2); background: var(--bg); color: var(--ink); transition: all .12s ease; min-width: 0;
 }
 .wc-codd-team:hover { background: var(--up); border-color: var(--up); color: #fff; }
 .wc-codd-team:hover .wc-codd-lbl { color: rgba(255,255,255,.78); }

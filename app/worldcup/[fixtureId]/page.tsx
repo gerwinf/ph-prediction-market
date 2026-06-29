@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { cache } from 'react'
 import { notFound } from 'next/navigation'
 import { fetchApprovedWcFixtures } from '../../../lib/catalog/read'
 import { FIXTURES } from '../../../lib/worldcup/fixtures'
@@ -11,11 +12,11 @@ import MarketDetail from './detail'
 
 export const dynamic = 'force-dynamic'
 
-async function loadFixture(id: string) {
+const loadFixture = cache(async (id: string) => {
   const db = await fetchApprovedWcFixtures()
   const fixtures = db.length ? db : FIXTURES
   return getFixtureById(fixtures, id)
-}
+})
 
 export async function generateMetadata(
   { params }: { params: { fixtureId: string } },
