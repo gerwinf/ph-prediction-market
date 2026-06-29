@@ -3224,3 +3224,11 @@ button:focus {
   font-family: var(--ff-mono); font-size: 11px; letter-spacing: 0.04em;
   color: var(--ink-3); margin: 0;
 }
+
+/* Card wrappers are links now (option B): a card opens its market page. */
+.wc-mcard-link, .wc-spotlight-link { display: block; text-decoration: none; color: inherit; }
+.wc-spotlight-cta {
+  margin-top: 14px; text-align: center; font-family: var(--ff-mono);
+  font-size: 12px; letter-spacing: 0.04em; color: var(--ink-3);
+}
+.wc-spotlight-link:hover .wc-spotlight-cta { color: var(--ink); }

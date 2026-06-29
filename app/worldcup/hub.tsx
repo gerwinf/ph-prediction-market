@@ -79,7 +79,7 @@ export default function WorldCupHub({
         </span>
       </header>
 
-      <Spotlight fixture={spotlight} now={now} prices={prices} onYes={setWaitlistFor} />
+      <Spotlight fixture={spotlight} now={now} prices={prices} />
 
       <nav className="wc-tabs" aria-label="World Cup markets">
         <button className="wc-tab" data-active={tab === 'matches'} aria-pressed={tab === 'matches'} onClick={() => setTab('matches')}>
@@ -91,7 +91,7 @@ export default function WorldCupHub({
       </nav>
 
       {tab === 'matches'
-        ? <MatchGrid fixtures={gridFixtures} now={now} prices={prices} onYes={setWaitlistFor} />
+        ? <MatchGrid fixtures={gridFixtures} now={now} prices={prices} />
         : <WinnerLeaderboard contenders={contenders} prices={prices} onYes={setWaitlistFor} />}
 
       <CtaStrip />
@@ -108,12 +108,11 @@ export default function WorldCupHub({
 }
 
 function Spotlight({
-  fixture, now, prices, onYes,
+  fixture, now, prices,
 }: {
   fixture: Fixture | null
   now: Date | null
   prices: PricesMap
-  onYes: (c: string) => void
 }) {
   if (!fixture || !now) {
     return (
@@ -142,40 +141,44 @@ function Spotlight({
       </span>
 
   return (
-    <section className="wc-spotlight" data-state={state}>
-      <div className="wc-spotlight-eyebrow">
-        {state === 'live' ? 'Happening now' : state === 'final' ? 'Latest result' : 'Up next'} · {groupLabel(fixture.group)}
-      </div>
-
-      <div className="wc-spotlight-match">
-        <div className="wc-team">
-          <Flag iso={fixture.home.iso} name={fixture.home.name} size={160} />
-          <span className="wc-team-name">{fixture.home.name}</span>
+    <Link href={`/worldcup/${fixture.id}`} className="wc-spotlight-link">
+      <section className="wc-spotlight" data-state={state}>
+        <div className="wc-spotlight-eyebrow">
+          {state === 'live' ? 'Happening now' : state === 'final' ? 'Latest result' : 'Up next'} · {groupLabel(fixture.group)}
         </div>
-        <div className="wc-spotlight-mid">{badge}<span className="wc-vs">vs</span></div>
-        <div className="wc-team">
-          <Flag iso={fixture.away.iso} name={fixture.away.name} size={160} />
-          <span className="wc-team-name">{fixture.away.name}</span>
+
+        <div className="wc-spotlight-match">
+          <div className="wc-team">
+            <Flag iso={fixture.home.iso} name={fixture.home.name} size={160} />
+            <span className="wc-team-name">{fixture.home.name}</span>
+          </div>
+          <div className="wc-spotlight-mid">{badge}<span className="wc-vs">vs</span></div>
+          <div className="wc-team">
+            <Flag iso={fixture.away.iso} name={fixture.away.name} size={160} />
+            <span className="wc-team-name">{fixture.away.name}</span>
+          </div>
         </div>
-      </div>
 
-      {fixture.venue && <div className="wc-spotlight-venue">{fixture.venue}</div>}
+        {fixture.venue && <div className="wc-spotlight-venue">{fixture.venue}</div>}
 
-      <div className="wc-odds-row">
-        <button className="wc-odd wc-odd-home" onClick={() => onYes(`${fixture.home.name} to win`)}>
-          <span className="wc-odd-lbl">{fixture.home.name}</span>
-          <span className="wc-odd-pct">{homePct}%</span>
-        </button>
-        <button className="wc-odd wc-odd-draw" onClick={() => onYes(`${fixture.home.name} v ${fixture.away.name} — Draw`)}>
-          <span className="wc-odd-lbl">Draw</span>
-          <span className="wc-odd-pct">{drawPct}%</span>
-        </button>
-        <button className="wc-odd wc-odd-away" onClick={() => onYes(`${fixture.away.name} to win`)}>
-          <span className="wc-odd-lbl">{fixture.away.name}</span>
-          <span className="wc-odd-pct">{awayPct}%</span>
-        </button>
-      </div>
-    </section>
+        <div className="wc-odds-row">
+          <span className="wc-odd wc-odd-home">
+            <span className="wc-odd-lbl">{fixture.home.name}</span>
+            <span className="wc-odd-pct">{homePct}%</span>
+          </span>
+          <span className="wc-odd wc-odd-draw">
+            <span className="wc-odd-lbl">Draw</span>
+            <span className="wc-odd-pct">{drawPct}%</span>
+          </span>
+          <span className="wc-odd wc-odd-away">
+            <span className="wc-odd-lbl">{fixture.away.name}</span>
+            <span className="wc-odd-pct">{awayPct}%</span>
+          </span>
+        </div>
+
+        <div className="wc-spotlight-cta">View market →</div>
+      </section>
+    </Link>
   )
 }
 function WinnerLeaderboard({ contenders, prices, onYes }: { contenders: Contender[]; prices: PricesMap; onYes: (c: string) => void }) {
@@ -229,17 +232,16 @@ function WinnerLeaderboard({ contenders, prices, onYes }: { contenders: Contende
   )
 }
 function MatchGrid({
-  fixtures, now, prices, onYes,
+  fixtures, now, prices,
 }: {
   fixtures: Fixture[]
   now: Date | null
   prices: PricesMap
-  onYes: (c: string) => void
 }) {
   if (fixtures.length === 0) return null
   return (
     <section className="wc-grid">
-      <div className="wc-panel-note">Tap a team or draw to follow that market</div>
+      <div className="wc-panel-note">Tap a match to open its market</div>
       <div className="wc-grid-list">
         {fixtures.map((f) => {
           const state = now ? matchState(f.kickoffISO, now) : 'scheduled'
@@ -247,40 +249,42 @@ function MatchGrid({
           const drawPct = f.fallback.draw
           const awayPct = Math.max(0, 100 - homePct - drawPct)
           return (
-            <article key={f.id} className="wc-mcard" data-state={state}>
-              <div className="wc-mcard-top">
-                <span className="wc-mcard-group">{groupLabel(f.group)}</span>
-                <span className="wc-mcard-when">
-                  {state === 'live' ? <span className="wc-badge wc-badge-live"><i aria-hidden="true" /> LIVE</span>
-                   : state === 'final' ? 'Full time'
-                   : kickoffLabel(f.kickoffISO)}
-                </span>
-              </div>
-              <div className="wc-mcard-teams">
-                <span className="wc-mcard-team">
-                  <img className="wc-mcard-flag" src={flagUrl(f.home.iso, 40)} alt={f.home.name} width={26} height={20} loading="lazy" onError={(e) => { e.currentTarget.style.visibility = 'hidden' }} />
-                  <span className="wc-mcard-name">{f.home.name}</span>
-                </span>
-                <span className="wc-mcard-team">
-                  <img className="wc-mcard-flag" src={flagUrl(f.away.iso, 40)} alt={f.away.name} width={26} height={20} loading="lazy" onError={(e) => { e.currentTarget.style.visibility = 'hidden' }} />
-                  <span className="wc-mcard-name">{f.away.name}</span>
-                </span>
-              </div>
-              <div className="wc-mcard-odds">
-                <button className="wc-codd wc-codd-team" onClick={() => onYes(`${f.home.name} to beat ${f.away.name}`)}>
-                  <span className="wc-codd-lbl">{f.home.name}</span>
-                  <span className="wc-codd-pct">{homePct}%</span>
-                </button>
-                <button className="wc-codd wc-codd-draw" onClick={() => onYes(`${f.home.name} v ${f.away.name} — Draw`)}>
-                  <span className="wc-codd-lbl">Draw</span>
-                  <span className="wc-codd-pct">{drawPct}%</span>
-                </button>
-                <button className="wc-codd wc-codd-team" onClick={() => onYes(`${f.away.name} to beat ${f.home.name}`)}>
-                  <span className="wc-codd-lbl">{f.away.name}</span>
-                  <span className="wc-codd-pct">{awayPct}%</span>
-                </button>
-              </div>
-            </article>
+            <Link key={f.id} href={`/worldcup/${f.id}`} className="wc-mcard-link">
+              <article className="wc-mcard" data-state={state}>
+                <div className="wc-mcard-top">
+                  <span className="wc-mcard-group">{groupLabel(f.group)}</span>
+                  <span className="wc-mcard-when">
+                    {state === 'live' ? <span className="wc-badge wc-badge-live"><i aria-hidden="true" /> LIVE</span>
+                     : state === 'final' ? 'Full time'
+                     : kickoffLabel(f.kickoffISO)}
+                  </span>
+                </div>
+                <div className="wc-mcard-teams">
+                  <span className="wc-mcard-team">
+                    <img className="wc-mcard-flag" src={flagUrl(f.home.iso, 40)} alt={f.home.name} width={26} height={20} loading="lazy" onError={(e) => { e.currentTarget.style.visibility = 'hidden' }} />
+                    <span className="wc-mcard-name">{f.home.name}</span>
+                  </span>
+                  <span className="wc-mcard-team">
+                    <img className="wc-mcard-flag" src={flagUrl(f.away.iso, 40)} alt={f.away.name} width={26} height={20} loading="lazy" onError={(e) => { e.currentTarget.style.visibility = 'hidden' }} />
+                    <span className="wc-mcard-name">{f.away.name}</span>
+                  </span>
+                </div>
+                <div className="wc-mcard-odds">
+                  <span className="wc-codd wc-codd-team">
+                    <span className="wc-codd-lbl">{f.home.name}</span>
+                    <span className="wc-codd-pct">{homePct}%</span>
+                  </span>
+                  <span className="wc-codd wc-codd-draw">
+                    <span className="wc-codd-lbl">Draw</span>
+                    <span className="wc-codd-pct">{drawPct}%</span>
+                  </span>
+                  <span className="wc-codd wc-codd-team">
+                    <span className="wc-codd-lbl">{f.away.name}</span>
+                    <span className="wc-codd-pct">{awayPct}%</span>
+                  </span>
+                </div>
+              </article>
+            </Link>
           )
         })}
       </div>
