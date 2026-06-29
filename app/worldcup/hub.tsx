@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { type Contender } from '../../lib/worldcup/fixtures'
 import { selectSpotlight, matchState, flagUrl, countdownParts, type Fixture } from '../../lib/worldcup/state'
 import { allWcSlugs, liveVol, matchHomePct, winnerPct, type PricesMap } from '../../lib/worldcup/odds'
+import { Flag, WaitlistModal, groupLabel, kickoffLabel } from './shared'
 
 /* ────────────────────────────────────────────────────────────────────────
  * /worldcup — World Cup 2026 prediction-market hub
@@ -103,24 +104,6 @@ export default function WorldCupHub({
         21+ only · <strong>Play smart</strong> · Live odds via Polymarket · Pre-launch — no real bets yet
       </footer>
     </main>
-  )
-}
-
-function Flag({ iso, name, size = 80 }: { iso: string; name: string; size?: number }) {
-  const [failed, setFailed] = useState(false)
-  if (failed) {
-    return <span className="wc-flag-chip" style={{ width: size, height: Math.round((size * 3) / 4) }}>{iso.toUpperCase()}</span>
-  }
-  return (
-    <img
-      className="wc-flag"
-      src={flagUrl(iso, size)}
-      alt={name}
-      width={size}
-      height={Math.round((size * 3) / 4)}
-      loading="lazy"
-      onError={() => setFailed(true)}
-    />
   )
 }
 
@@ -245,18 +228,6 @@ function WinnerLeaderboard({ contenders, prices, onYes }: { contenders: Contende
     </section>
   )
 }
-// Group-stage codes ("A".."L") render as "Group A"; knockout stage names
-// (e.g. "Round of 32", "Quarter-final") render as-is.
-function groupLabel(group: string): string {
-  return /^[A-Z]$/i.test(group) ? `Group ${group}` : group
-}
-function kickoffLabel(kickoffISO: string): string {
-  const d = new Date(kickoffISO)
-  const day = d.toLocaleDateString('en-PH', { weekday: 'short', month: 'short', day: 'numeric' })
-  const time = d.toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true })
-  return `${day} · ${time}`
-}
-
 function MatchGrid({
   fixtures, now, prices, onYes,
 }: {
@@ -329,67 +300,5 @@ function CtaStrip() {
       </button>
       <span id="wc-waitlist-anchor" />
     </section>
-  )
-}
-function WaitlistModal({ context, onClose }: { context: string; onClose: () => void }) {
-  const [email, setEmail] = useState('')
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  // Dismiss on Escape and pull focus into the dialog when it opens.
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
-    window.addEventListener('keydown', onKey)
-    inputRef.current?.focus()
-    return () => window.removeEventListener('keydown', onKey)
-  }, [onClose])
-
-  async function submit(e: React.FormEvent) {
-    e.preventDefault()
-    if (!email.trim()) return
-    setStatus('loading')
-    try {
-      const res = await fetch('/api/waitlist', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, source: 'worldcup', why: context }),
-      })
-      setStatus(res.ok ? 'success' : 'error')
-      if (res.ok) setEmail('')
-    } catch {
-      setStatus('error')
-    }
-  }
-
-  return (
-    <div className="wc-modal" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="wc-modal-card" role="dialog" aria-modal="true" aria-labelledby="wc-modal-title">
-        <button className="wc-modal-x" onClick={onClose} aria-label="Close">×</button>
-        <div className="wc-modal-eyebrow">World Cup 2026</div>
-        <h3 className="wc-modal-title" id="wc-modal-title">{context}</h3>
-        <p className="wc-modal-sub">
-          We&apos;re pre-launch. Drop your email and we&apos;ll let you trade this market the moment we go live.
-        </p>
-        {status === 'success' ? (
-          <div className="wc-modal-done">You&apos;re in — salamat! We&apos;ll be in touch.</div>
-        ) : (
-          <form className="wc-modal-form" onSubmit={submit}>
-            <input
-              ref={inputRef}
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="your@email.ph"
-              disabled={status === 'loading'}
-              required
-            />
-            <button type="submit" className="wc-cta-btn" disabled={status === 'loading' || !email.trim()}>
-              {status === 'loading' ? 'Loading…' : 'Notify me →'}
-            </button>
-            {status === 'error' && <div className="wc-modal-err">Something broke. Try again.</div>}
-          </form>
-        )}
-      </div>
-    </div>
   )
 }
