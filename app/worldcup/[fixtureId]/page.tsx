@@ -31,6 +31,6 @@ export async function generateMetadata(
 
 export default async function MarketPage({ params }: { params: { fixtureId: string } }) {
   const fixture = await loadFixture(params.fixtureId)
-  if (!fixture) notFound()
+  if (!fixture) return notFound()
   return <MarketDetail fixture={fixture} />
 }
