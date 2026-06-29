@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { type Contender } from '../../lib/worldcup/fixtures'
 import { selectSpotlight, matchState, flagUrl, countdownParts, type Fixture } from '../../lib/worldcup/state'
-import { allWcSlugs, matchHomePct, winnerPct, type PricesMap } from '../../lib/worldcup/odds'
+import { allWcSlugs, liveVol, matchHomePct, winnerPct, type PricesMap } from '../../lib/worldcup/odds'
 
 /* ────────────────────────────────────────────────────────────────────────
  * /worldcup — World Cup 2026 prediction-market hub
@@ -219,7 +219,7 @@ function WinnerLeaderboard({ contenders, prices, onYes }: { contenders: Contende
             />
             <span className="wc-win-id">
               <span className="wc-win-name">{r.name}</span>
-              <span className="wc-win-vol">Vol {r.vol}</span>
+              <span className="wc-win-vol">Vol {liveVol(prices, r.slug, r.vol)}</span>
             </span>
             <span className="wc-win-prob">
               <span className="wc-win-pct">{r.pct}%</span>

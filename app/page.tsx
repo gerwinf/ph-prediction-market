@@ -10,11 +10,12 @@ import {
   type MarketRow,
 } from '../lib/catalog/seed-data'
 import type { CatalogBinaryMarket } from '../lib/catalog/types'
+import { liveVol } from '../lib/worldcup/odds'
 
 // Live Polymarket odds (see lib/oracle/slugs.ts LIVE_MARKETS) are overlaid onto
 // any row carrying a `slug`; untagged (PH-local) rows stay hardcoded. The `pct`
 // here is the fallback shown until the fetch resolves (or if it's stale).
-type PriceInfo = { outcomes: { name: string; price: number }[]; is_stale: boolean; fetched_at: string }
+type PriceInfo = { outcomes: { name: string; price: number }[]; is_stale: boolean; fetched_at: string; volume_usd?: number | null }
 type PricesMap = Record<string, PriceInfo>
 
 // Returns the live "Yes" probability % for a slug when fresh, else the fallback.
@@ -193,7 +194,7 @@ function FeaturedCard({ prices }: { prices: PricesMap }) {
     <div className="featured">
       <div className="featured-head">
         <span className="featured-tag">Featured · World Cup 2026</span>
-        <span className="featured-vol">VOL ₱4.21M</span>
+        <span className="featured-vol">VOL {liveVol(prices, 'wc-argentina', '₱4.21M')}</span>
       </div>
       <h3 className="featured-q">Will Argentina win the 2026 FIFA World Cup?</h3>
       <div className="featured-bar">
@@ -330,7 +331,7 @@ function MarketCard({ m, prices }: { m: MarketRow; prices: PricesMap }) {
     <article className="card">
       <div className="card-head">
         <span className="card-cat">{m.cat}</span>
-        <span className="card-vol">VOL {m.vol}</span>
+        <span className="card-vol">VOL {liveVol(prices, m.slug, m.vol)}</span>
       </div>
       <h3 className="card-q">{m.q}</h3>
       <div className="card-prob">
