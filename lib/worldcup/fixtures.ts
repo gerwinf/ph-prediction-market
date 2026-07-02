@@ -20,8 +20,12 @@ export const CONTENDERS: Contender[] = [
   // England has no alpha-2 of its own; 'gb' renders the Union Jack on flagcdn.
   { name: 'England',     iso: 'gb', slug: 'wc-england',   fallbackPct: 10, vol: '₱2.9M', delta: 1 },
   { name: 'Portugal',    iso: 'pt',                        fallbackPct: 7,  vol: '₱1.8M', delta: 0 },
-  { name: 'Germany',     iso: 'de',                        fallbackPct: 6,  vol: '₱2.1M', delta: -2 },
-  { name: 'Netherlands', iso: 'nl',                        fallbackPct: 5,  vol: '₱1.5M', delta: 1 },
+  // Germany (v Paraguay) and Netherlands (v Morocco) were knocked out on penalties
+  // in the Round of 32 (2026-06-29/30), so they're dropped. Replaced by the next
+  // still-alive favorites by winner odds: USA (+2500), Mexico (+3000), Belgium (+3500).
+  { name: 'USA',         iso: 'us',                        fallbackPct: 4,  vol: '₱2.4M', delta: 3 },
+  { name: 'Mexico',      iso: 'mx',                        fallbackPct: 3,  vol: '₱1.9M', delta: 2 },
+  { name: 'Belgium',     iso: 'be',                        fallbackPct: 2,  vol: '₱1.6M', delta: 2 },
 ]
 
 const T = (name: string, iso: string): Team => ({ name, iso })
