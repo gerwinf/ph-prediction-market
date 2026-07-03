@@ -41,13 +41,14 @@ const wp = (filename: string, width = 240) =>
 // either, just the team's primary brand color as a 4px left-edge band). Adds
 // visual recognition without any licensing risk.
 const TEAM_COLOR: Record<string, string> = {
-  // WC 2026 — group stage live
+  // WC 2026 — Round of 16 live
   BRA:  '#009739',  // Brazil green
-  MAR:  '#c1272d',  // Morocco red
+  NOR:  '#ba0c2f',  // Norway red
   USA:  '#3c3b6e',  // USA navy
-  PAR:  '#d52b1e',  // Paraguay red
   ESP:  '#aa151b',  // Spain red
-  CPV:  '#003893',  // Cape Verde blue
+  FRA:  '#0055a4',  // France blue
+  ENG:  '#ce1124',  // England red
+  POR:  '#da291c',  // Portugal red
   // PBA
   GIN:  '#c8102e',  // Ginebra red
   TNT:  '#e87a1e',  // TNT orange
@@ -68,7 +69,7 @@ const stripeFor = (team?: string): string | null => {
 }
 
 const SPORT_LABEL: Record<Sport, string> = {
-  wc:      'World Cup 2026 · Group Stage',
+  wc:      'World Cup 2026 · Round of 16',
   pba:     'PBA · Comm’s Cup Finals',
   mlbb:    'MLBB · MSC 2026 · Paris',
   pool:    'Pool · Pro Tour 2026',
@@ -76,35 +77,51 @@ const SPORT_LABEL: Record<Sport, string> = {
 }
 
 const PROPS: Prop[] = [
-  // ─── World Cup 2026 — group stage LIVE (verified vs ESPN/FIFA schedule Jun 2026)
-  // ET kickoffs converted to PHT (+12h). Neymar is out injured for Brazil.
-  // Matchday 2 fixtures, upcoming as of 2026-06-16.
+  // ─── World Cup 2026 — Round of 16 LIVE (matchups from FIFA calendar API, refreshed
+  // 2026-07-03; same source as /worldcup fixtures). UTC kickoffs converted to PHT (+8h).
+  // Lines illustrative. Photos degrade to initials if a Wikipedia filename misses.
 
-  // Jun 19 ET · Brazil vs Haiti, Group C
+  // Jul 4 UTC · Paraguay vs France, Round of 16, Philadelphia
+  { id: 'wc-mbappe-sot', sport: 'wc', kind: 'player',
+    game: 'Paraguay vs France · Round of 16', when: 'Jul 5 · 5:00 AM PHT',
+    player: 'Kylian Mbappé', team: 'FRA', stat: 'Shots on target', line: 2.5, unit: 'SoT',
+    photo: wp('Kylian Mbappé 2018.jpg') },
+
+  // Jul 5 UTC · Brazil vs Norway, Round of 16, New York/New Jersey
   { id: 'wc-vini-sot', sport: 'wc', kind: 'player',
-    game: 'Brazil vs Haiti · Group C', when: 'Jun 20 · 9:00 AM PHT',
+    game: 'Brazil vs Norway · Round of 16', when: 'Jul 6 · 4:00 AM PHT',
     player: 'Vinícius Júnior', team: 'BRA', stat: 'Shots on target', line: 1.5, unit: 'SoT',
     photo: wp('2023 05 06 Final de la Copa del Rey - 52879242230 (cropped).jpg') },
   { id: 'wc-raphinha-goals', sport: 'wc', kind: 'player',
-    game: 'Brazil vs Haiti · Group C', when: 'Jun 20 · 9:00 AM PHT',
+    game: 'Brazil vs Norway · Round of 16', when: 'Jul 6 · 4:00 AM PHT',
     player: 'Raphinha', team: 'BRA', stat: 'Goals', line: 0.5, unit: 'goals',
     photo: wp('Raphael Dias Belloli 2023.jpg') },
-  { id: 'wc-bra-total-goals', sport: 'wc', kind: 'team',
-    game: 'Brazil vs Haiti · Group C', when: 'Jun 20 · 9:00 AM PHT',
-    player: 'Match total goals', team: 'BRA · HAI', stat: 'Both teams · Total', line: 2.5, unit: 'goals',
-    badge: 'VS', badgeBg: '#0f2419', badgeFg: '#f5f1e3' },
+  { id: 'wc-haaland-sot', sport: 'wc', kind: 'player',
+    game: 'Brazil vs Norway · Round of 16', when: 'Jul 6 · 4:00 AM PHT',
+    player: 'Erling Haaland', team: 'NOR', stat: 'Shots on target', line: 2.5, unit: 'SoT',
+    photo: wp('Erling Haaland 2023.jpg') },
 
-  // Jun 19 ET · USA vs Australia, Group D, Seattle (Lumen Field)
-  { id: 'wc-pulisic-sot', sport: 'wc', kind: 'player',
-    game: 'USA vs Australia · Group D', when: 'Jun 20 · 3:00 AM PHT',
-    player: 'Christian Pulisic', team: 'USA', stat: 'Shots on target', line: 1.5, unit: 'SoT',
-    photo: wp('Christian Pulisic USMNT v Belgium Mar 28 2026-73 (cropped).jpg') },
+  // Jul 6 UTC · Mexico vs England, Round of 16, Mexico City
+  { id: 'wc-bellingham-sot', sport: 'wc', kind: 'player',
+    game: 'Mexico vs England · Round of 16', when: 'Jul 6 · 8:00 AM PHT',
+    player: 'Jude Bellingham', team: 'ENG', stat: 'Shots on target', line: 1.5, unit: 'SoT',
+    photo: wp('Jude Bellingham England v Ghana 23 June 2026-061 (cropped).jpg') },
 
-  // Jun 21 ET · Spain vs Saudi Arabia, Group H
+  // Jul 6 UTC · Portugal vs Spain, Round of 16, Dallas
   { id: 'wc-yamal-sot', sport: 'wc', kind: 'player',
-    game: 'Spain vs Saudi Arabia · Group H', when: 'Jun 22 · 12:00 AM PHT',
+    game: 'Portugal vs Spain · Round of 16', when: 'Jul 7 · 3:00 AM PHT',
     player: 'Lamine Yamal', team: 'ESP', stat: 'Shots on target', line: 1.5, unit: 'SoT',
     photo: wp('Lamine Yamal in 2025.jpg') },
+  { id: 'wc-poresp-goals', sport: 'wc', kind: 'team',
+    game: 'Portugal vs Spain · Round of 16', when: 'Jul 7 · 3:00 AM PHT',
+    player: 'Match total goals', team: 'POR · ESP', stat: 'Both teams · Total', line: 2.5, unit: 'goals',
+    badge: 'VS', badgeBg: '#0f2419', badgeFg: '#f5f1e3' },
+
+  // Jul 7 UTC · USA vs Belgium, Round of 16, Seattle
+  { id: 'wc-pulisic-sot', sport: 'wc', kind: 'player',
+    game: 'USA vs Belgium · Round of 16', when: 'Jul 7 · 8:00 AM PHT',
+    player: 'Christian Pulisic', team: 'USA', stat: 'Shots on target', line: 1.5, unit: 'SoT',
+    photo: wp('Christian Pulisic USMNT v Belgium Mar 28 2026-73 (cropped).jpg') },
 
   // ─── PBA Commissioner's Cup FINALS — Ginebra vs TNT (best-of-7, live Jun 2026)
   // Verified Jun 2026: TNT & Ginebra advanced from the semis; remaining games
@@ -588,7 +605,7 @@ export default function PicksPage() {
       <section className="shell picks-hero">
         <div className="eyebrow">
           <span className="dot" />
-          World Cup 2026 · Group stage live now
+          World Cup 2026 · Round of 16 live now
         </div>
         <h1 className="h1 picks-h1">
           Hula kada game. <em>Sahod kada oras.</em>
