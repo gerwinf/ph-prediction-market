@@ -49,14 +49,12 @@ const TEAM_COLOR: Record<string, string> = {
   FRA:  '#0055a4',  // France blue
   ENG:  '#ce1124',  // England red
   POR:  '#da291c',  // Portugal red
-  // PBA
-  GIN:  '#c8102e',  // Ginebra red
-  TNT:  '#e87a1e',  // TNT orange
-  SMB:  '#0a3d8f',  // San Miguel blue
-  MAG:  '#1f7a3a',  // Magnolia green
-  // MLBB
-  ECHO: '#1E3A8A',
-  BLI:  '#111111',
+  // Gilas / FIBA
+  GIL:  '#0038a8',  // Philippines flag blue
+  AUS:  '#00843d',  // Australia green
+  // MLBB — MSC 2026
+  TLPH: '#0b1c3f',  // Team Liquid navy
+  BLI:  '#111111',  // Blacklist black
   // Pool
   PH:   '#003f87',  // PH flag blue
   DE:   '#000000',  // Germany
@@ -70,7 +68,7 @@ const stripeFor = (team?: string): string | null => {
 
 const SPORT_LABEL: Record<Sport, string> = {
   wc:      'World Cup 2026 · Round of 16',
-  pba:     'PBA · Comm’s Cup Finals',
+  pba:     'Gilas · FIBA WC 2027 Qualifiers',
   mlbb:    'MLBB · MSC 2026 · Paris',
   pool:    'Pool · Pro Tour 2026',
   showbiz: 'Showbiz · Kultura',
@@ -123,25 +121,26 @@ const PROPS: Prop[] = [
     player: 'Christian Pulisic', team: 'USA', stat: 'Shots on target', line: 1.5, unit: 'SoT',
     photo: wp('Christian Pulisic USMNT v Belgium Mar 28 2026-73 (cropped).jpg') },
 
-  // ─── PBA Commissioner's Cup FINALS — Ginebra vs TNT (best-of-7, live Jun 2026)
-  // Verified Jun 2026: TNT & Ginebra advanced from the semis; remaining games
-  // Jun 14 (G6) / Jun 17 (G7) if necessary.
-  { id: 'pba-brownlee-pts', sport: 'pba', kind: 'player',
-    game: 'Ginebra vs TNT · Comm’s Cup Finals', when: 'Jun 14 · 7:30 PM PHT',
-    player: 'Justin Brownlee', team: 'GIN', stat: 'Points (import)', line: 28.5, unit: 'pts',
+  // ─── Gilas Pilipinas — FIBA WC 2027 Asian Qualifiers (the PBA club season is
+  // between conferences: Ginebra took the Season 50 Comm's Cup on Jun 17; the
+  // Governors' Cup opens Jul 10). Gilas plays NZ (Jul 3) and Australia (Jul 6);
+  // Australia is the class of the group, so Gilas prices as the underdog. UTC+8.
+  { id: 'gilas-brownlee-pts', sport: 'pba', kind: 'player',
+    game: 'Gilas vs Australia · FIBA Qualifiers', when: 'Jul 6 · 6:30 PM PHT',
+    player: 'Justin Brownlee', team: 'GIL', stat: 'Points (naturalized)', line: 18.5, unit: 'pts',
     photo: wp('Brownlee w. bottle SEA Games 2023 (cropped).png') },
-  { id: 'pba-thompson-ast', sport: 'pba', kind: 'player',
-    game: 'Ginebra vs TNT · Comm’s Cup Finals', when: 'Jun 14 · 7:30 PM PHT',
-    player: 'Scottie Thompson', team: 'GIN', stat: 'Assists', line: 6.5, unit: 'ast',
+  { id: 'gilas-sotto-reb', sport: 'pba', kind: 'player',
+    game: 'Gilas vs Australia · FIBA Qualifiers', when: 'Jul 6 · 6:30 PM PHT',
+    player: 'Kai Sotto', team: 'GIL', stat: 'Rebounds', line: 9.5, unit: 'reb',
+    photo: wp('Kai sotto yokohama b corsairs b league.jpg') },
+  { id: 'gilas-thompson-ast', sport: 'pba', kind: 'player',
+    game: 'Gilas vs Australia · FIBA Qualifiers', when: 'Jul 6 · 6:30 PM PHT',
+    player: 'Scottie Thompson', team: 'GIL', stat: 'Assists', line: 5.5, unit: 'ast',
     photo: wp('PBA - Scottie Thompson - 2021.jpg') },
-  { id: 'pba-pogoy-pts', sport: 'pba', kind: 'player',
-    game: 'Ginebra vs TNT · Comm’s Cup Finals', when: 'Jun 14 · 7:30 PM PHT',
-    player: 'RR Pogoy', team: 'TNT', stat: 'Points', line: 19.5, unit: 'pts',
-    photo: wp('Bongbong Marcos in Dominican Republic v Philippines FBWC 2 Pogoy (cropped).jpg') },
-  { id: 'pba-ginebra-pts', sport: 'pba', kind: 'team',
-    game: 'Ginebra vs TNT · Comm’s Cup Finals', when: 'Jun 14 · 7:30 PM PHT',
-    player: 'Barangay Ginebra', team: 'GIN', stat: 'Team total points', line: 102.5, unit: 'pts',
-    badge: 'GIN', badgeBg: '#B22234', badgeFg: '#ffffff' },
+  { id: 'gilas-team-pts', sport: 'pba', kind: 'team',
+    game: 'Gilas vs Australia · FIBA Qualifiers', when: 'Jul 6 · 6:30 PM PHT',
+    player: 'Gilas Pilipinas', team: 'GIL', stat: 'Team total points', line: 78.5, unit: 'pts',
+    badge: 'PHI', badgeBg: '#0038a8', badgeFg: '#ffffff' },
 
   // ─── Pool · Pro Tour 2026 — Biado, Chua, Filler are all real active tour players
 
@@ -162,32 +161,33 @@ const PROPS: Prop[] = [
     player: 'Match total racks', team: 'PH · DE', stat: 'Both players · Total', line: 13.5, unit: 'racks',
     badge: 'VS', badgeBg: '#0f2419', badgeFg: '#f5f1e3' },
 
-  // ─── MLBB — MSC 2026 (Mid-Season Cup), Paris, early Jul 2026.
-  // ECHO carries the PH flag; lines illustrative.
-  { id: 'mlbb-echo-maps', sport: 'mlbb', kind: 'team',
-    game: 'ECHO · MSC 2026 group stage', when: 'Early Jul · Paris',
-    player: 'ECHO', team: 'ECHO', stat: 'Maps won', line: 2.5, unit: 'maps',
-    badge: 'E', badgeBg: '#1E3A8A', badgeFg: '#ffffff' },
-  { id: 'mlbb-kills', sport: 'mlbb', kind: 'team',
-    game: 'ECHO vs Blacklist · MSC 2026', when: 'Early Jul · Paris',
-    player: 'Match total kills', team: 'ECHO · BLI', stat: 'Both teams · Total', line: 28.5, unit: 'kills',
+  // ─── MLBB — MSC 2026 (Mid-Season Cup) at the Esports World Cup, Paris, Jul 1–Aug 1.
+  // Team Liquid PH are the defending champions (won MSC 2025 4–1), back to defend.
+  // Group Stage draws ~Jul 22. Lines illustrative.
+  { id: 'mlbb-tlph-maps', sport: 'mlbb', kind: 'team',
+    game: 'Team Liquid PH · MSC 2026 Group', when: 'Group stage · from Jul 22',
+    player: 'Team Liquid PH', team: 'TLPH', stat: 'Maps won', line: 2.5, unit: 'maps',
+    badge: 'TL', badgeBg: '#0b1c3f', badgeFg: '#ffffff' },
+  { id: 'mlbb-tlph-kills', sport: 'mlbb', kind: 'team',
+    game: 'Team Liquid PH vs field · MSC 2026', when: 'Group stage · from Jul 22',
+    player: 'Match total kills', team: 'TLPH · BLI', stat: 'Both teams · Total', line: 28.5, unit: 'kills',
     badge: 'VS', badgeBg: '#0f2419', badgeFg: '#f5f1e3' },
 
   // ─── Showbiz · Kultura — real upcoming PH cultural events.
   // Lines illustrative (same standard as the sports lines); events verified
   // mid-May 2026 (sources in ~/.claude/plans/goofy-percolating-turing.md).
-  { id: 'sb-bini-songs', sport: 'showbiz', kind: 'player',
-    game: 'BINI · SM MOA Arena · Manila', when: 'Jun 20 · 8:00 PM PHT',
-    player: 'BINI', team: 'BINI', stat: 'Setlist songs', line: 24.5, unit: 'songs',
+  { id: 'sb-bini-chart', sport: 'showbiz', kind: 'player',
+    game: 'BINI · Signals anniversary · Cebu', when: 'Jul 11 weekend',
+    player: 'BINI', team: 'BINI', stat: 'Spotify PH Daily peak (lower = better)', line: 1.5, unit: 'rank',
     badge: 'BINI', badgeBg: '#E84393', badgeFg: '#ffffff' },
   { id: 'sb-bea-placement', sport: 'showbiz', kind: 'player',
     game: 'Miss Universe 2026 · Puerto Rico', when: 'Nov 2026',
     player: 'Bea Millan-Windorski', team: 'PH', stat: 'Final placement (lower = better)', line: 5.5, unit: 'place',
     badge: 'MUP', badgeBg: '#7b1fa2', badgeFg: '#ffffff' },
-  { id: 'sb-ts5-gross', sport: 'showbiz', kind: 'player',
-    game: 'PH cinemas nationwide', when: 'Opens Jun 19',
-    player: 'Toy Story 5', team: 'FILM', stat: 'PH opening weekend', line: 145.5, unit: '₱M',
-    badge: 'TS5', badgeBg: '#1565c0', badgeFg: '#ffffff' },
+  { id: 'sb-moana-gross', sport: 'showbiz', kind: 'player',
+    game: 'PH cinemas nationwide', when: 'Opens Jul 10',
+    player: 'Moana (Live-Action)', team: 'FILM', stat: 'PH opening weekend', line: 165.5, unit: '₱M',
+    badge: 'MOA', badgeBg: '#0277bd', badgeFg: '#ffffff' },
   { id: 'sb-spiderman-gross', sport: 'showbiz', kind: 'player',
     game: 'PH cinemas nationwide', when: 'Opens Jul 31',
     player: 'Spider-Man: Brand New Day', team: 'FILM', stat: 'PH opening weekend', line: 220.5, unit: '₱M',
@@ -611,7 +611,7 @@ export default function PicksPage() {
           Hula kada game. <em>Sahod kada oras.</em>
         </h1>
         <p className="lede">
-          Pumili ng <strong>MORE</strong> or <strong>LESS</strong> sa 2–6 player props. Mas marami, mas malaki ang multiplier — up to <strong>×25</strong>. PBA, MLBB, World Cup, Pool. Bayad sa GCash bago mag-dinner, sigurado.
+          Pumili ng <strong>MORE</strong> or <strong>LESS</strong> sa 2–6 player props. Mas marami, mas malaki ang multiplier — up to <strong>×25</strong>. Gilas, World Cup, MLBB, Pool. Bayad sa GCash bago mag-dinner, sigurado.
         </p>
         <div className="picks-trust-chips">
           <span className="picks-trust-chip"><span className="picks-trust-dot" />PAGCOR-licensed</span>
