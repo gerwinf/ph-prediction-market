@@ -413,7 +413,7 @@ function HowItWorks() {
 // Single source of truth for the visible FAQ *and* the FAQPage JSON-LD below.
 // Answers are written as self-contained, quotable sentences — the format answer
 // engines (ChatGPT, Perplexity, Google AI Overviews) lift and cite. Regulatory
-// wording mirrors the compliance copy in <Stats/> (pre-launch, PAGCOR oversight)
+// wording mirrors the compliance copy in <Compliance/> (pre-launch, PAGCOR oversight)
 // — REVIEW the legality answer before any change to real-money/licensing status.
 const FAQ_ITEMS: { q: string; a: string }[] = [
   {
@@ -489,30 +489,9 @@ function Pullquote() {
   )
 }
 
-function Stats() {
-  const data = [
-    { n: '₱412M', l: 'Volume traded · 30d' },
-    { n: '184K',  l: 'Active hulers' },
-    { n: '1,420', l: 'Live markets' },
-    { n: '98.2%', l: 'Settlement on time' },
-  ]
+function Compliance() {
   return (
     <section className="section shell">
-      <div className="section-head">
-        <div>
-          <div className="section-kicker">By the numbers</div>
-          <h2 className="section-title">The market is liquid.</h2>
-        </div>
-        <span className="cta-meta" style={{ paddingLeft: 0 }}>Illustrative · pre-launch</span>
-      </div>
-      <div className="stats">
-        {data.map((s, i) => (
-          <div key={i} className="stat">
-            <div className="stat-n">{s.n}</div>
-            <div className="stat-l">{s.l}</div>
-          </div>
-        ))}
-      </div>
       <div className="compliance">
         <span className="badge">21+</span>
         <div>
@@ -640,7 +619,7 @@ export default function Home() {
       <Markets prices={prices} markets={markets} />
       <HowItWorks />
       <Pullquote />
-      <Stats />
+      <Compliance />
       <Faq />
       <CtaStrip />
       <Footer />
