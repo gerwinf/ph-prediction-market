@@ -1804,6 +1804,39 @@ button:focus {
 }
 .hula-v2 .hits-back:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
 
+/* ── Language toggle (EN | TL) ────────────────────────────────────────── */
+.hula-v2 .hits-lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  height: 38px;
+  padding: 3px;
+  gap: 2px;
+  border-radius: 999px;
+  border: 1px solid var(--line-2);
+  background: transparent;
+}
+.hula-v2 .hits-lang-opt {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--ink-2);
+  padding: 0 10px;
+  height: 100%;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.hula-v2 .hits-lang-opt[data-active='true'] {
+  background: var(--ink);
+  color: #fff;
+}
+.hula-v2 .hits-lang-opt[data-active='false']:hover {
+  color: var(--ink);
+}
+
 /* ── Type picker row (sports vs daily) ────────────────────────────────── */
 .hula-v2 .hits-today-eyebrow {
   font-family: var(--ff-mono);

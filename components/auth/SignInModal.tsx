@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { track } from '../../lib/analytics/track'
 import { useModalA11y } from '../../lib/hooks/useModalA11y'
 import { createClient } from '../../lib/supabase/client'
+import { useLang } from '../../lib/hits/i18n/LanguageProvider'
+import type { StringKey } from '../../lib/hits/i18n/strings'
 
 /* ────────────────────────────────────────────────────────────────────────
  * SignInModal — email + password (traditional auth)
@@ -34,11 +36,12 @@ type Props = {
 type Mode = 'signin' | 'signup'
 
 export function SignInModal({ onClose }: Props) {
+  const { t, tx } = useLang()
   const [mode, setMode] = useState<Mode>('signin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<StringKey | null>(null)
   const [confirmSent, setConfirmSent] = useState(false)
   const { containerRef, dialogProps } = useModalA11y({ isOpen: true, onClose })
 
@@ -90,7 +93,7 @@ export function SignInModal({ onClose }: Props) {
       track('signin_completed', { email_domain: email.split('@')[1] ?? null })
       onClose()
     } catch {
-      setError('May problema. Subukan ulit.')
+      setError('signin.errGeneric')
       setSubmitting(false)
     }
   }
@@ -110,28 +113,23 @@ export function SignInModal({ onClose }: Props) {
           <>
             <div className="hits-capture-tick">✉</div>
             <h2 id="signin-modal-h" className="hits-capture-h">
-              I-confirm mo <em>email mo.</em>
+              {tx('signin.confirmH')}
             </h2>
-            <p className="hits-capture-sub">
-              Pinadalhan ka namin ng confirmation link sa <strong>{email}</strong>.
-              Click mo, tapos balik ka rito para mag-sign in.
-            </p>
+            <p className="hits-capture-sub">{tx('signin.confirmSub', { email })}</p>
             <button type="button" className="hits-capture-skip" onClick={onClose}>
-              Sige
+              {t('signin.confirmOk')}
             </button>
           </>
         ) : (
           <>
             <div className="hits-capture-eyebrow">
-              {mode === 'signin' ? 'Sign in' : 'Create account'}
+              {mode === 'signin' ? t('signin.eyebrowSignin') : t('signin.eyebrowSignup')}
             </div>
             <h2 id="signin-modal-h" className="hits-capture-h">
-              Save your <em>tokens + ranking.</em>
+              {tx('signin.h')}
             </h2>
             <p className="hits-capture-sub">
-              {mode === 'signin'
-                ? 'Sign in para ma-save ang balance + rank mo across devices. Anonymous play OK lang din.'
-                : 'Gumawa ng account para hindi mawala ang tokens + rank mo. Email + password lang.'}
+              {mode === 'signin' ? tx('signin.subSignin') : tx('signin.subSignup')}
             </p>
             <form onSubmit={handleSubmit} className="hits-capture-form">
               <input
@@ -148,20 +146,20 @@ export function SignInModal({ onClose }: Props) {
               <input
                 type="password"
                 autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
-                placeholder={mode === 'signin' ? 'Password' : 'Password (6+ chars)'}
+                placeholder={mode === 'signin' ? t('signin.passwordSignin') : t('signin.passwordSignup')}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="hits-capture-input"
                 required
                 minLength={6}
               />
-              {error && <p className="hits-capture-err">{error}</p>}
+              {error && <p className="hits-capture-err">{t(error)}</p>}
               <button type="submit" className="hits-capture-submit" disabled={!canSubmit}>
                 {submitting
-                  ? 'Saglit lang…'
+                  ? t('signin.submitting')
                   : mode === 'signin'
-                    ? 'Sign in →'
-                    : 'Gumawa ng account →'}
+                    ? t('signin.submitSignin')
+                    : t('signin.submitSignup')}
               </button>
               <button
                 type="button"
@@ -172,8 +170,8 @@ export function SignInModal({ onClose }: Props) {
                 }}
               >
                 {mode === 'signin'
-                  ? 'Walang account? Gumawa →'
-                  : '← May account na? Sign in'}
+                  ? t('signin.toggleToSignup')
+                  : t('signin.toggleToSignin')}
               </button>
             </form>
           </>
@@ -183,13 +181,15 @@ export function SignInModal({ onClose }: Props) {
   )
 }
 
-// Map Supabase's English auth errors to short masa-friendly copy.
-function friendlyError(msg: string): string {
+// Map Supabase's English auth errors to a translation key. Unmapped
+// messages fall through to the generic key (the raw Supabase text is
+// English-only, so surfacing our own copy is friendlier than echoing it).
+function friendlyError(msg: string): StringKey {
   const m = msg.toLowerCase()
-  if (m.includes('invalid login credentials')) return 'Mali ang email o password.'
+  if (m.includes('invalid login credentials')) return 'signin.errInvalid'
   if (m.includes('already registered') || m.includes('already been registered'))
-    return 'May account na sa email na ito. Sign in na lang.'
-  if (m.includes('password')) return 'Password must be at least 6 characters.'
-  if (m.includes('rate limit')) return 'Sobra ang attempts. Subukan ulit mamaya.'
-  return msg
+    return 'signin.errRegistered'
+  if (m.includes('password')) return 'signin.errPassword'
+  if (m.includes('rate limit')) return 'signin.errRateLimit'
+  return 'signin.errGeneric'
 }

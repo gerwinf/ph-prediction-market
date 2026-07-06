@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useLang } from '../../lib/hits/i18n/LanguageProvider'
 
 /* ────────────────────────────────────────────────────────────────────────
  * AccountMenu
@@ -21,6 +22,7 @@ type Props = {
 }
 
 export function AccountMenu({ displayName, email, onHistory, onSignOut }: Props) {
+  const { t } = useLang()
   const [open, setOpen] = useState(false)
   const wrapRef = useRef<HTMLDivElement>(null)
 
@@ -45,7 +47,7 @@ export function AccountMenu({ displayName, email, onHistory, onSignOut }: Props)
       <button
         className="hits-back"
         onClick={() => setOpen((v) => !v)}
-        title={`Signed in as ${email}`}
+        title={t('account.signedInAs', { email })}
         aria-haspopup="menu"
         aria-expanded={open}
       >
@@ -61,7 +63,7 @@ export function AccountMenu({ displayName, email, onHistory, onSignOut }: Props)
               onHistory()
             }}
           >
-            📋 Card history
+            {t('account.history')}
           </button>
           <button
             role="menuitem"
@@ -71,7 +73,7 @@ export function AccountMenu({ displayName, email, onHistory, onSignOut }: Props)
               onSignOut()
             }}
           >
-            Sign out
+            {t('account.signOut')}
           </button>
         </div>
       )}

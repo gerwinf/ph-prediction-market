@@ -13,6 +13,8 @@ import { useModalA11y } from '../../../lib/hooks/useModalA11y'
 import { useSession } from '../../../lib/auth/use-session'
 import { SignInModal } from '../../../components/auth/SignInModal'
 import { AccountMenu } from '../../../components/hits/AccountMenu'
+import { LangToggle } from '../../../components/hits/LangToggle'
+import { useLang } from '../../../lib/hits/i18n/LanguageProvider'
 
 const CAPTURE_KEY = 'hula-captured'
 const CARD_COUNT_KEY = 'hula-hits-session-cards'
@@ -57,6 +59,7 @@ type PageProps = { params: { card_id: string } }
 export default function HitsCardPage({ params }: PageProps) {
   const { card_id } = params
   const router = useRouter()
+  const { t, tx } = useLang()
   const search = useSearchParams()
   const bet = Number(search?.get('bet') || '20')
   // ?speed=N compresses the 90s timeline to 90s/N. Clamp 1-20 so a typo
@@ -537,12 +540,13 @@ export default function HitsCardPage({ params }: PageProps) {
                     track('signin_opened', { from: '/hits/[card_id]' })
                   }}
                 >
-                  Sign in
+                  {t('common.signIn')}
                 </button>
               )
             )}
+            <LangToggle />
             <button className="hits-back" onClick={() => router.push('/hits')}>
-              ← New
+              {t('card.new')}
             </button>
           </div>
         </header>
@@ -551,7 +555,7 @@ export default function HitsCardPage({ params }: PageProps) {
           <section className="hits-wins-ticker">
             {liveWins.slice(0, 5).map((w) => (
               <span key={w.id} className="hits-wins-chip">
-                🎉 player won ₱{w.score.toLocaleString()} · {timeAgo(w.won_at)}
+                {t('card.playerWon', { score: w.score.toLocaleString(), ago: timeAgo(w.won_at) })}
               </span>
             ))}
           </section>
@@ -589,23 +593,25 @@ export default function HitsCardPage({ params }: PageProps) {
 
         {live && matchStatus === 'scheduled' && (
           <section className="hits-pregame-banner">
-            <strong>{fixtureInfo?.matchLabel ?? 'Reserved'}</strong>
+            <strong>{fixtureInfo?.matchLabel ?? t('card.reserved')}</strong>
             <span>
               {fixtureInfo
-                ? `Tip-off ${new Date(fixtureInfo.startsAt).toLocaleString('en-PH', {
-                    weekday: 'short',
-                    hour: 'numeric',
-                    minute: '2-digit',
-                    hour12: true,
-                  })} · mag-iilaw ang cells sa simula ng laro`
-                : 'Mag-iilaw ang cells sa simula ng laro'}
+                ? t('card.pregameWithTip', {
+                    time: new Date(fixtureInfo.startsAt).toLocaleString('en-PH', {
+                      weekday: 'short',
+                      hour: 'numeric',
+                      minute: '2-digit',
+                      hour12: true,
+                    }),
+                  })
+                : t('card.pregameNoTip')}
             </span>
           </section>
         )}
 
         <section className="hits-card-meta">
           <span className="hits-card-meta-id">{card_id}</span>
-          <span className="hits-card-meta-bet">₱{card.pricePhp} bet</span>
+          <span className="hits-card-meta-bet">{t('card.betSuffix', { amount: card.pricePhp })}</span>
           <span className="hits-card-meta-payout" data-zero={payout.payoutPhp === 0}>
             {payout.payoutPhp > 0 ? `+₱${payout.payoutPhp.toLocaleString()}` : '—'}
           </span>
@@ -636,54 +642,50 @@ export default function HitsCardPage({ params }: PageProps) {
               className="hits-shuffle-btn"
               onClick={handleShuffle}
               disabled={balance < shuffleCost}
-              title="Generate a fresh card. Available only before any event lights up."
+              title={t('card.shuffleTitle')}
             >
               {balance < shuffleCost
-                ? `Walang ₱${shuffleCost} para sa shuffle`
-                : `Iba ang card · ₱${shuffleCost} tokens`}
+                ? t('card.shuffleNoFunds', { cost: shuffleCost })
+                : t('card.shuffleDo', { cost: shuffleCost })}
             </button>
           </section>
         )}
 
         <section className="private-payouts">
           <div className="private-payouts-title">
-            Premyo · ₱{card.pricePhp} bet
+            {t('card.payoutsTitle', { amount: card.pricePhp })}
           </div>
           <div className="private-payouts-row">
-            <span className="private-payouts-label">📏 Row / Column</span>
+            <span className="private-payouts-label">{t('card.payoutRowCol')}</span>
             <span className="private-payouts-amt">
               ₱{(card.pricePhp * MULTIPLIERS.row).toLocaleString()} <em style={{ fontStyle: 'normal', opacity: 0.55 }}>· {MULTIPLIERS.row}×</em>
             </span>
           </div>
           <div className="private-payouts-row">
-            <span className="private-payouts-label">↘ Diagonal</span>
+            <span className="private-payouts-label">{t('card.payoutDiag')}</span>
             <span className="private-payouts-amt">
               ₱{(card.pricePhp * MULTIPLIERS.diag).toLocaleString()} <em style={{ fontStyle: 'normal', opacity: 0.55 }}>· {MULTIPLIERS.diag}×</em>
             </span>
           </div>
           <div className="private-payouts-row private-payouts-row-rollover">
-            <span className="private-payouts-label">💰 Full card jackpot</span>
+            <span className="private-payouts-label">{t('card.payoutFull')}</span>
             <span className="private-payouts-amt">
               ₱{(card.pricePhp * MULTIPLIERS.full).toLocaleString()} <em style={{ fontStyle: 'normal', opacity: 0.55 }}>· {MULTIPLIERS.full}×</em>
             </span>
           </div>
-          <div className="private-payouts-note">
-            Highest pattern pays. Free cell ay laging in. Wins credit your token balance instantly.
-          </div>
+          <div className="private-payouts-note">{t('card.payoutsNote')}</div>
         </section>
 
         <section className="hits-active-actions">
           <button className="hits-share-btn" onClick={handleShare}>
-            Share card
+            {t('card.share')}
           </button>
           <button className="hits-replay-btn" onClick={handleAnotherCard}>
-            Iba pang card →
+            {t('card.anotherCard')}
           </button>
         </section>
 
-        <p className="hits-foot">
-          Demo. <strong>Real hits follows a real game.</strong>
-        </p>
+        <p className="hits-foot">{tx('card.foot')}</p>
       </div>
 
       {showSignIn && (
@@ -709,26 +711,26 @@ export default function HitsCardPage({ params }: PageProps) {
         >
           <div ref={winA11y.containerRef} {...winA11y.dialogProps} className="hits-win-card">
             <span className="hits-win-badge">
-              {winShown.kind === 'full' ? 'Jackpot!' : 'Panalo ka!'}
+              {winShown.kind === 'full' ? t('card.winBadgeJackpot') : t('card.winBadge')}
             </span>
             <h2 className="hits-win-h">
               {winShown.kind === 'full' ? (
-                <><em>Full card.</em></>
+                tx('card.winFull')
               ) : (
                 <>{winShown.label}<em>.</em></>
               )}
             </h2>
             <div className="hits-win-pattern">
-              {winShown.multiplier}× your bet
+              {t('card.winMult', { mult: winShown.multiplier })}
             </div>
             <div className="hits-win-payout">
               <span className="hits-win-payout-amt">
                 ₱{(card.pricePhp * winShown.multiplier).toLocaleString()}
               </span>
-              <span className="hits-win-payout-mult">you win</span>
+              <span className="hits-win-payout-mult">{t('card.youWin')}</span>
             </div>
             <button className="hits-win-close" onClick={() => setWinShown(null)}>
-              Tuloy laro
+              {t('card.winClose')}
             </button>
           </div>
         </div>

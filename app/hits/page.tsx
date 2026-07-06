@@ -10,6 +10,8 @@ import { track } from '../../lib/analytics/track'
 import { useSession } from '../../lib/auth/use-session'
 import { SignInModal } from '../../components/auth/SignInModal'
 import { AccountMenu } from '../../components/hits/AccountMenu'
+import { LangToggle } from '../../components/hits/LangToggle'
+import { useLang } from '../../lib/hits/i18n/LanguageProvider'
 
 /* ────────────────────────────────────────────────────────────────────────
  * /hits — masa-tier live-event hits entry page
@@ -83,6 +85,7 @@ function formatStartTime(iso: string): string {
 
 export default function HitsEntry() {
   const router = useRouter()
+  const { t, tx } = useLang()
   const [price, setPrice] = useState<20 | 50>(20)
   const [type, setType] = useState<CardType>('sports')
   const [session, setSession] = useState({ spend: 0, cards: 0, limit: 0 })
@@ -267,6 +270,7 @@ export default function HitsEntry() {
             Hula <em>Hits</em>
           </div>
           <div className="hits-header-right">
+            <LangToggle />
             {mounted && (
               auth.loading ? (
                 // Don't show a number until we know authed vs anon — avoids
@@ -298,7 +302,7 @@ export default function HitsEntry() {
                     track('signin_opened', { from: '/hits' })
                   }}
                 >
-                  Sign in
+                  {t('common.signIn')}
                 </button>
               )
             )}
@@ -310,11 +314,11 @@ export default function HitsEntry() {
           <div className="hits-identity-row">
             {auth.profile ? (
               <span className="hits-identity-authed">
-                Hi, <strong>{auth.profile.display_name}</strong> · Tokens saved sa account ✓
+                {tx('entry.identityAuthed', { name: auth.profile.display_name })}
               </span>
             ) : (
               <span className="hits-identity-anon">
-                🔓 Playing as anon ·{' '}
+                {t('entry.anonPrefix')}
                 <button
                   type="button"
                   onClick={() => {
@@ -323,7 +327,7 @@ export default function HitsEntry() {
                   }}
                   className="hits-identity-link"
                 >
-                  Sign in to save tokens →
+                  {t('entry.signInToSave')}
                 </button>
               </span>
             )}
@@ -358,27 +362,25 @@ export default function HitsEntry() {
               <div className="hits-hero-sub hits-hero-skeleton-line" aria-hidden="true">
                 &nbsp;
               </div>
-              <span className="sr-only">Loading game info…</span>
+              <span className="sr-only">{t('common.loadingGame')}</span>
             </>
           ) : type === 'sports' && isLive ? (
             <>
               <div className="hits-hero-eyebrow">
                 {heroIsDemo ? (
-                  <>DEMO · LIVE</>
+                  <>{t('entry.heroLiveDemo')}</>
                 ) : (
-                  <><span className="hits-hero-pulse" /> LIVE NA</>
+                  <><span className="hits-hero-pulse" /> {t('entry.heroLiveBadge')}</>
                 )}
               </div>
               <div className="hits-hero-title">{heroFixture!.match_label}</div>
               <div className="hits-hero-sub">
-                {heroIsDemo
-                  ? 'Subukan habang naghihintay sa real game'
-                  : 'Cells light up habang nangyayari ang laro'}
+                {heroIsDemo ? t('entry.heroLiveSubDemo') : t('entry.heroLiveSub')}
               </div>
             </>
           ) : type === 'sports' && isUpcoming ? (
             <>
-              <div className="hits-hero-eyebrow">SUSUNOD NA LARO</div>
+              <div className="hits-hero-eyebrow">{t('entry.heroUpcomingEyebrow')}</div>
               <div className="hits-hero-title">{heroFixture!.match_label}</div>
               <div className="hits-hero-sub">
                 {formatStartTime(heroFixture!.starts_at)}
@@ -387,34 +389,29 @@ export default function HitsEntry() {
             </>
           ) : type === 'sports' ? (
             <>
-              <div className="hits-hero-eyebrow">DEMO</div>
-              <div className="hits-hero-title">Hula Demo Card</div>
-              <div className="hits-hero-sub">Sample cells, no live game</div>
+              <div className="hits-hero-eyebrow">{t('entry.heroDemoEyebrow')}</div>
+              <div className="hits-hero-title">{t('entry.heroDemoTitle')}</div>
+              <div className="hits-hero-sub">{t('entry.heroDemoSub')}</div>
             </>
           ) : (
             <>
-              <div className="hits-hero-eyebrow">MANILA · TODAY</div>
-              <div className="hits-hero-title">Daily card</div>
+              <div className="hits-hero-eyebrow">{t('entry.heroDailyEyebrow')}</div>
+              <div className="hits-hero-title">{t('entry.heroDailyTitle')}</div>
               <div className="hits-hero-sub">
                 {new Date().toLocaleDateString('en-PH', {
                   weekday: 'short',
                   month: 'short',
                   day: 'numeric',
                 })}{' '}
-                · 6 AM → MIDNIGHT
+                · {t('entry.heroDailyWindow')}
               </div>
             </>
           )}
         </section>
 
         <section className="hits-purchase">
-          <h1 className="hits-purchase-h">
-            Bili ng card.<br />Panóorin ang laro.<br /><em>Manalo ng pera.</em>
-          </h1>
-          <p className="hits-purchase-sub">
-            Every box is something that can happen in the game. Get 5 in a row and win.
-            Fill the whole card and win big.
-          </p>
+          <h1 className="hits-purchase-h">{tx('entry.purchaseH')}</h1>
+          <p className="hits-purchase-sub">{t('entry.purchaseSub')}</p>
 
           <div className="hits-price-row">
             <button
@@ -426,7 +423,7 @@ export default function HitsEntry() {
               }}
             >
               <span className="hits-price-amt">₱20</span>
-              <span className="hits-price-sub">card</span>
+              <span className="hits-price-sub">{t('entry.priceCard')}</span>
             </button>
             <button
               className="hits-price-btn"
@@ -437,29 +434,29 @@ export default function HitsEntry() {
               }}
             >
               <span className="hits-price-amt">₱50</span>
-              <span className="hits-price-sub">Bigger wins</span>
+              <span className="hits-price-sub">{t('entry.priceBigger')}</span>
             </button>
           </div>
 
           {wouldExceedBalance ? (
             <button className="hits-buy-btn" data-disabled="true" disabled>
-              Walang tokens · balik bukas
+              {t('entry.buyNoTokens')}
             </button>
           ) : wouldExceedLimit ? (
             <button className="hits-buy-btn" data-disabled="true" disabled>
-              Tigil muna · balik bukas
+              {t('entry.buyLimitReached')}
             </button>
           ) : (
             <button className="hits-buy-btn" onClick={handleBuy}>
               {type === 'daily'
-                ? `Bumili ng daily card · ₱${price} →`
+                ? t('entry.buyDaily', { price })
                 : isLive
                   ? heroIsDemo
-                    ? `Subukan ang demo · ₱${price} →`
-                    : `Sumali sa LIVE · ₱${price} →`
+                    ? t('entry.buyDemo', { price })
+                    : t('entry.buyLive', { price })
                   : isUpcoming
-                    ? `Reserve ₱${price} card →`
-                    : `Bumili ng ₱${price} card →`}
+                    ? t('entry.buyReserve', { price })
+                    : t('entry.buyFallback', { price })}
             </button>
           )}
 
@@ -473,7 +470,7 @@ export default function HitsEntry() {
               track('card_type_selected', { type: next })
             }}
           >
-            {type === 'sports' ? '→ Or play the daily card' : '← Back to sports'}
+            {type === 'sports' ? t('entry.toggleToDaily') : t('entry.toggleToSports')}
           </button>
 
           {isUpcoming && (
@@ -481,27 +478,27 @@ export default function HitsEntry() {
               className="hits-buy-secondary"
               onClick={() => completePurchase({ forceDemo: true })}
             >
-              Play demo while you wait
+              {t('entry.playDemoWhileWait')}
             </button>
           )}
 
           <div className="hits-buy-meta">
             {type === 'daily'
-              ? 'Daily card · all-day window · no real money yet'
+              ? t('entry.metaDaily')
               : isLive
                 ? heroIsDemo
-                  ? 'Demo · auto-fired events · no real money yet'
-                  : 'Live game · cells light up as it happens'
+                  ? t('entry.metaDemo')
+                  : t('entry.metaLive')
                 : isUpcoming
-                  ? 'Pre-game · reserve now, cells light up at tip-off'
-                  : 'Demo only · no real money yet'}
+                  ? t('entry.metaUpcoming')
+                  : t('entry.metaFallback')}
           </div>
         </section>
 
         {/* Upcoming PBA games — pick one to reserve a card before tip-off. */}
         {type === 'sports' && upcomingFixtures.length > 0 && (
           <section className="hits-upcoming">
-            <div className="hits-upcoming-eyebrow">Mga susunod na laro</div>
+            <div className="hits-upcoming-eyebrow">{t('entry.upcomingEyebrow')}</div>
             <div className="hits-upcoming-list">
               {upcomingFixtures.map((f) => {
                 const active = f.id === activeUpcomingId
@@ -524,7 +521,7 @@ export default function HitsEntry() {
                         {f.venue ? ` · ${f.venue}` : ''}
                       </span>
                     </span>
-                    <span className="hits-upcoming-cta">{active ? 'Selected ✓' : 'Reserve'}</span>
+                    <span className="hits-upcoming-cta">{active ? t('entry.reserveActive') : t('entry.reserve')}</span>
                   </button>
                 )
               })}
@@ -533,26 +530,24 @@ export default function HitsEntry() {
         )}
 
         <section className="hits-payouts">
-          <div className="hits-payouts-eyebrow">What you can win on a ₱{price} card</div>
+          <div className="hits-payouts-eyebrow">{t('entry.payoutsEyebrow', { price })}</div>
           <div className="hits-payouts-list">
             <div className="hits-payout-row">
-              <span className="hits-payout-label">5 in a row</span>
+              <span className="hits-payout-label">{t('entry.payout5row')}</span>
               <span className="hits-payout-mult">₱{(price * MULTIPLIERS.row).toLocaleString()}</span>
             </div>
             <div className="hits-payout-row">
-              <span className="hits-payout-label">Corner to corner</span>
+              <span className="hits-payout-label">{t('entry.payoutCorner')}</span>
               <span className="hits-payout-mult">₱{(price * MULTIPLIERS.diag).toLocaleString()}</span>
             </div>
             <div className="hits-payout-row gold">
-              <span className="hits-payout-label">All boxes (jackpot)</span>
+              <span className="hits-payout-label">{t('entry.payoutJackpot')}</span>
               <span className="hits-payout-mult">₱{(price * MULTIPLIERS.full).toLocaleString()}</span>
             </div>
           </div>
         </section>
 
-        <p className="hits-foot">
-          21+ only · <strong>Play smart</strong> · Need help? Call 8521-1542
-        </p>
+        <p className="hits-foot">{tx('common.foot')}</p>
       </div>
 
       {showSignIn && (
@@ -566,27 +561,25 @@ export default function HitsEntry() {
         <div className="hits-limit-modal" onClick={(e) => e.target === e.currentTarget && skipLimit()}>
           <div className="hits-limit-card">
             <h2 className="hits-limit-h">
-              Gumastos ka na ng ₱{session.spend} today. <em>Magtigil kailan?</em>
+              {tx('entry.limitH', { spend: session.spend })}
             </h2>
-            <p className="hits-limit-sub">
-              Pick your stop. We&apos;ll block the buy button when you hit it. Resets tomorrow.
-            </p>
+            <p className="hits-limit-sub">{t('entry.limitSub')}</p>
             <div className="hits-limit-opts">
               <button className="hits-limit-opt" onClick={() => setLimit(100)}>
-                <span>Tigil sa ₱100</span>
+                <span>{t('entry.limitStop', { amount: (100).toLocaleString() })}</span>
               </button>
               <button className="hits-limit-opt hits-limit-opt-rec" onClick={() => setLimit(300)}>
-                <span>Tigil sa ₱300</span>
+                <span>{t('entry.limitStop', { amount: (300).toLocaleString() })}</span>
               </button>
               <button className="hits-limit-opt" onClick={() => setLimit(500)}>
-                <span>Tigil sa ₱500</span>
+                <span>{t('entry.limitStop', { amount: (500).toLocaleString() })}</span>
               </button>
               <button className="hits-limit-opt" onClick={() => setLimit(1000)}>
-                <span>Tigil sa ₱1,000</span>
+                <span>{t('entry.limitStop', { amount: (1000).toLocaleString() })}</span>
               </button>
             </div>
             <button className="hits-limit-skip" onClick={skipLimit}>
-              Saka na
+              {t('common.later')}
             </button>
           </div>
         </div>
