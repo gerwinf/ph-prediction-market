@@ -30,9 +30,10 @@ export const CONTENDERS: Contender[] = [
 
 const T = (name: string, iso: string): Team => ({ name, iso })
 
-// Spotlight + match grid, ordered by kickoff. Real FIFA World Cup 2026 Round of 16
-// fixtures (refreshed 2026-07-03; kickoffs in UTC, converted from the published ET
-// times — EDT is UTC−4). A `slug` would point at a pinned match market in
+// Spotlight + match grid, ordered by kickoff. Real FIFA World Cup 2026 knockout-stage
+// fixtures (refreshed 2026-07-06; the two remaining Round of 16 ties + the confirmed
+// quarter-finals. Kickoffs in UTC, converted from the published ET times — EDT is
+// UTC−4). A `slug` would point at a pinned match market in
 // lib/oracle/slugs.ts (LIVE_MARKETS) when one exists; none do today, so every match
 // shows its curated `fallback` odds (regulation result; "draw" = level after 90').
 // Refresh as rounds pass — or seed the catalog (scripts/seed-worldcup-catalog.ts) to
@@ -55,5 +56,32 @@ export const FIXTURES: Fixture[] = [
     kickoffISO: '2026-07-06T21:00:00.000Z',
     venue: 'Lumen Field, Seattle',
     fallback: { home: 34, draw: 27, away: 39 },
+  },
+  {
+    id: 'wc-fra-mar',
+    home: T('France', 'fr'),
+    away: T('Morocco', 'ma'),
+    group: 'Quarter-final',
+    kickoffISO: '2026-07-09T20:00:00.000Z',
+    venue: 'Gillette Stadium, Foxborough',
+    fallback: { home: 48, draw: 27, away: 25 },
+  },
+  {
+    id: 'wc-nor-eng',
+    home: T('Norway', 'no'),
+    away: T('England', 'gb'),
+    group: 'Quarter-final',
+    kickoffISO: '2026-07-11T21:00:00.000Z',
+    venue: 'Hard Rock Stadium, Miami',
+    fallback: { home: 32, draw: 28, away: 40 },
+  },
+  {
+    id: 'wc-arg-sui',
+    home: T('Argentina', 'ar'),
+    away: T('Switzerland', 'ch'),
+    group: 'Quarter-final',
+    kickoffISO: '2026-07-13T00:00:00.000Z',
+    venue: 'Arrowhead Stadium, Kansas City',
+    fallback: { home: 60, draw: 24, away: 16 },
   },
 ]
