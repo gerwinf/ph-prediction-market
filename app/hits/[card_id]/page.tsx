@@ -13,6 +13,7 @@ import { useModalA11y } from '../../../lib/hooks/useModalA11y'
 import { useSession } from '../../../lib/auth/use-session'
 import { SignInModal } from '../../../components/auth/SignInModal'
 import { HitsMenu } from '../../../components/hits/HitsMenu'
+import { HitsBrand } from '../../../components/hits/HitsBrand'
 import { useLang } from '../../../lib/hits/i18n/LanguageProvider'
 import { wcCodesFromMatchId } from '../../../lib/hits/feed-fifa'
 import { PackRipReveal } from '../../../components/hits/PackRipReveal'
@@ -607,10 +608,7 @@ function HitsCardView({ params }: PageProps) {
       <div className="hits-shell">
         <header className="hits-header">
           <div className="hits-brand">
-            <span className="hits-brand-coin" aria-hidden="true">H</span>
-            <span className="hits-brand-text">
-              Hula <em>Hits</em>
-            </span>
+            <HitsBrand />
           </div>
           <div className="hits-header-right">
             {auth.loading ? (
