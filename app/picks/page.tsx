@@ -611,12 +611,11 @@ export default function PicksPage() {
           Hula kada game. <em>Sahod kada oras.</em>
         </h1>
         <p className="lede">
-          Pumili ng <strong>MORE</strong> or <strong>LESS</strong> sa 2–6 player props. Mas marami, mas malaki ang multiplier — up to <strong>×25</strong>. PBA, MLBB, World Cup, Pool. Bayad sa GCash bago mag-dinner, sigurado.
+          Pumili ng <strong>MORE</strong> or <strong>LESS</strong> sa 2–6 player props. Mas marami, mas malaki ang multiplier — up to <strong>×25</strong>. PBA, MLBB, World Cup, Pool.
         </p>
         <div className="picks-trust-chips">
-          <span className="picks-trust-chip"><span className="picks-trust-dot" />PAGCOR-licensed</span>
+          <span className="picks-trust-chip"><span className="picks-trust-dot" />Demo · pre-launch</span>
           <span className="picks-trust-chip"><span className="picks-trust-dot" />Peso-native, no crypto</span>
-          <span className="picks-trust-chip"><span className="picks-trust-dot" />GCash sa loob ng 60 min</span>
           <span className="picks-trust-chip"><span className="picks-trust-dot" />21+ · Magdiwang nang responsable</span>
         </div>
       </section>
