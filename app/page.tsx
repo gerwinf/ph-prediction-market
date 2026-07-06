@@ -10,7 +10,6 @@ import {
   type MarketRow,
 } from '../lib/catalog/seed-data'
 import type { CatalogBinaryMarket } from '../lib/catalog/types'
-import { liveVol } from '../lib/worldcup/odds'
 
 // Live Polymarket odds (see lib/oracle/slugs.ts LIVE_MARKETS) are overlaid onto
 // any row carrying a `slug`; untagged (PH-local) rows stay hardcoded. The `pct`
@@ -71,14 +70,14 @@ type FeaturedEventConfig = {
 }
 
 const FEATURED_EVENT: FeaturedEventConfig | null = {
-  tag: 'Featured event · Live now',
+  tag: 'Featured event',
   title: 'World Cup',
   titleEm: '2026',
   blurb:
-    'Every match and every contender, priced live and settled in pesos — from the group stage to the final.',
+    'Every match and every contender, priced live and settled in pesos — all the way to the final.',
   href: '/worldcup',
   cta: 'Enter the hub →',
-  meta: 'Live odds · 48 nations',
+  meta: 'Live odds via Polymarket',
 }
 
 function LogoMono() {
@@ -133,6 +132,7 @@ function Nav({ onBurger }: { onBurger: () => void }) {
           <a href="#markets">Sports</a>
           <a href="#markets">Showbiz</a>
           <a href="#how">How it works</a>
+          <Link href="/hits">Hula Hits</Link>
           {FEATURED_EVENT && (
             <Link className="nav-event" href={FEATURED_EVENT.href}>
               {FEATURED_EVENT.title} {FEATURED_EVENT.titleEm}
@@ -173,6 +173,7 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
       <div className="mobile-menu-links">
         <a href="#markets" onClick={go('markets')}>Markets</a>
         <a href="#how" onClick={go('how')}>How it works</a>
+        <Link href="/hits" onClick={onClose}>Hula Hits</Link>
         <a href="#waitlist" onClick={go('waitlist')}>Reserve handle</a>
         {FEATURED_EVENT && (
           <Link className="mobile-menu-event" href={FEATURED_EVENT.href} onClick={onClose}>
@@ -188,13 +189,17 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
 }
 
 function FeaturedCard({ prices }: { prices: PricesMap }) {
-  const yes = livePct(prices, 'wc-argentina', 64)
+  // Fallback tracks the last-seen live price (Round of 16, Jul 2026) so a
+  // failed fetch doesn't show a wildly different number than the live overlay.
+  const yes = livePct(prices, 'wc-argentina', 17)
   const no = 100 - yes
   return (
     <div className="featured">
       <div className="featured-head">
         <span className="featured-tag">Featured · World Cup 2026</span>
-        <span className="featured-vol">VOL {liveVol(prices, 'wc-argentina', '₱4.21M')}</span>
+        {prices['wc-argentina'] && !prices['wc-argentina'].is_stale && (
+          <span className="featured-vol">Live via Polymarket</span>
+        )}
       </div>
       <h3 className="featured-q">Will Argentina win the 2026 FIFA World Cup?</h3>
       <div className="featured-bar">
@@ -310,7 +315,7 @@ function Hero({ prices }: { prices: PricesMap }) {
             The market for <em>what happens next.</em>
           </h1>
           <p className="lede">
-            Hula is the first Filipino prediction market — trade the outcome of basketball, boxing, billboards, and the biggest stories of the day. Real money, real probabilities, regulated locally.
+            Hula is the first Filipino prediction market — trade the outcome of basketball, boxing, billboards, and the biggest stories of the day. Real odds, settled in pesos. Pre-launch — reserve your handle for Day 1.
           </p>
           <EmailForm id="waitlist" variant="hero" />
           <div style={{ marginTop: 14 }}>
@@ -325,13 +330,14 @@ function Hero({ prices }: { prices: PricesMap }) {
 
 function MarketCard({ m, prices }: { m: MarketRow; prices: PricesMap }) {
   const pct = livePct(prices, m.slug, m.pct)
+  const isLive = !!(m.slug && prices[m.slug] && !prices[m.slug].is_stale)
   const yesPrice = pct
   const noPrice = 100 - pct
   return (
     <article className="card">
       <div className="card-head">
         <span className="card-cat">{m.cat}</span>
-        <span className="card-vol">VOL {liveVol(prices, m.slug, m.vol)}</span>
+        {isLive && <span className="card-vol">Live odds</span>}
       </div>
       <h3 className="card-q">{m.q}</h3>
       <div className="card-prob">
@@ -372,7 +378,7 @@ function Markets({ prices, markets }: { prices: PricesMap; markets: Record<Categ
             className={'cat-tab' + (c.key === active ? ' active' : '')}
             onClick={() => setActive(c.key)}
           >
-            {c.label}<span className="count">{c.count}</span>
+            {c.label}<span className="count">{markets[c.key].length}</span>
           </button>
         ))}
       </div>
@@ -413,7 +419,7 @@ function HowItWorks() {
 // Single source of truth for the visible FAQ *and* the FAQPage JSON-LD below.
 // Answers are written as self-contained, quotable sentences — the format answer
 // engines (ChatGPT, Perplexity, Google AI Overviews) lift and cite. Regulatory
-// wording mirrors the compliance copy in <Stats/> (pre-launch, PAGCOR oversight)
+// wording mirrors the compliance copy in <Compliance/> (pre-launch, PAGCOR oversight)
 // — REVIEW the legality answer before any change to real-money/licensing status.
 const FAQ_ITEMS: { q: string; a: string }[] = [
   {
@@ -489,30 +495,9 @@ function Pullquote() {
   )
 }
 
-function Stats() {
-  const data = [
-    { n: '₱412M', l: 'Volume traded · 30d' },
-    { n: '184K',  l: 'Active hulers' },
-    { n: '1,420', l: 'Live markets' },
-    { n: '98.2%', l: 'Settlement on time' },
-  ]
+function Compliance() {
   return (
     <section className="section shell">
-      <div className="section-head">
-        <div>
-          <div className="section-kicker">By the numbers</div>
-          <h2 className="section-title">The market is liquid.</h2>
-        </div>
-        <span className="cta-meta" style={{ paddingLeft: 0 }}>Illustrative · pre-launch</span>
-      </div>
-      <div className="stats">
-        {data.map((s, i) => (
-          <div key={i} className="stat">
-            <div className="stat-n">{s.n}</div>
-            <div className="stat-l">{s.l}</div>
-          </div>
-        ))}
-      </div>
       <div className="compliance">
         <span className="badge">21+</span>
         <div>
@@ -564,19 +549,17 @@ function Footer() {
           <div className="foot-col">
             <h5>Hula</h5>
             <ul>
+              <li><Link href="/hits">Hula Hits</Link></li>
               <li><a href="#how">How it works</a></li>
               <li><a href="#waitlist">Reserve handle</a></li>
-              <li><a href="#">Press</a></li>
             </ul>
           </div>
           <div className="foot-col">
             <h5>Legal</h5>
             <ul>
-              <li><a href="#">Terms</a></li>
-              <li><a href="#">Privacy</a></li>
-              <li><a href="#">PAGCOR pathway</a></li>
-              <li><a href="#">Responsible gaming</a></li>
-              <li><a href="#">21+ policy</a></li>
+              <li><Link href="/terms">Terms</Link></li>
+              <li><Link href="/privacy">Privacy</Link></li>
+              <li><Link href="/responsible-gaming">Responsible gaming</Link></li>
             </ul>
           </div>
         </div>
@@ -640,7 +623,7 @@ export default function Home() {
       <Markets prices={prices} markets={markets} />
       <HowItWorks />
       <Pullquote />
-      <Stats />
+      <Compliance />
       <Faq />
       <CtaStrip />
       <Footer />

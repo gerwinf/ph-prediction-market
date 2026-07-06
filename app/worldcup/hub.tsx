@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { type Contender } from '../../lib/worldcup/fixtures'
 import { selectSpotlight, matchState, flagUrl, countdownParts, type Fixture } from '../../lib/worldcup/state'
-import { allWcSlugs, liveVol, matchHomePct, winnerPct, type PricesMap } from '../../lib/worldcup/odds'
+import { allWcSlugs, matchHomePct, winnerPct, type PricesMap } from '../../lib/worldcup/odds'
 import { Flag, WaitlistModal, groupLabel, kickoffLabel } from './shared'
 
 /* ────────────────────────────────────────────────────────────────────────
@@ -205,15 +205,12 @@ function WinnerLeaderboard({ contenders, prices, onYes }: { contenders: Contende
             />
             <span className="wc-win-id">
               <span className="wc-win-name">{r.name}</span>
-              <span className="wc-win-vol">Vol {liveVol(prices, r.slug, r.vol)}</span>
+              {r.slug && prices[r.slug] && !prices[r.slug].is_stale && (
+                <span className="wc-win-vol">Live via Polymarket</span>
+              )}
             </span>
             <span className="wc-win-prob">
               <span className="wc-win-pct">{r.pct}%</span>
-              {r.delta !== 0 && (
-                <span className="wc-win-delta" data-dir={r.delta > 0 ? 'up' : 'down'}>
-                  {r.delta > 0 ? '▲' : '▼'} {Math.abs(r.delta)}
-                </span>
-              )}
             </span>
             <span className="wc-win-bets">
               <button className="wc-bet wc-bet-yes" onClick={() => onYes(`${r.name} to win the World Cup — YES`)}>

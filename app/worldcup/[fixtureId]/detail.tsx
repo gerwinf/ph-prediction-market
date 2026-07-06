@@ -40,7 +40,7 @@ export default function MarketDetail({ fixture }: { fixture: Fixture }) {
   const homePct = matchHomePct(prices, fixture.slug, fixture.home.name, fixture.fallback.home)
   const drawPct = fixture.fallback.draw
   const awayPct = Math.max(0, 100 - homePct - drawPct)
-  const vol = fixtureVolLabel(prices, fixture)
+  const liveOdds = fixtureVolLabel(prices, fixture).live
 
   const badge =
     state === 'live' ? <span className="wc-badge wc-badge-live"><i aria-hidden="true" /> LIVE</span>
@@ -94,21 +94,13 @@ export default function MarketDetail({ fixture }: { fixture: Fixture }) {
         </div>
       </section>
 
-      {/* 3. Live volume */}
-      <section className="wc-detail-stats">
-        <div className="wc-detail-stat">
-          <span className="wc-detail-stat-val">{vol.label}</span>
-          <span className="wc-detail-stat-lbl">{vol.live ? 'Market volume · live' : 'Market volume · indicative'}</span>
-        </div>
-      </section>
-
       {/* 4. Market details / resolution */}
       <section className="wc-detail-rules">
         <h2 className="wc-detail-rules-title">How this market resolves</h2>
         <p className="wc-detail-rules-body">{resolutionText(fixture)}</p>
         <dl className="wc-detail-meta">
           <div><dt>Closes</dt><dd>{kickoffLabel(fixture.kickoffISO)}</dd></div>
-          <div><dt>Source</dt><dd>{vol.live ? 'Live odds via Polymarket' : 'Curated odds'}</dd></div>
+          <div><dt>Source</dt><dd>{liveOdds ? 'Live odds via Polymarket' : 'Curated odds'}</dd></div>
         </dl>
         <p className="wc-detail-disclaimer">21+ only · Pre-launch — no real bets yet</p>
       </section>

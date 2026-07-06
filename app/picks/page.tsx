@@ -123,26 +123,6 @@ const PROPS: Prop[] = [
     player: 'Christian Pulisic', team: 'USA', stat: 'Shots on target', line: 1.5, unit: 'SoT',
     photo: wp('Christian Pulisic USMNT v Belgium Mar 28 2026-73 (cropped).jpg') },
 
-  // ─── PBA Commissioner's Cup FINALS — Ginebra vs TNT (best-of-7, live Jun 2026)
-  // Verified Jun 2026: TNT & Ginebra advanced from the semis; remaining games
-  // Jun 14 (G6) / Jun 17 (G7) if necessary.
-  { id: 'pba-brownlee-pts', sport: 'pba', kind: 'player',
-    game: 'Ginebra vs TNT · Comm’s Cup Finals', when: 'Jun 14 · 7:30 PM PHT',
-    player: 'Justin Brownlee', team: 'GIN', stat: 'Points (import)', line: 28.5, unit: 'pts',
-    photo: wp('Brownlee w. bottle SEA Games 2023 (cropped).png') },
-  { id: 'pba-thompson-ast', sport: 'pba', kind: 'player',
-    game: 'Ginebra vs TNT · Comm’s Cup Finals', when: 'Jun 14 · 7:30 PM PHT',
-    player: 'Scottie Thompson', team: 'GIN', stat: 'Assists', line: 6.5, unit: 'ast',
-    photo: wp('PBA - Scottie Thompson - 2021.jpg') },
-  { id: 'pba-pogoy-pts', sport: 'pba', kind: 'player',
-    game: 'Ginebra vs TNT · Comm’s Cup Finals', when: 'Jun 14 · 7:30 PM PHT',
-    player: 'RR Pogoy', team: 'TNT', stat: 'Points', line: 19.5, unit: 'pts',
-    photo: wp('Bongbong Marcos in Dominican Republic v Philippines FBWC 2 Pogoy (cropped).jpg') },
-  { id: 'pba-ginebra-pts', sport: 'pba', kind: 'team',
-    game: 'Ginebra vs TNT · Comm’s Cup Finals', when: 'Jun 14 · 7:30 PM PHT',
-    player: 'Barangay Ginebra', team: 'GIN', stat: 'Team total points', line: 102.5, unit: 'pts',
-    badge: 'GIN', badgeBg: '#B22234', badgeFg: '#ffffff' },
-
   // ─── Pool · Pro Tour 2026 — Biado, Chua, Filler are all real active tour players
 
   { id: 'pool-biado-racks', sport: 'pool', kind: 'player',
@@ -176,18 +156,10 @@ const PROPS: Prop[] = [
   // ─── Showbiz · Kultura — real upcoming PH cultural events.
   // Lines illustrative (same standard as the sports lines); events verified
   // mid-May 2026 (sources in ~/.claude/plans/goofy-percolating-turing.md).
-  { id: 'sb-bini-songs', sport: 'showbiz', kind: 'player',
-    game: 'BINI · SM MOA Arena · Manila', when: 'Jun 20 · 8:00 PM PHT',
-    player: 'BINI', team: 'BINI', stat: 'Setlist songs', line: 24.5, unit: 'songs',
-    badge: 'BINI', badgeBg: '#E84393', badgeFg: '#ffffff' },
   { id: 'sb-bea-placement', sport: 'showbiz', kind: 'player',
     game: 'Miss Universe 2026 · Puerto Rico', when: 'Nov 2026',
     player: 'Bea Millan-Windorski', team: 'PH', stat: 'Final placement (lower = better)', line: 5.5, unit: 'place',
     badge: 'MUP', badgeBg: '#7b1fa2', badgeFg: '#ffffff' },
-  { id: 'sb-ts5-gross', sport: 'showbiz', kind: 'player',
-    game: 'PH cinemas nationwide', when: 'Opens Jun 19',
-    player: 'Toy Story 5', team: 'FILM', stat: 'PH opening weekend', line: 145.5, unit: '₱M',
-    badge: 'TS5', badgeBg: '#1565c0', badgeFg: '#ffffff' },
   { id: 'sb-spiderman-gross', sport: 'showbiz', kind: 'player',
     game: 'PH cinemas nationwide', when: 'Opens Jul 31',
     player: 'Spider-Man: Brand New Day', team: 'FILM', stat: 'PH opening weekend', line: 220.5, unit: '₱M',
@@ -611,19 +583,18 @@ export default function PicksPage() {
           Hula kada game. <em>Sahod kada oras.</em>
         </h1>
         <p className="lede">
-          Pumili ng <strong>MORE</strong> or <strong>LESS</strong> sa 2–6 player props. Mas marami, mas malaki ang multiplier — up to <strong>×25</strong>. PBA, MLBB, World Cup, Pool. Bayad sa GCash bago mag-dinner, sigurado.
+          Pumili ng <strong>MORE</strong> or <strong>LESS</strong> sa 2–6 player props. Mas marami, mas malaki ang multiplier — up to <strong>×25</strong>. World Cup, MLBB, Pool, Showbiz.
         </p>
         <div className="picks-trust-chips">
-          <span className="picks-trust-chip"><span className="picks-trust-dot" />PAGCOR-licensed</span>
+          <span className="picks-trust-chip"><span className="picks-trust-dot" />Demo · pre-launch</span>
           <span className="picks-trust-chip"><span className="picks-trust-dot" />Peso-native, no crypto</span>
-          <span className="picks-trust-chip"><span className="picks-trust-dot" />GCash sa loob ng 60 min</span>
           <span className="picks-trust-chip"><span className="picks-trust-dot" />21+ · Magdiwang nang responsable</span>
         </div>
       </section>
 
       {/* Prop sections by sport */}
       <div className="shell picks-body">
-        {sports.map((s) => (
+        {sports.filter((s) => PROPS.some((p) => p.sport === s)).map((s) => (
           <SportSection
             key={s}
             sport={s}
