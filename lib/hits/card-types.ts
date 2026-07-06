@@ -1,5 +1,5 @@
 import type { GameEvent, Match } from './types'
-import { CANDIDATE_EVENTS } from './events'
+import { WC_GENERIC_EVENTS } from './events-wc'
 import { SAMPLE_MATCH } from './sample-match'
 import { DAILY_EVENTS } from './daily-events'
 import { DAILY_SAMPLE } from './daily-sample'
@@ -24,7 +24,7 @@ export const CARD_TYPES: Record<CardType, CardTypeMeta> = {
     label: 'Sports',
     sublabel: SAMPLE_MATCH.league,
     tagline: SAMPLE_MATCH.tipoff,
-    pool: CANDIDATE_EVENTS,
+    pool: WC_GENERIC_EVENTS,
     sample: SAMPLE_MATCH,
   },
   daily: {

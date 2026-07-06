@@ -314,7 +314,7 @@ export default function OpsPage() {
         <input
           value={matchId}
           onChange={(e) => setMatchId(e.target.value)}
-          placeholder="pba-gin-ros-2026-05-24"
+          placeholder="wc-por-esp-2026-07-06"
           style={input}
         />
       </div>
