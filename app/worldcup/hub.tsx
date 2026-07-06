@@ -205,7 +205,9 @@ function WinnerLeaderboard({ contenders, prices, onYes }: { contenders: Contende
             />
             <span className="wc-win-id">
               <span className="wc-win-name">{r.name}</span>
-              {r.slug && <span className="wc-win-vol">Live via Polymarket</span>}
+              {r.slug && prices[r.slug] && !prices[r.slug].is_stale && (
+                <span className="wc-win-vol">Live via Polymarket</span>
+              )}
             </span>
             <span className="wc-win-prob">
               <span className="wc-win-pct">{r.pct}%</span>

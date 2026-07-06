@@ -197,7 +197,9 @@ function FeaturedCard({ prices }: { prices: PricesMap }) {
     <div className="featured">
       <div className="featured-head">
         <span className="featured-tag">Featured · World Cup 2026</span>
-        <span className="featured-vol">Live via Polymarket</span>
+        {prices['wc-argentina'] && !prices['wc-argentina'].is_stale && (
+          <span className="featured-vol">Live via Polymarket</span>
+        )}
       </div>
       <h3 className="featured-q">Will Argentina win the 2026 FIFA World Cup?</h3>
       <div className="featured-bar">
@@ -328,13 +330,14 @@ function Hero({ prices }: { prices: PricesMap }) {
 
 function MarketCard({ m, prices }: { m: MarketRow; prices: PricesMap }) {
   const pct = livePct(prices, m.slug, m.pct)
+  const isLive = !!(m.slug && prices[m.slug] && !prices[m.slug].is_stale)
   const yesPrice = pct
   const noPrice = 100 - pct
   return (
     <article className="card">
       <div className="card-head">
         <span className="card-cat">{m.cat}</span>
-        {m.slug && <span className="card-vol">Live odds</span>}
+        {isLive && <span className="card-vol">Live odds</span>}
       </div>
       <h3 className="card-q">{m.q}</h3>
       <div className="card-prob">
