@@ -3458,3 +3458,23 @@ button:focus {
   .hula-v2 .hits-rip-pack, .hula-v2 .hits-rip-pack-shine, .hula-v2 .hits-rip-pack-cta,
   .hula-v2 .hits-pocket-live { animation: none; }
 }
+/* ── Legal pages (/terms, /privacy, /responsible-gaming) ─────────────────── */
+.legal-page .legal-prose { max-width: 680px; }
+.legal-prose h1 {
+  font-family: var(--ff-display); font-size: 40px; line-height: 1.1;
+  margin: 0 0 6px; color: var(--ink);
+}
+.legal-prose .legal-updated {
+  font-family: var(--ff-mono); font-size: 11px; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--ink-3); margin: 0 0 28px;
+}
+.legal-prose h2 {
+  font-family: var(--ff-display); font-size: 22px; line-height: 1.2;
+  margin: 32px 0 10px; color: var(--ink);
+}
+.legal-prose p, .legal-prose li {
+  font-size: 16px; line-height: 1.6; color: var(--ink-2); margin: 0 0 14px;
+}
+.legal-prose ul { padding-left: 20px; margin: 0 0 14px; }
+.legal-prose li { margin-bottom: 8px; }
+.legal-prose a { color: var(--accent); }

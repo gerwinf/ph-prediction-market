@@ -545,17 +545,14 @@ function Footer() {
             <ul>
               <li><a href="#how">How it works</a></li>
               <li><a href="#waitlist">Reserve handle</a></li>
-              <li><a href="#">Press</a></li>
             </ul>
           </div>
           <div className="foot-col">
             <h5>Legal</h5>
             <ul>
-              <li><a href="#">Terms</a></li>
-              <li><a href="#">Privacy</a></li>
-              <li><a href="#">PAGCOR pathway</a></li>
-              <li><a href="#">Responsible gaming</a></li>
-              <li><a href="#">21+ policy</a></li>
+              <li><Link href="/terms">Terms</Link></li>
+              <li><Link href="/privacy">Privacy</Link></li>
+              <li><Link href="/responsible-gaming">Responsible gaming</Link></li>
             </ul>
           </div>
         </div>
