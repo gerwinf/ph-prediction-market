@@ -57,6 +57,28 @@ holo shine).
   link has no `?new=1`, so it shows the board instantly. Rationale: URL-flag is
   simplest, SSR-safe, and self-clears so a refresh won't re-rip.
 
+### 1b. Post-rip moment: keep / shuffle / another pack (NEW — the upsell beat)
+
+Right after the cascade settles — before any event fires — the user is at peak
+"how's my pull?" attention. Surface a **post-rip strip** (inline, under the
+board; not a blocking modal):
+
+- **Primary:** "Laruin ang card na 'to →" — dismisses the strip, play proceeds.
+- **Re-pull:** "Hindi swerte? Shuffle · ₱{price/2}" — the EXISTING shuffle
+  mechanic (new card id, same match/live params, `router.replace`), now
+  surfaced as the central re-pull CTA instead of a passive row. A shuffle
+  navigates with `?new=1` so the replacement card **rips again** — that's the
+  gacha loop.
+- **Upsell:** "Buksan pa ng isang pack · ₱{price}" — buys a second card on the
+  same fixture (normal buy flow → new card page with `?new=1`). The current
+  card stays in the binder (live pockets keep playing/resolving server-side).
+
+Guards (unchanged from today, and they apply to both paid CTAs): insufficient
+balance and the daily-limit cap disable the buttons with the existing labels;
+the limit modal still triggers per its current rules. Dismissing the strip
+collapses it to the existing quiet shuffle row (which still auto-hides once the
+first cell lights). No re-nagging.
+
 ### 2–3. Play (REUSE)
 
 No mechanics change. After the rip settles, the board is in its existing demo or
@@ -67,9 +89,11 @@ live state and lights cells exactly as today (`hitIndices`, event polling / the
 
 - Keep the existing win modal (`winShown`, `bestPayout`, `/api/cards/[id]/won`).
 - When the card finishes (`done === true`), replace the always-on "Share + Iba
-  pang card" footer's neutral copy with a **"card complete"** state that adds an
-  **"Add to binder →"** link to `/hits/history` (the binder). This gives the
-  journey an ending instead of a frozen board. No settlement change.
+  pang card" footer's neutral copy with a **"card complete"** state: primary
+  **"Buksan pa ng isang pack · ₱{price} →"** (the second upsell beat — same
+  buy flow, `?new=1`, same balance/limit guards) and secondary **"Add to
+  binder →"** link to `/hits/history`. This gives the journey an ending instead
+  of a frozen board. No settlement change.
 
 ### 5. Binder (RESTYLE of `/hits/history`)
 
@@ -94,7 +118,7 @@ live state and lights cells exactly as today (`hitIndices`, event polling / the
 | Unit | Type | Responsibility | Depends on |
 |---|---|---|---|
 | `components/hits/PackRipReveal.tsx` | new | Render the pack + cascade/holo reveal over a given `cells[]`; fire `onDone`; self-skip on reduced-motion/speed. | `Card.cells`, `rarity`, match label/colors |
-| card page `[card_id]/page.tsx` | edit | Detect `?new=1`, gate `PackRipReveal` before play; add "card complete → Add to binder" footer state. | PackRipReveal |
+| card page `[card_id]/page.tsx` | edit | Detect `?new=1`, gate `PackRipReveal` before play; post-rip strip (keep / shuffle / another pack, reusing shuffle + buy logic); "card complete" footer (another pack + Add to binder). | PackRipReveal |
 | landing `page.tsx` | edit | CTA copy → "Buksan ang pack"; append `?new=1` on buy; add "Binder" nav entry. | — |
 | history `history/page.tsx` → binder | restyle | Binder grid + stats + result ribbons; pocket → card link. | `/api/cards` (unchanged) |
 | `app/hits/hits.css` (or existing styles) | edit | Pack/rip/holo + binder pocket styles. | — |
@@ -110,7 +134,10 @@ No API, DB, or `lib/hits/*` logic changes. `PackRipReveal` is isolated: input is
   - `?new=1` consumption logic (a small pure helper: given search params →
     `{ showRip: boolean, cleanedUrl }`), including reduced-motion/speed short-circuit.
 - Manual/local render (needs borrowed creds — `/hits` boots a Supabase client):
-  - Fresh buy → pack rips → cascade → board plays (demo Portugal–Spain).
+  - Fresh buy → pack rips → cascade → post-rip strip shows → board plays
+    (demo Portugal–Spain).
+  - Shuffle from the strip → new card **rips again**; "another pack" → second
+    card rips; both CTAs disable on low balance / daily limit.
   - Refresh mid-card does **not** re-rip; binder-open does **not** rip.
   - Binder grid renders won (ribbon) / live (pulse) / miss pockets; pocket opens
     the card.
