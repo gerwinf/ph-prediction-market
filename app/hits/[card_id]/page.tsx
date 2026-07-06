@@ -540,10 +540,17 @@ function HitsCardView({ params }: PageProps) {
   // can attribute the visit back to the sharing card → device_id (via
   // the cards table). Cleanest path to a K-factor without exposing the
   // HttpOnly device_id cookie to client JS.
-  const shareUrl =
-    typeof window !== 'undefined'
-      ? `${window.location.origin}/hits/${card_id}?bet=${bet}&ref=${card_id}`
-      : ''
+  // It must ALSO carry the card's mode (type + live/match) — without those
+  // the recipient of a live card lands in demo mode instead of the game.
+  const shareUrl = (() => {
+    if (typeof window === 'undefined') return ''
+    const params = new URLSearchParams({ bet: String(bet), type: cardType, ref: card_id })
+    if (live) {
+      params.set('live', '1')
+      params.set('match', matchId)
+    }
+    return `${window.location.origin}/hits/${card_id}?${params.toString()}`
+  })()
 
   function handleShare() {
     track('share_clicked', { bet, type: cardType }, card_id)
