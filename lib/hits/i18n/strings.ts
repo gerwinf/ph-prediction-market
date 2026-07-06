@@ -24,8 +24,8 @@ export const STRINGS = {
   'common.loadingGame': { en: 'Loading game info…', tl: 'Loading game info…' },
   'common.later': { en: 'Later', tl: 'Saka na' },
   'common.foot': {
-    en: '21+ only · *Play smart* · Need help? Call 8521-1542',
-    tl: '21+ lang · *Play smart* · Need help? Call 8521-1542',
+    en: '21+ only · *Play smart* · Demo — no real money yet',
+    tl: '21+ lang · *Play smart* · Demo — walang tunay na pera pa',
   },
 
   // ── Entry page (/hits) ──────────────────────────────────────────────
@@ -58,8 +58,8 @@ export const STRINGS = {
   'entry.heroDailyWindow': { en: '6 AM → MIDNIGHT', tl: '6 AM → MIDNIGHT' },
 
   'entry.purchaseH': {
-    en: 'Buy a card.\nWatch the game.\n*Win real money.*',
-    tl: 'Bili ng card.\nPanóorin ang laro.\n*Manalo ng pera.*',
+    en: 'Buy a card.\nWatch the game.\n*Win when it hits.*',
+    tl: 'Bili ng card.\nPanóorin ang laro.\n*Panalo kapag tumama.*',
   },
   'entry.purchaseSub': {
     en: 'Every box is something that can happen in the game. Get 5 in a row and win. Fill the whole card and win big.',
@@ -96,8 +96,8 @@ export const STRINGS = {
     tl: 'Live game · mag-iilaw ang cells habang nangyayari',
   },
   'entry.metaUpcoming': {
-    en: 'Pre-game · reserve now, cells light up at tip-off',
-    tl: 'Pre-game · reserve na, mag-iilaw ang cells sa tip-off',
+    en: 'Pre-game · reserve now, cells light up at game start',
+    tl: 'Pre-game · reserve na, mag-iilaw ang cells sa simula ng laro',
   },
   'entry.metaFallback': { en: 'Demo only · no real money yet', tl: 'Demo lang · walang tunay na pera pa' },
 
@@ -131,8 +131,8 @@ export const STRINGS = {
   },
   'card.reserved': { en: 'Reserved', tl: 'Reserved' },
   'card.pregameWithTip': {
-    en: 'Tip-off {time} · cells light up at the start of the game',
-    tl: 'Tip-off {time} · mag-iilaw ang cells sa simula ng laro',
+    en: 'Starts {time} · cells light up at the start of the game',
+    tl: 'Simula {time} · mag-iilaw ang cells sa simula ng laro',
   },
   'card.pregameNoTip': {
     en: 'Cells light up at the start of the game',

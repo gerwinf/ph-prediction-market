@@ -10,6 +10,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/worldcup', priority: 0.9, changeFrequency: 'daily' },
     { path: '/picks', priority: 0.8, changeFrequency: 'weekly' },
     { path: '/hits', priority: 0.8, changeFrequency: 'weekly' },
+    { path: '/terms', priority: 0.3, changeFrequency: 'yearly' },
+    { path: '/privacy', priority: 0.3, changeFrequency: 'yearly' },
+    { path: '/responsible-gaming', priority: 0.3, changeFrequency: 'yearly' },
   ]
 
   return routes.map((r) => ({

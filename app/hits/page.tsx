@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { newCardId } from '../../lib/hits/card-generator'
 import { MULTIPLIERS } from '../../lib/hits/payouts'
@@ -231,12 +232,12 @@ export default function HitsEntry() {
     <main className="hula-v2 hits-dark">
       <div className="hits-shell">
         <header className="hits-header">
-          <div className="hits-brand">
+          <Link href="/" className="hits-brand" style={{ textDecoration: 'none', color: 'inherit' }}>
             <span className="hits-brand-coin" aria-hidden="true">H</span>
             <span className="hits-brand-text">
               Hula <em>Hits</em>
             </span>
-          </div>
+          </Link>
           <div className="hits-header-right">
             {mounted && (
               auth.loading ? (
