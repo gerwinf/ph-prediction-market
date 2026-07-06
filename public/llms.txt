@@ -1,0 +1,18 @@
+# Hula
+
+> Hula is the first Filipino prediction market — a platform where you trade real odds on the outcome of Philippine sports, showbiz, weather, and world events, with prices settled in pesos. Hula is pre-launch and will operate under PAGCOR oversight, open to Philippine residents aged 21 and above.
+
+Key facts:
+
+- Hula is the first Filipino prediction market (operated by Hula Pilipinas, Inc.).
+- A prediction market lets people buy and sell shares in the outcome of a future event; each share costs from ₱1 to ₱99 and its price reflects the market's estimated probability. A correct prediction pays out ₱100 per share.
+- Markets cover the PBA, international boxing, the MMFF, weather, cryptocurrency, and the FIFA World Cup — each a yes-or-no question with live odds.
+- Unlike a fixed-odds sportsbook, prices move with supply and demand and you trade against other users, not the house. Positions can be sold anytime before an event settles.
+- Payouts settle in pesos to GCash, Maya, or bank.
+
+## Pages
+
+- [Home](https://hulaan.ph/): What Hula is, live market odds, and how a prediction market works.
+- [World Cup](https://hulaan.ph/worldcup): Live odds and markets for the 2026 FIFA World Cup.
+- [Picks](https://hulaan.ph/picks): Curated prediction picks.
+- [Hits](https://hulaan.ph/hits): Bingo-style prediction cards.

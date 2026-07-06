@@ -310,7 +310,7 @@ function Hero({ prices }: { prices: PricesMap }) {
             The market for <em>what happens next.</em>
           </h1>
           <p className="lede">
-            Hula is the Philippines&apos; prediction market — trade the outcome of basketball, boxing, billboards, and the biggest stories of the day. Real money, real probabilities, regulated locally.
+            Hula is the first Filipino prediction market — trade the outcome of basketball, boxing, billboards, and the biggest stories of the day. Real money, real probabilities, regulated locally.
           </p>
           <EmailForm id="waitlist" variant="hero" />
           <div style={{ marginTop: 14 }}>
@@ -404,6 +404,72 @@ function HowItWorks() {
             <h3 className="step-t">{s.t}</h3>
             <p className="step-d">{s.d}</p>
           </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+// Single source of truth for the visible FAQ *and* the FAQPage JSON-LD below.
+// Answers are written as self-contained, quotable sentences — the format answer
+// engines (ChatGPT, Perplexity, Google AI Overviews) lift and cite. Regulatory
+// wording mirrors the compliance copy in <Stats/> (pre-launch, PAGCOR oversight)
+// — REVIEW the legality answer before any change to real-money/licensing status.
+const FAQ_ITEMS: { q: string; a: string }[] = [
+  {
+    q: 'What is Hula?',
+    a: 'Hula is the first Filipino prediction market — a platform where you trade real odds on the outcome of Philippine sports, showbiz, weather, and world events, with prices settled in pesos.',
+  },
+  {
+    q: 'What is a prediction market?',
+    a: 'A prediction market lets people buy and sell shares in the outcome of a future event. Each share costs from ₱1 to ₱99, and the price reflects the market’s estimated probability of that outcome. A correct prediction pays out ₱100 per share.',
+  },
+  {
+    q: 'What can I trade on Hula?',
+    a: 'Hula offers markets on the PBA, international boxing, the MMFF, weather, cryptocurrency, and the FIFA World Cup — each framed as a yes-or-no question with live, real-time odds.',
+  },
+  {
+    q: 'How is Hula different from sports betting?',
+    a: 'Unlike a fixed-odds sportsbook, Hula is a market: prices move with supply and demand, you trade against other users rather than the house, and you can buy or sell your position anytime before an event settles.',
+  },
+  {
+    q: 'Is Hula legal and regulated in the Philippines?',
+    a: 'Hula is pre-launch and will operate under PAGCOR oversight. Markets will be open only to Philippine residents aged 21 and above; government employees, AFP/PNP personnel, and persons in the NDRP will not be eligible.',
+  },
+  {
+    q: 'How do I get paid out?',
+    a: 'Each winning share pays ₱100. You can sell a position anytime before settlement, with payouts cashed out to GCash, Maya, or your bank.',
+  },
+]
+
+function Faq() {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: FAQ_ITEMS.map((item) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: { '@type': 'Answer', text: item.a },
+    })),
+  }
+  return (
+    <section id="faq" className="section shell">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <div className="section-head">
+        <div>
+          <div className="section-kicker">Mga tanong</div>
+          <h2 className="section-title">Frequently asked.</h2>
+        </div>
+      </div>
+      <div className="faq">
+        {FAQ_ITEMS.map((item) => (
+          <details key={item.q} className="faq-item">
+            <summary className="faq-q">{item.q}</summary>
+            <p className="faq-a">{item.a}</p>
+          </details>
         ))}
       </div>
     </section>
@@ -575,6 +641,7 @@ export default function Home() {
       <HowItWorks />
       <Pullquote />
       <Stats />
+      <Faq />
       <CtaStrip />
       <Footer />
       <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />

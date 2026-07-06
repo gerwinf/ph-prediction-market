@@ -16,9 +16,9 @@ const spaceMono = Space_Mono({
 })
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://hulaan.ph'
-const TITLE = 'Hula — The market for what happens next.'
+const TITLE = 'Hula — The first Filipino prediction market'
 const DESCRIPTION =
-  "The Philippines' prediction market. Trade real odds on PBA, boxing, MMFF, weather, World Cup — pesos in, pesos out."
+  "Hula is the first Filipino prediction market. Trade real odds on PBA, boxing, MMFF, weather, and the World Cup — the prediction market built for the Philippines. Pesos in, pesos out."
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -32,13 +32,23 @@ export const metadata: Metadata = {
   description: DESCRIPTION,
   applicationName: 'Hula',
   keywords: [
+    'first Filipino prediction market',
+    'prediction market Philippines',
+    'Filipino prediction market',
+    'Philippine prediction market',
+    'prediction market',
+    'prediction markets',
     'Hula',
     'Hulaan',
-    'prediction market',
-    'Philippines',
-    'PBA',
+    'Polymarket Philippines',
+    'trade odds Philippines',
+    'PBA odds',
+    'PBA prediction market',
+    'boxing odds Philippines',
+    'MMFF predictions',
+    'World Cup odds Philippines',
     'PAGCOR',
-    'sports betting',
+    'sports betting Philippines',
     'GCash',
     'pesos',
   ],
@@ -67,6 +77,32 @@ export const metadata: Metadata = {
   },
 }
 
+const JSON_LD = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': `${SITE_URL}/#organization`,
+      name: 'Hula',
+      legalName: 'Hula Pilipinas, Inc.',
+      url: SITE_URL,
+      logo: `${SITE_URL}/favicon-mark.svg`,
+      description:
+        'Hula is the first Filipino prediction market — trade real odds on PBA, boxing, MMFF, weather, and the World Cup.',
+      areaServed: { '@type': 'Country', name: 'Philippines' },
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${SITE_URL}/#website`,
+      url: SITE_URL,
+      name: TITLE,
+      description: DESCRIPTION,
+      inLanguage: 'en-PH',
+      publisher: { '@id': `${SITE_URL}/#organization` },
+    },
+  ],
+}
+
 export default function RootLayout({
   children,
 }: {
@@ -75,6 +111,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${fraunces.variable} ${spaceMono.variable}`}>
       <body className="antialiased">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
+        />
         {children}
         <Analytics />
       </body>
