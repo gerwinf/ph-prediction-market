@@ -375,7 +375,7 @@ function Markets({ prices, markets }: { prices: PricesMap; markets: Record<Categ
             className={'cat-tab' + (c.key === active ? ' active' : '')}
             onClick={() => setActive(c.key)}
           >
-            {c.label}<span className="count">{c.count}</span>
+            {c.label}<span className="count">{markets[c.key].length}</span>
           </button>
         ))}
       </div>

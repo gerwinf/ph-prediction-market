@@ -24,14 +24,16 @@ export const TICKER_DATA: TickerItem[] = [
   { mkt: 'ETH tops $5,500 in 2026',              pct: 8,  slug: 'crypto-eth-5500' },
 ]
 
+// Tab counts are derived at render time from the rows actually shown
+// (seed grid or catalog merge) — never hardcode an inventory number here.
 export const CATEGORIES = [
-  { key: 'trending', label: 'Trending',    count: 142 },
-  { key: 'sports',   label: 'Sports',      count: 38  },
-  { key: 'showbiz',  label: 'Showbiz',     count: 24  },
-  { key: 'crypto',   label: 'Crypto',      count: 19  },
-  { key: 'weather',  label: 'Weather',     count: 11  },
-  { key: 'world',    label: 'World',       count: 32  },
-  { key: 'popcult',  label: 'Pop culture', count: 18  },
+  { key: 'trending', label: 'Trending' },
+  { key: 'sports',   label: 'Sports' },
+  { key: 'showbiz',  label: 'Showbiz' },
+  { key: 'crypto',   label: 'Crypto' },
+  { key: 'weather',  label: 'Weather' },
+  { key: 'world',    label: 'World' },
+  { key: 'popcult',  label: 'Pop culture' },
 ] as const
 
 export type CategoryKey = typeof CATEGORIES[number]['key']
