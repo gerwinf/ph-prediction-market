@@ -16,6 +16,7 @@
 import { NextResponse } from 'next/server'
 import { unstable_noStore as noStore } from 'next/cache'
 import { createAdminClient } from '../../../lib/supabase/admin'
+import { syncFifaEvents } from '../../../lib/hits/feed-fifa'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -31,6 +32,13 @@ export async function GET(req: Request) {
   if (!matchId) {
     return NextResponse.json({ ok: false, error: 'match_required' }, { status: 400 })
   }
+
+  // World Cup fixtures self-feed from FIFA's live timeline: this poll (cards
+  // hit it every ~3s) lazily pulls the timeline behind a 20s TTL, maps it to
+  // event keys, and inserts anything new before we read — same table-is-the-
+  // cache pattern as /api/prices, no cron needed. Never throws; a broken feed
+  // just means cells stop lighting until /ops fires manually.
+  await syncFifaEvents(matchId)
 
   const admin = createAdminClient()
   // Filter to events whose stamp has reached "now". The demo fixture
