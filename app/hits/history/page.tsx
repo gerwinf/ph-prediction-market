@@ -10,6 +10,7 @@ import { generateCard, isFreeCell } from '../../../lib/hits/card-generator'
 import { deriveBinderStats, binderHitIndices } from '../../../lib/hits/binder'
 import { useLang } from '../../../lib/hits/i18n/LanguageProvider'
 import { HitsMenu } from '../../../components/hits/HitsMenu'
+import { HitsBrand } from '../../../components/hits/HitsBrand'
 import type { StringKey } from '../../../lib/hits/i18n/strings'
 
 /* ────────────────────────────────────────────────────────────────────────
@@ -146,10 +147,7 @@ export default function BinderPage() {
       <div className="hits-shell">
         <header className="hits-header">
           <div className="hits-brand">
-            <span className="hits-brand-coin" aria-hidden="true">H</span>
-            <span className="hits-brand-text">
-              Hula <em>Hits</em>
-            </span>
+            <HitsBrand />
           </div>
           <div className="hits-header-right">
             <button className="hits-back" onClick={() => router.push('/hits')}>

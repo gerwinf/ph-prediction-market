@@ -1403,41 +1403,74 @@ button:focus {
 /* ── Header ───────────────────────────────────────────────────────────── */
 .hula-v2 .hits-header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 4px 0 22px;
+  padding: 0 0 18px;
 }
+/* Brand = the landing page's logo lockup (logo-mono + logo-wordmark classes,
+ * defined with the landing styles) plus a small gold HITS pill. */
 .hula-v2 .hits-brand {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  font-family: var(--ff-display);
-  font-size: 26px;
-  font-weight: 500;
-  letter-spacing: -0.02em;
   color: var(--ink);
   line-height: 1;
 }
-.hula-v2 .hits-brand em {
-  font-style: italic;
+.hula-v2 .hits-brand-tag {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius: 999px;
+  padding: 3px 8px;
 }
-.hula-v2 .hits-brand-coin {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: var(--accent);
-  color: var(--accent-ink);
+
+/* Slim match strip under the entry headline — the only game-context chrome
+ * on the page, and only rendered when a real fixture is live/upcoming.
+ * Dark-native like .hits-score. */
+.hula-v2 .hits-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  background: linear-gradient(165deg, #17301f 0%, #0f2117 100%);
+  border: 1px solid rgba(244, 239, 220, 0.10);
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin: 2px 0 14px;
+  color: #f4efdc;
+}
+.hula-v2 .hits-strip-badge {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  font-family: var(--ff-display);
-  font-style: italic;
-  font-size: 18px;
-  line-height: 1;
+  gap: 5px;
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(240, 194, 79, 0.16);
+  color: #f0c24f;
   flex-shrink: 0;
-  box-shadow: inset 0 0 0 1.5px rgba(0, 0, 0, 0.18);
 }
-.hula-v2 .hits-brand-text {
-  white-space: nowrap;
+.hula-v2 .hits-strip-badge[data-live='true'] {
+  background: #dc2626;
+  color: #fff;
+}
+.hula-v2 .hits-strip-label {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  min-width: 0;
+}
+.hula-v2 .hits-strip-when {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  color: #8aa08f;
+  margin-left: auto;
+  flex-shrink: 0;
 }
 .hula-v2 .hits-eyebrow {
   display: inline-flex; align-items: center; gap: 8px;
@@ -3176,8 +3209,8 @@ button:focus {
   .hula-v2 .hits-win-h { font-size: 34px; }
   .hula-v2 .hits-win-payout-amt { font-size: 28px; }
   .hula-v2 .hits-limit-h { font-size: 22px; }
-  .hula-v2 .hits-brand { font-size: 22px; gap: 8px; }
-  .hula-v2 .hits-brand-coin { width: 26px; height: 26px; font-size: 15px; }
+  .hula-v2 .hits-brand .logo-mono { width: 28px; height: 28px; font-size: 14px; }
+  .hula-v2 .hits-brand .logo-wordmark { font-size: 19px; }
   /* Private-cell labels need to shrink even further; cells are ~58px wide. */
   .hula-v2 .private-cell-label { font-size: 8.5px; line-height: 1.05; }
   .hula-v2 .private-cell-pred-pill { font-size: 7px; padding: 1px 3px; }

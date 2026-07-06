@@ -11,6 +11,7 @@ import { track } from '../../lib/analytics/track'
 import { useSession } from '../../lib/auth/use-session'
 import { SignInModal } from '../../components/auth/SignInModal'
 import { HitsMenu } from '../../components/hits/HitsMenu'
+import { HitsBrand } from '../../components/hits/HitsBrand'
 import { readSession, writeSession } from '../../lib/hits/session'
 import { useLang } from '../../lib/hits/i18n/LanguageProvider'
 
@@ -62,7 +63,6 @@ export default function HitsEntry() {
   const [selectedFixtureId, setSelectedFixtureId] = useState<string | null>(null)
   const [balance, setBalance] = useState(0)
   const [showSignIn, setShowSignIn] = useState(false)
-  const [fixturesLoaded, setFixturesLoaded] = useState(false)
   const auth = useSession()
 
   useEffect(() => {
@@ -96,9 +96,6 @@ export default function HitsEntry() {
       })
       .catch(() => {
         /* silent — page falls back to demo-only */
-      })
-      .finally(() => {
-        if (!cancelled) setFixturesLoaded(true)
       })
     return () => {
       cancelled = true
@@ -233,10 +230,7 @@ export default function HitsEntry() {
       <div className="hits-shell">
         <header className="hits-header">
           <Link href="/" className="hits-brand" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <span className="hits-brand-coin" aria-hidden="true">H</span>
-            <span className="hits-brand-text">
-              Hula <em>Hits</em>
-            </span>
+            <HitsBrand />
           </Link>
           <div className="hits-header-right">
             {mounted && (
@@ -276,108 +270,29 @@ export default function HitsEntry() {
           </div>
         </header>
 
-        {/* Identity eyebrow — visible value prop without gating */}
-        {mounted && !auth.loading && (
-          <div className="hits-identity-row">
-            {auth.profile ? (
-              <span className="hits-identity-authed">
-                {tx('entry.identityAuthed', { name: auth.profile.display_name })}
-              </span>
-            ) : (
-              <span className="hits-identity-anon">
-                {t('entry.anonPrefix')}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowSignIn(true)
-                    track('signin_opened', { from: 'identity_eyebrow' })
-                  }}
-                  className="hits-identity-link"
-                >
-                  {t('entry.signInToSave')}
-                </button>
-              </span>
-            )}
-          </div>
-        )}
-
-        {/* Hero card — single source of truth for "what am I playing" */}
-        <section
-          className="hits-hero"
-          data-mode={
-            type === 'daily'
-              ? 'daily'
-              : !fixturesLoaded
-                ? 'loading'
-                : isLive && heroIsDemo
-                  ? 'demo'
-                  : isLive
-                    ? 'live'
-                    : isUpcoming
-                      ? 'upcoming'
-                      : 'fallback'
-          }
-        >
-          {type === 'sports' && !fixturesLoaded ? (
-            <>
-              <div className="hits-hero-eyebrow hits-hero-skeleton-line" aria-hidden="true">
-                &nbsp;
-              </div>
-              <div className="hits-hero-title hits-hero-skeleton-line" aria-hidden="true">
-                &nbsp;
-              </div>
-              <div className="hits-hero-sub hits-hero-skeleton-line" aria-hidden="true">
-                &nbsp;
-              </div>
-              <span className="sr-only">{t('common.loadingGame')}</span>
-            </>
-          ) : type === 'sports' && isLive ? (
-            <>
-              <div className="hits-hero-eyebrow">
-                {heroIsDemo ? (
-                  <>{t('entry.heroLiveDemo')}</>
-                ) : (
-                  <><span className="hits-hero-pulse" /> {t('entry.heroLiveBadge')}</>
-                )}
-              </div>
-              <div className="hits-hero-title">{heroFixture!.match_label}</div>
-              <div className="hits-hero-sub">
-                {heroIsDemo ? t('entry.heroLiveSubDemo') : t('entry.heroLiveSub')}
-              </div>
-            </>
-          ) : type === 'sports' && isUpcoming ? (
-            <>
-              <div className="hits-hero-eyebrow">{t('entry.heroUpcomingEyebrow')}</div>
-              <div className="hits-hero-title">{heroFixture!.match_label}</div>
-              <div className="hits-hero-sub">
-                {formatStartTime(heroFixture!.starts_at)}
-                {heroFixture!.venue ? ` · ${heroFixture!.venue}` : ''}
-              </div>
-            </>
-          ) : type === 'sports' ? (
-            <>
-              <div className="hits-hero-eyebrow">{t('entry.heroDemoEyebrow')}</div>
-              <div className="hits-hero-title">{t('entry.heroDemoTitle')}</div>
-              <div className="hits-hero-sub">{t('entry.heroDemoSub')}</div>
-            </>
-          ) : (
-            <>
-              <div className="hits-hero-eyebrow">{t('entry.heroDailyEyebrow')}</div>
-              <div className="hits-hero-title">{t('entry.heroDailyTitle')}</div>
-              <div className="hits-hero-sub">
-                {new Date().toLocaleDateString('en-PH', {
-                  weekday: 'short',
-                  month: 'short',
-                  day: 'numeric',
-                })}{' '}
-                · {t('entry.heroDailyWindow')}
-              </div>
-            </>
-          )}
-        </section>
-
         <section className="hits-purchase">
           <h1 className="hits-purchase-h">{tx('entry.purchaseH')}</h1>
+
+          {/* Slim match strip — only when a REAL game is live or upcoming.
+              Demo needs no context panel; the buy button says it all. */}
+          {type === 'sports' && heroFixture && !heroIsDemo && (isLive || isUpcoming) && (
+            <div className="hits-strip">
+              <span className="hits-strip-badge" data-live={isLive}>
+                {isLive ? (
+                  <>
+                    <span className="hits-hero-pulse" /> {t('entry.heroLiveBadge')}
+                  </>
+                ) : (
+                  t('entry.heroUpcomingEyebrow')
+                )}
+              </span>
+              <span className="hits-strip-label">{heroFixture.match_label}</span>
+              {isUpcoming && (
+                <span className="hits-strip-when">{formatStartTime(heroFixture.starts_at)}</span>
+              )}
+            </div>
+          )}
+
           <p className="hits-purchase-sub">{t('entry.purchaseSub')}</p>
 
           <div className="hits-price-row">
@@ -449,17 +364,6 @@ export default function HitsEntry() {
             </button>
           )}
 
-          <div className="hits-buy-meta">
-            {type === 'daily'
-              ? t('entry.metaDaily')
-              : isLive
-                ? heroIsDemo
-                  ? t('entry.metaDemo')
-                  : t('entry.metaLive')
-                : isUpcoming
-                  ? t('entry.metaUpcoming')
-                  : t('entry.metaFallback')}
-          </div>
         </section>
 
         {/* Upcoming PBA games — pick one to reserve a card before tip-off. */}
