@@ -453,6 +453,17 @@ function HitsCardView({ params }: PageProps) {
       return `${t.getHours().toString().padStart(2, '0')}:${t.getMinutes().toString().padStart(2, '0')}`
     }
 
+    // FIFA-synced events carry the match minute + real commentary in the
+    // payload; ops-fired events may not. Fall back to wall clock + key.
+    type LiveEvent = {
+      id: number
+      event_key: string
+      resolved_at: string
+      payload?: { minute?: string; description?: string } | null
+    }
+    const clockOf = (ev: LiveEvent) => ev.payload?.minute || fmtClock(ev.resolved_at)
+    const descOf = (ev: LiveEvent) => ev.payload?.description || ev.event_key
+
     const tick = async () => {
       try {
         const res = await fetch(
@@ -462,7 +473,7 @@ function HitsCardView({ params }: PageProps) {
         const j = await res.json()
         if (cancelled || !j.ok || !Array.isArray(j.events)) return
 
-        const newEvents = (j.events as Array<{ id: number; event_key: string; resolved_at: string }>)
+        const newEvents = (j.events as LiveEvent[])
           .filter((ev) => !seenIdsRef.current.has(ev.id))
 
         if (newEvents.length === 0) return
@@ -477,7 +488,7 @@ function HitsCardView({ params }: PageProps) {
             const ev = newEvents[i]
             seenIdsRef.current.add(ev.id)
             if (ev.id > sinceRef.current) sinceRef.current = ev.id
-            resolveEventByKey(ev.event_key, fmtClock(ev.resolved_at), ev.event_key)
+            resolveEventByKey(ev.event_key, clockOf(ev), descOf(ev))
             if (i < newEvents.length - 1) {
               await new Promise((r) => setTimeout(r, 200))
             }
@@ -486,7 +497,7 @@ function HitsCardView({ params }: PageProps) {
           for (const ev of newEvents) {
             seenIdsRef.current.add(ev.id)
             if (ev.id > sinceRef.current) sinceRef.current = ev.id
-            resolveEventByKey(ev.event_key, fmtClock(ev.resolved_at), ev.event_key)
+            resolveEventByKey(ev.event_key, clockOf(ev), descOf(ev))
           }
         }
 
