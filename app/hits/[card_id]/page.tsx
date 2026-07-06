@@ -12,9 +12,9 @@ import { ContactCaptureModal } from '../../../components/hits/ContactCaptureModa
 import { useModalA11y } from '../../../lib/hooks/useModalA11y'
 import { useSession } from '../../../lib/auth/use-session'
 import { SignInModal } from '../../../components/auth/SignInModal'
-import { AccountMenu } from '../../../components/hits/AccountMenu'
-import { LangToggle } from '../../../components/hits/LangToggle'
+import { HitsMenu } from '../../../components/hits/HitsMenu'
 import { useLang } from '../../../lib/hits/i18n/LanguageProvider'
+import { wcCodesFromMatchId } from '../../../lib/hits/feed-fifa'
 import { PackRipReveal } from '../../../components/hits/PackRipReveal'
 import { shouldShowRip } from '../../../lib/hits/reveal'
 import { readSession, writeSession, wouldExceedLimit, type HitsSession } from '../../../lib/hits/session'
@@ -45,6 +45,19 @@ function timeAgo(iso: string): string {
   if (m < 60) return `${m}m ago`
   const h = Math.round(m / 60)
   return `${h}h ago`
+}
+
+/**
+ * Short team codes for the scoreboard. World Cup fixture ids carry them
+ * directly (wc-por-esp-… → POR/ESP); anything else falls back to the first
+ * three letters of each side of the "Home vs Away" label.
+ */
+function teamCodes(matchId: string, matchLabel: string): [string, string] {
+  const wc = wcCodesFromMatchId(matchId)
+  if (wc) return wc
+  const [h, a] = matchLabel.split(/\s+vs\.?\s+/i)
+  const code = (s?: string) => (s ?? '').trim().slice(0, 3).toUpperCase() || '···'
+  return [code(h), code(a)]
 }
 
 /* ────────────────────────────────────────────────────────────────────────
@@ -111,8 +124,16 @@ function HitsCardView({ params }: PageProps) {
   type MatchStatus = 'scheduled' | 'live' | 'final' | 'canceled' | 'unknown'
   const [matchStatus, setMatchStatus] = useState<MatchStatus>(live ? 'unknown' : 'scheduled')
   // Pre-buy: a card bound to a not-yet-started game. We capture the fixture's
-  // label + tip-off so the pre-game banner can say when cells will light up.
-  const [fixtureInfo, setFixtureInfo] = useState<{ matchLabel: string; startsAt: string } | null>(null)
+  // label + tip-off so the pre-game banner can say when cells will light up,
+  // plus the running score for the scoreboard (null until the feed reports).
+  const [fixtureInfo, setFixtureInfo] = useState<{
+    matchLabel: string
+    startsAt: string
+    homeScore: number | null
+    awayScore: number | null
+  } | null>(null)
+  // Demo scoreboard: running [home, away] carried on the sample timeline.
+  const [demoScore, setDemoScore] = useState<[number, number] | null>(null)
 
   // Token balance + live wins ticker state.
   const [balance, setBalance] = useState(0)
@@ -171,8 +192,9 @@ function HitsCardView({ params }: PageProps) {
 
   // Fetch fixture status to drive the badge + final-stop. For a pre-bought
   // (scheduled) card we keep polling so the card auto-flips to LIVE the moment
-  // ops tips the game off — no reload needed. Polling stops once the game is
-  // live/final/canceled (a live game's event poll takes over from there).
+  // ops tips the game off — no reload needed. During a live game the poll
+  // keeps running to refresh the scoreboard (home/away score); it stops for
+  // good once the game is final/canceled.
   useEffect(() => {
     if (!live || !matchId) return
     let cancelled = false
@@ -184,9 +206,14 @@ function HitsCardView({ params }: PageProps) {
         const j = await res.json()
         if (cancelled || !j.ok || !j.fixture) return
         setMatchStatus(j.fixture.status as MatchStatus)
-        setFixtureInfo({ matchLabel: j.fixture.match_label, startsAt: j.fixture.starts_at })
-        // Once it's no longer pre-game, stop the status poll.
-        if (j.fixture.status !== 'scheduled' && j.fixture.status !== 'unknown' && interval) {
+        setFixtureInfo({
+          matchLabel: j.fixture.match_label,
+          startsAt: j.fixture.starts_at,
+          homeScore: j.fixture.home_score ?? null,
+          awayScore: j.fixture.away_score ?? null,
+        })
+        // Nothing changes after the final whistle — stop the poll.
+        if ((j.fixture.status === 'final' || j.fixture.status === 'canceled') && interval) {
           clearInterval(interval)
           interval = null
         }
@@ -388,6 +415,7 @@ function HitsCardView({ params }: PageProps) {
       timers.push(
         setTimeout(() => {
           resolveEventByKey(te.eventId, te.gameClock, te.description)
+          if (te.score) setDemoScore(te.score)
         }, fireAt)
       )
     })
@@ -485,6 +513,17 @@ function HitsCardView({ params }: PageProps) {
   }, [live, matchId, matchStatus])
 
   const payout = bestPayout(hitIndices, card.pricePhp)
+  // Scoreboard: live cards read the fixture row (fed by the FIFA sync), demo
+  // cards read the annotated sample timeline. Daily cards have no score.
+  const score: [number, number] | null = live
+    ? fixtureInfo && fixtureInfo.homeScore !== null && fixtureInfo.awayScore !== null
+      ? [fixtureInfo.homeScore, fixtureInfo.awayScore]
+      : null
+    : demoScore
+  const [homeCode, awayCode] = teamCodes(
+    matchId,
+    fixtureInfo?.matchLabel ?? `${sample.home} vs ${sample.away}`
+  )
   // Share URL carries ?ref=<card_id> so the receiving /hits/[id] page
   // can attribute the visit back to the sharing card → device_id (via
   // the cards table). Cleanest path to a K-factor without exposing the
@@ -564,11 +603,14 @@ function HitsCardView({ params }: PageProps) {
   }
 
   return (
-    <main className="hula-v2">
+    <main className="hula-v2 hits-dark">
       <div className="hits-shell">
         <header className="hits-header">
           <div className="hits-brand">
-            Hula <em>Hits</em>
+            <span className="hits-brand-coin" aria-hidden="true">H</span>
+            <span className="hits-brand-text">
+              Hula <em>Hits</em>
+            </span>
           </div>
           <div className="hits-header-right">
             {auth.loading ? (
@@ -587,33 +629,26 @@ function HitsCardView({ params }: PageProps) {
                 {(auth.profile ? auth.profile.virtual_balance : balance).toLocaleString()}
               </span>
             )}
-            {!auth.loading && (
-              auth.profile ? (
-                <AccountMenu
-                  displayName={auth.profile.display_name}
-                  email={auth.profile.email}
-                  onHistory={() => router.push('/hits/history')}
-                  onSignOut={() => auth.signOut()}
-                />
-              ) : (
-                <button
-                  className="hits-back"
-                  onClick={() => {
-                    setShowSignIn(true)
-                    track('signin_opened', { from: '/hits/[card_id]' })
-                  }}
-                >
-                  {t('common.signIn')}
-                </button>
-              )
-            )}
-            <LangToggle />
-            <button className="hits-back" onClick={() => router.push('/hits/history')}>
-              {t('common.binder')}
-            </button>
-            <button className="hits-back" onClick={() => router.push('/hits')}>
-              {t('card.new')}
-            </button>
+            <HitsMenu
+              profile={
+                auth.profile
+                  ? { displayName: auth.profile.display_name, email: auth.profile.email }
+                  : null
+              }
+              onSignIn={() => {
+                setShowSignIn(true)
+                track('signin_opened', { from: '/hits/[card_id]' })
+              }}
+              onSignOut={() => auth.signOut()}
+              items={[
+                { key: 'new', label: t('menu.newCard'), onSelect: () => router.push('/hits') },
+                {
+                  key: 'binder',
+                  label: t('menu.binder'),
+                  onSelect: () => router.push('/hits/history'),
+                },
+              ]}
+            />
           </div>
         </header>
 
@@ -627,34 +662,53 @@ function HitsCardView({ params }: PageProps) {
           </section>
         )}
 
-        <section className="hits-ticker">
-          {live ? (
-            <span
-              className="hits-mode-badge"
-              data-status={matchStatus}
-            >
-              {matchStatus === 'live' && (
-                <>
-                  <span className="hits-mode-pulse" />
-                  LIVE
-                </>
-              )}
-              {matchStatus === 'final' && 'FINAL'}
-              {matchStatus === 'scheduled' && 'PRE-GAME'}
-              {(matchStatus === 'unknown' || matchStatus === 'canceled') && '...'}
+        <section className="hits-score">
+          <div className="hits-score-top">
+            {live ? (
+              <span
+                className="hits-mode-badge"
+                data-status={matchStatus}
+              >
+                {matchStatus === 'live' && (
+                  <>
+                    <span className="hits-mode-pulse" />
+                    LIVE
+                  </>
+                )}
+                {matchStatus === 'final' && 'FINAL'}
+                {matchStatus === 'scheduled' && 'PRE-GAME'}
+                {(matchStatus === 'unknown' || matchStatus === 'canceled') && '...'}
+              </span>
+            ) : (
+              <span className="hits-mode-badge" data-status="demo">DEMO</span>
+            )}
+            <span className="hits-score-clock">
+              {currentEvent ? currentEvent.clock : (cardType === 'daily' ? '06:00 AM' : 'KICK-OFF')}
             </span>
-          ) : (
-            <span className="hits-mode-badge" data-status="demo">DEMO</span>
+            <span className="hits-score-hits">{hitIndices.size - 1}/24</span>
+          </div>
+          {cardType === 'sports' && (
+            <div className="hits-score-line" aria-label={`${homeCode} ${score?.[0] ?? 0}, ${awayCode} ${score?.[1] ?? 0}`}>
+              <span className="hits-score-team">{homeCode}</span>
+              {score ? (
+                <span className="hits-score-nums">
+                  <span className="hits-score-num">{score[0]}</span>
+                  <span className="hits-score-sep">–</span>
+                  <span className="hits-score-num">{score[1]}</span>
+                </span>
+              ) : (
+                <span className="hits-score-vs">vs</span>
+              )}
+              <span className="hits-score-team">{awayCode}</span>
+            </div>
           )}
-          <span className="hits-ticker-clock">
-            {currentEvent ? currentEvent.clock : (cardType === 'daily' ? '06:00 AM' : 'KICK-OFF')}
-          </span>
-          <span className="hits-ticker-event">
-            {currentEvent ? currentEvent.desc : `${sample.home} vs ${sample.away}`}
-          </span>
-          <span className="hits-ticker-score">
-            {hitIndices.size - 1}/24
-          </span>
+          <div className="hits-score-event">
+            {currentEvent
+              ? currentEvent.desc
+              : live && fixtureInfo
+                ? fixtureInfo.matchLabel
+                : `${sample.home} vs ${sample.away}`}
+          </div>
         </section>
 
         {live && matchStatus === 'scheduled' && (

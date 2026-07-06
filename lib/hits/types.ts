@@ -28,6 +28,10 @@ export type TimelineEvent = {
   gameClock: string
   eventId: string
   description: string
+  // Running [home, away] score AFTER this event. Only present on entries
+  // where the score is known/changes; the card page carries the last seen
+  // value forward. Live mode ignores this — score comes from the fixture row.
+  score?: [number, number]
 }
 
 export type Match = {

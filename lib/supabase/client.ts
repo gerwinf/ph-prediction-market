@@ -16,3 +16,23 @@ export function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
   )
 }
+
+/**
+ * Like createClient, but returns null instead of throwing when the
+ * NEXT_PUBLIC_SUPABASE_* env vars are missing/empty (e.g. a creds-less local
+ * workspace). Callers treat null as "auth unavailable → anonymous mode" so
+ * the page renders instead of white-screening.
+ */
+export function tryCreateClient() {
+  if (
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+  ) {
+    return null
+  }
+  try {
+    return createClient()
+  } catch {
+    return null
+  }
+}

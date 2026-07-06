@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { track } from '../../lib/analytics/track'
 import { useModalA11y } from '../../lib/hooks/useModalA11y'
-import { createClient } from '../../lib/supabase/client'
+import { tryCreateClient } from '../../lib/supabase/client'
 import { useLang } from '../../lib/hits/i18n/LanguageProvider'
 import type { StringKey } from '../../lib/hits/i18n/strings'
 
@@ -54,7 +54,14 @@ export function SignInModal({ onClose }: Props) {
     if (!canSubmit) return
     setSubmitting(true)
     setError(null)
-    const supabase = createClient()
+    const supabase = tryCreateClient()
+    if (!supabase) {
+      // Supabase env missing (creds-less local run) — surface a soft error
+      // instead of throwing out of the submit handler.
+      setError('signin.errGeneric')
+      setSubmitting(false)
+      return
+    }
 
     try {
       if (mode === 'signup') {

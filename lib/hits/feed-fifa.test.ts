@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   mapFifaTimeline,
   fixtureStatusFromTimeline,
+  scoreFromTimeline,
   wcCodesFromMatchId,
   type FifaTimelineEvent,
   type MatchContext,
@@ -159,5 +160,23 @@ describe('fixtureStatusFromTimeline', () => {
     expect(fixtureStatusFromTimeline([])).toBe('scheduled')
     expect(fixtureStatusFromTimeline([{ Type: 7 }])).toBe('live')
     expect(fixtureStatusFromTimeline(events)).toBe('final') // real finished match
+  })
+})
+
+describe('scoreFromTimeline', () => {
+  it('returns the last reported score of the real match', () => {
+    expect(scoreFromTimeline(events)).toEqual({ home: 2, away: 3 }) // MEX 2–3 ENG
+  })
+  it('returns null before anything reports a score', () => {
+    expect(scoreFromTimeline([])).toBeNull()
+    expect(scoreFromTimeline([{ Type: 7 }])).toBeNull() // period start, no goals fields
+  })
+  it('reads the latest event carrying goals, skipping trailing ones without', () => {
+    expect(
+      scoreFromTimeline([
+        { Type: 0, HomeGoals: 1, AwayGoals: 0 },
+        { Type: 2 }, // booking without goals fields
+      ])
+    ).toEqual({ home: 1, away: 0 })
   })
 })
