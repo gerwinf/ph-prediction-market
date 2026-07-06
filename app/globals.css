@@ -510,6 +510,31 @@ button:focus {
   font-size: 14px; line-height: 1.55; color: var(--ink-2); margin: 0;
 }
 
+/* faq */
+.hula-v2 .faq { border-top: 1px solid var(--line); }
+.hula-v2 .faq-item { border-bottom: 1px solid var(--line); }
+.hula-v2 .faq-q {
+  font-family: var(--ff-sans); font-size: 19px; line-height: 1.3;
+  letter-spacing: -0.01em; font-weight: 600; color: var(--ink);
+  padding: 22px 40px 22px 0; cursor: pointer; position: relative;
+  list-style: none;
+}
+.hula-v2 .faq-q::-webkit-details-marker { display: none; }
+.hula-v2 .faq-q::after {
+  content: '+'; position: absolute; right: 4px; top: 20px;
+  font-family: var(--ff-mono); font-size: 22px; color: var(--accent);
+  line-height: 1;
+}
+.hula-v2 .faq-item[open] .faq-q::after { content: '\2013'; }
+.hula-v2 .faq-a {
+  font-size: 15px; line-height: 1.6; color: var(--ink-2);
+  margin: 0; padding: 0 40px 24px 0; max-width: 68ch;
+}
+@media (max-width: 720px) {
+  .hula-v2 .faq-q { font-size: 17px; padding-right: 32px; }
+  .hula-v2 .faq-a { font-size: 14px; }
+}
+
 /* pull quote */
 .hula-v2 .pull {
   padding-top: 96px; padding-bottom: 96px;
