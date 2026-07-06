@@ -70,14 +70,14 @@ type FeaturedEventConfig = {
 }
 
 const FEATURED_EVENT: FeaturedEventConfig | null = {
-  tag: 'Featured event · Live now',
+  tag: 'Featured event',
   title: 'World Cup',
   titleEm: '2026',
   blurb:
-    'Every match and every contender, priced live and settled in pesos — from the group stage to the final.',
+    'Every match and every contender, priced live and settled in pesos — all the way to the final.',
   href: '/worldcup',
   cta: 'Enter the hub →',
-  meta: 'Live odds · 48 nations',
+  meta: 'Live odds via Polymarket',
 }
 
 function LogoMono() {
@@ -189,7 +189,9 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
 }
 
 function FeaturedCard({ prices }: { prices: PricesMap }) {
-  const yes = livePct(prices, 'wc-argentina', 64)
+  // Fallback tracks the last-seen live price (Round of 16, Jul 2026) so a
+  // failed fetch doesn't show a wildly different number than the live overlay.
+  const yes = livePct(prices, 'wc-argentina', 17)
   const no = 100 - yes
   return (
     <div className="featured">
