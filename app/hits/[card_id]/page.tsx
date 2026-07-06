@@ -15,6 +15,9 @@ import { SignInModal } from '../../../components/auth/SignInModal'
 import { AccountMenu } from '../../../components/hits/AccountMenu'
 import { LangToggle } from '../../../components/hits/LangToggle'
 import { useLang } from '../../../lib/hits/i18n/LanguageProvider'
+import { PackRipReveal } from '../../../components/hits/PackRipReveal'
+import { shouldShowRip } from '../../../lib/hits/reveal'
+import { readSession, writeSession, wouldExceedLimit, type HitsSession } from '../../../lib/hits/session'
 
 const CAPTURE_KEY = 'hula-captured'
 const CARD_COUNT_KEY = 'hula-hits-session-cards'
@@ -57,6 +60,14 @@ function timeAgo(iso: string): string {
 type PageProps = { params: { card_id: string } }
 
 export default function HitsCardPage({ params }: PageProps) {
+  // Keyed remount: App Router reuses the page component instance across
+  // card_id changes (shuffle / buy-another-pack navigate card → card), which
+  // would carry over hitIndices/done/win state into the new card. The key
+  // guarantees every card starts from a clean mount.
+  return <HitsCardView key={params.card_id} params={params} />
+}
+
+function HitsCardView({ params }: PageProps) {
   const { card_id } = params
   const router = useRouter()
   const { t, tx } = useLang()
@@ -113,6 +124,30 @@ export default function HitsCardPage({ params }: PageProps) {
   const [showSignIn, setShowSignIn] = useState(false)
   const winA11y = useModalA11y({ isOpen: winShown !== null, onClose: () => setWinShown(null) })
   const auth = useSession()
+
+  // Gacha reveal + post-rip upsell. `?new=1` marks a fresh acquisition (set by
+  // every buy path); it's consumed once and stripped from the URL so a refresh
+  // or a binder-open never re-rips. The strip shows even when the animation is
+  // skipped (reduced motion / ?speed) — the upsell beat isn't motion-gated.
+  const [ripping, setRipping] = useState(false)
+  const [postRip, setPostRip] = useState(false)
+  const [session, setSession] = useState<HitsSession>({ day: '', spend: 0, cards: 0, limit: 0 })
+  useEffect(() => {
+    setSession(readSession())
+    if (search?.get('new') !== '1') return
+    const params = new URLSearchParams(search?.toString() ?? '')
+    params.delete('new')
+    router.replace(`/hits/${card_id}?${params.toString()}`, { scroll: false })
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    if (shouldShowRip({ isNew: true, speed, prefersReducedMotion })) {
+      setRipping(true)
+      track('pack_rip_shown', { bet, type: cardType }, card_id)
+    }
+    setPostRip(true)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     setBalance(readBalance())
@@ -335,12 +370,17 @@ export default function HitsCardPage({ params }: PageProps) {
       params.set('live', '1')
       params.set('match', matchId)
     }
+    // A shuffle is a re-pull: the replacement card rips again.
+    params.set('new', '1')
     router.replace(`/hits/${newId}?${params.toString()}`)
   }
 
-  // Demo timeline (only when not in live mode).
+  // Demo timeline (only when not in live mode). Holds until the pack-rip
+  // reveal finishes so the post-rip strip gets its window before the first
+  // event lights a cell — the demo sim is client-local, so delaying its t0 is
+  // harmless (live mode is server-driven and never held).
   useEffect(() => {
-    if (live) return
+    if (live || ripping) return
     const timers: ReturnType<typeof setTimeout>[] = []
 
     sample.timeline.forEach((te) => {
@@ -362,7 +402,7 @@ export default function HitsCardPage({ params }: PageProps) {
       timers.forEach((t) => clearTimeout(t))
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [card_id, live])
+  }, [card_id, live, ripping])
 
   // Live poll: when ?live=1, fetch /api/events every 3s and resolve any
   // events we haven't seen yet. `since` cursor keeps the response small.
@@ -475,11 +515,30 @@ export default function HitsCardPage({ params }: PageProps) {
     }
   }
 
-  async function handleAnotherCard() {
-    track('another_card_clicked', { done, bet: card.pricePhp }, card_id)
+  // Buy another pack — the upsell CTA on the post-rip strip and the
+  // card-complete footer. A real purchase with the same guards as the landing
+  // page: anon debits localStorage up front, daily-limit cap blocks the buy,
+  // authed users are settled server-side (402 on insufficient balance).
+  const displayBalance = auth.profile ? auth.profile.virtual_balance : balance
+  const packBlocked =
+    displayBalance < card.pricePhp || wouldExceedLimit(session, card.pricePhp)
+
+  async function handleBuyPack(source: 'post_rip' | 'complete') {
+    if (packBlocked) return
+    track('another_card_clicked', { done, bet: card.pricePhp, source }, card_id)
+
+    if (!auth.profile) {
+      const result = debit(card.pricePhp)
+      if (!result.ok) return
+      setBalance(result.newBalance)
+    }
+    const nextSession = { ...session, spend: session.spend + card.pricePhp, cards: session.cards + 1 }
+    writeSession(nextSession)
+    setSession(nextSession)
+
     const newId = newCardId()
     try {
-      await fetch('/api/cards', {
+      const res = await fetch('/api/cards', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -489,10 +548,14 @@ export default function HitsCardPage({ params }: PageProps) {
           matchId: live ? matchId : undefined,
         }),
       })
+      if (res.status === 402) {
+        await auth.refresh()
+        return
+      }
     } catch {
       /* swallow — page still routes, card_id seeds the client view */
     }
-    const params = new URLSearchParams({ bet: String(card.pricePhp), type: cardType })
+    const params = new URLSearchParams({ bet: String(card.pricePhp), type: cardType, new: '1' })
     if (live) {
       params.set('live', '1')
       params.set('match', matchId)
@@ -545,6 +608,9 @@ export default function HitsCardPage({ params }: PageProps) {
               )
             )}
             <LangToggle />
+            <button className="hits-back" onClick={() => router.push('/hits/history')}>
+              {t('common.binder')}
+            </button>
             <button className="hits-back" onClick={() => router.push('/hits')}>
               {t('card.new')}
             </button>
@@ -636,7 +702,32 @@ export default function HitsCardPage({ params }: PageProps) {
           })}
         </section>
 
-        {canShuffle && (
+        {postRip && canShuffle && !done && !ripping ? (
+          <section className="hits-postrip-strip">
+            <div className="hits-postrip-q">{t('strip.q')}</div>
+            <button className="hits-postrip-keep" onClick={() => setPostRip(false)}>
+              {t('strip.keep')}
+            </button>
+            <div className="hits-postrip-row">
+              <button
+                className="hits-postrip-btn"
+                onClick={handleShuffle}
+                disabled={balance < shuffleCost}
+              >
+                {balance < shuffleCost
+                  ? t('card.shuffleNoFunds', { cost: shuffleCost })
+                  : t('strip.shuffle', { cost: shuffleCost })}
+              </button>
+              <button
+                className="hits-postrip-btn"
+                onClick={() => handleBuyPack('post_rip')}
+                disabled={packBlocked}
+              >
+                {packBlocked ? t('strip.blocked') : t('strip.another', { price: card.pricePhp })}
+              </button>
+            </div>
+          </section>
+        ) : canShuffle && !ripping ? (
           <section className="hits-shuffle-row">
             <button
               className="hits-shuffle-btn"
@@ -649,7 +740,7 @@ export default function HitsCardPage({ params }: PageProps) {
                 : t('card.shuffleDo', { cost: shuffleCost })}
             </button>
           </section>
-        )}
+        ) : null}
 
         <section className="private-payouts">
           <div className="private-payouts-title">
@@ -676,17 +767,53 @@ export default function HitsCardPage({ params }: PageProps) {
           <div className="private-payouts-note">{t('card.payoutsNote')}</div>
         </section>
 
-        <section className="hits-active-actions">
-          <button className="hits-share-btn" onClick={handleShare}>
-            {t('card.share')}
-          </button>
-          <button className="hits-replay-btn" onClick={handleAnotherCard}>
-            {t('card.anotherCard')}
-          </button>
-        </section>
+        {done ? (
+          <section className="hits-active-actions hits-complete">
+            <div className="hits-complete-note">
+              {highestWinMult > 0 ? t('complete.noteWin') : t('complete.note')}
+            </div>
+            <button
+              className="hits-replay-btn hits-complete-primary"
+              onClick={() => handleBuyPack('complete')}
+              disabled={packBlocked}
+            >
+              {packBlocked ? t('complete.blocked') : t('complete.buy', { price: card.pricePhp })}
+            </button>
+            <div className="hits-complete-row">
+              <button className="hits-share-btn" onClick={handleShare}>
+                {t('card.share')}
+              </button>
+              <button className="hits-share-btn" onClick={() => router.push('/hits/history')}>
+                {t('complete.binder')}
+              </button>
+            </div>
+          </section>
+        ) : (
+          <section className="hits-active-actions">
+            <button className="hits-share-btn" onClick={handleShare}>
+              {t('card.share')}
+            </button>
+            <button
+              className="hits-replay-btn"
+              onClick={() => handleBuyPack('complete')}
+              disabled={packBlocked}
+            >
+              {packBlocked ? t('card.noTokens') : t('complete.buy', { price: card.pricePhp })}
+            </button>
+          </section>
+        )}
 
         <p className="hits-foot">{tx('card.foot')}</p>
       </div>
+
+      {ripping && (
+        <PackRipReveal
+          cells={card.cells}
+          title={fixtureInfo?.matchLabel ?? `${sample.home} vs ${sample.away}`}
+          sublabel={meta.sublabel}
+          onDone={() => setRipping(false)}
+        />
+      )}
 
       {showSignIn && (
         <SignInModal

@@ -71,10 +71,10 @@ export const STRINGS = {
   'entry.buyNoTokens': { en: 'No tokens · come back tomorrow', tl: 'Walang tokens · balik bukas' },
   'entry.buyLimitReached': { en: 'Stop for now · come back tomorrow', tl: 'Tigil muna · balik bukas' },
   'entry.buyDaily': { en: 'Buy daily card · ₱{price} →', tl: 'Bumili ng daily card · ₱{price} →' },
-  'entry.buyDemo': { en: 'Try the demo · ₱{price} →', tl: 'Subukan ang demo · ₱{price} →' },
+  'entry.buyDemo': { en: 'Open the demo pack · ₱{price} →', tl: 'Buksan ang demo pack · ₱{price} →' },
   'entry.buyLive': { en: 'Join LIVE · ₱{price} →', tl: 'Sumali sa LIVE · ₱{price} →' },
-  'entry.buyReserve': { en: 'Reserve ₱{price} card →', tl: 'Reserve ₱{price} card →' },
-  'entry.buyFallback': { en: 'Buy ₱{price} card →', tl: 'Bumili ng ₱{price} card →' },
+  'entry.buyReserve': { en: 'Reserve ₱{price} pack →', tl: 'Reserve ₱{price} pack →' },
+  'entry.buyFallback': { en: 'Open a pack · ₱{price} →', tl: 'Buksan ang pack · ₱{price} →' },
 
   'entry.toggleToDaily': { en: '→ Or play the daily card', tl: '→ O maglaro ng daily card' },
   'entry.toggleToSports': { en: '← Back to sports', tl: '← Balik sa sports' },
@@ -168,6 +168,38 @@ export const STRINGS = {
   'card.winMult': { en: '{mult}× your bet', tl: '{mult}× ng taya mo' },
   'card.youWin': { en: 'you win', tl: 'panalo mo' },
   'card.winClose': { en: 'Keep playing', tl: 'Tuloy laro' },
+
+  // ── Gacha flow: pack rip, post-rip strip, card complete ────────────
+  'common.binder': { en: 'Binder', tl: 'Binder' },
+  'rip.tap': { en: 'Tap to open', tl: 'Tap para buksan' },
+  'rip.skip': { en: 'Tap to skip', tl: 'Tap para laktawan' },
+  'strip.q': { en: 'How was your pull?', tl: 'Kamusta ang pull mo?' },
+  'strip.keep': { en: 'Play this card →', tl: 'Laruin ang card na ’to →' },
+  'strip.shuffle': { en: 'No luck? Shuffle · ₱{cost}', tl: 'Hindi swerte? Shuffle · ₱{cost}' },
+  'strip.another': { en: 'Open another · ₱{price}', tl: 'Buksan pa ng isa · ₱{price}' },
+  'strip.blocked': { en: 'Pack limit / out of tokens', tl: 'Pack limit / tokens ubos' },
+  'complete.note': { en: 'Card complete', tl: 'Card complete' },
+  'complete.noteWin': { en: 'Card complete · you won! 🎉', tl: 'Card complete · panalo ka! 🎉' },
+  'complete.buy': {
+    en: 'Open another pack · ₱{price} →',
+    tl: 'Buksan pa ng isang pack · ₱{price} →',
+  },
+  'complete.blocked': {
+    en: 'Pack limit / out of tokens · come back tomorrow',
+    tl: 'Pack limit / tokens ubos · balik bukas',
+  },
+  'complete.binder': { en: 'Add to binder →', tl: 'Add to binder →' },
+  'card.noTokens': { en: 'Out of tokens', tl: 'Tokens ubos' },
+
+  // ── Binder (/hits/history) ──────────────────────────────────────────
+  'binder.title': { en: 'My binder', tl: 'My binder' },
+  'binder.statCards': { en: 'cards', tl: 'cards' },
+  'binder.statWins': { en: 'wins', tl: 'panalo' },
+  'binder.statWon': { en: 'won', tl: 'napanalunan' },
+  'binder.anonPrefix': { en: '🔓 Anon binder · ', tl: '🔓 Anon binder · ' },
+  'binder.emptyPrefix': { en: 'Your binder is empty. ', tl: 'Walang laman ang binder mo. ' },
+  'binder.emptyLink': { en: 'Open your first pack →', tl: 'Buksan ang unang pack →' },
+  'binder.live': { en: '● LIVE', tl: '● LIVE' },
 
   // ── History (/hits/history) ─────────────────────────────────────────
   'history.back': { en: '← /hits', tl: '← /hits' },

@@ -6,6 +6,9 @@ insert into public.match_fixtures (id, card_type, match_label, starts_at, status
 values
   -- WC kickoff match. Final teams set on draw day.
   ('wc-opening-2026', 'sports', 'WC 2026 Opening Match', '2026-06-11 19:00:00+00', 'scheduled'),
+  -- Default demo match for sports cards (DEFAULT_MATCH_BY_TYPE in
+  -- app/api/cards). MUST exist or every demo-card POST 400s on unknown_match.
+  ('wc-por-esp-2026-07-06', 'sports', 'Portugal vs Spain', '2026-07-06 19:00:00+00', 'scheduled'),
   -- First daily card, post-WC window.
   ('daily-2026-07-20', 'daily', 'Daily — 2026-07-20', '2026-07-20 00:00:00+00', 'scheduled')
 on conflict (id) do nothing;
