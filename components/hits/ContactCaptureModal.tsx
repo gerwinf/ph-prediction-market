@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { track } from '../../lib/analytics/track'
 import { useModalA11y } from '../../lib/hooks/useModalA11y'
+import { useLang } from '../../lib/hits/i18n/LanguageProvider'
 
 /* ────────────────────────────────────────────────────────────────────────
  * ContactCaptureModal
@@ -23,6 +24,7 @@ type Props = {
 }
 
 export function ContactCaptureModal({ cardId, bet, winPattern, onClose }: Props) {
+  const { t, tx } = useLang()
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -51,7 +53,7 @@ export function ContactCaptureModal({ cardId, bet, winPattern, onClose }: Props)
         }),
       })
       if (!res.ok) {
-        setError('Hindi tumagos. Subukan ulit.')
+        setError(t('capture.error'))
         setSubmitting(false)
         return
       }
@@ -60,7 +62,7 @@ export function ContactCaptureModal({ cardId, bet, winPattern, onClose }: Props)
       // Brief celebratory hold before closing so the user sees confirmation.
       setTimeout(onClose, 1400)
     } catch {
-      setError('Hindi tumagos. Subukan ulit.')
+      setError(t('capture.error'))
       setSubmitting(false)
     }
   }
@@ -80,28 +82,19 @@ export function ContactCaptureModal({ cardId, bet, winPattern, onClose }: Props)
           <>
             <div className="hits-capture-tick">✓</div>
             <h2 id="hits-capture-h" className="hits-capture-h">
-              Sali ka na sa <em>insider list.</em>
+              {tx('capture.doneH')}
             </h2>
-            <p className="hits-capture-sub">
-              Ikaw ang unang aabisuhan kapag may bagong laro o bagong game mode.
-            </p>
+            <p className="hits-capture-sub">{tx('capture.doneSub')}</p>
           </>
         ) : (
           <>
             <div className="hits-capture-eyebrow">
-              {winPattern ? '🎉 Panalo ka!' : 'Pre-launch insider list'}
+              {winPattern ? t('capture.eyebrowWin') : t('capture.eyebrow')}
             </div>
             <h2 id="hits-capture-h" className="hits-capture-h">
-              {winPattern ? (
-                <>Drop your email — sumali sa <em>insider list.</em></>
-              ) : (
-                <>Sali ka na sa <em>insider list.</em></>
-              )}
+              {winPattern ? tx('capture.hWin') : tx('capture.h')}
             </h2>
-            <p className="hits-capture-sub">
-              Free-play tokens muna. Ang nasa list, sila ang unang aabisuhan kapag may bagong laro
-              o mode. No spam, no timeline promises.
-            </p>
+            <p className="hits-capture-sub">{tx('capture.sub')}</p>
             <form onSubmit={handleSubmit} className="hits-capture-form">
               <input
                 type="email"
@@ -118,7 +111,7 @@ export function ContactCaptureModal({ cardId, bet, winPattern, onClose }: Props)
                 type="tel"
                 inputMode="tel"
                 autoComplete="tel"
-                placeholder="Phone (optional)"
+                placeholder={t('capture.phonePlaceholder')}
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 className="hits-capture-input"
@@ -129,10 +122,10 @@ export function ContactCaptureModal({ cardId, bet, winPattern, onClose }: Props)
                 className="hits-capture-submit"
                 disabled={!validEmail || submitting}
               >
-                {submitting ? 'Sending…' : 'Sumali sa insider list →'}
+                {submitting ? t('capture.sending') : t('capture.submit')}
               </button>
               <button type="button" className="hits-capture-skip" onClick={handleDismiss}>
-                Saka na
+                {t('common.later')}
               </button>
             </form>
           </>

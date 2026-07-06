@@ -6,6 +6,9 @@ import { timeAgo } from '../../../lib/format/time-ago'
 import { useSession } from '../../../lib/auth/use-session'
 import { SignInModal } from '../../../components/auth/SignInModal'
 import { track } from '../../../lib/analytics/track'
+import { useLang } from '../../../lib/hits/i18n/LanguageProvider'
+import { LangToggle } from '../../../components/hits/LangToggle'
+import type { StringKey } from '../../../lib/hits/i18n/strings'
 
 /* ────────────────────────────────────────────────────────────────────────
  * /hits/history — card history
@@ -29,16 +32,17 @@ type HistoryCard = {
 
 const PAGE = 20
 
-const PATTERN_LABEL: Record<string, string> = {
-  row: 'Row',
-  col: 'Column',
-  diag: 'Diagonal',
-  full: 'Full card',
+const PATTERN_KEY: Record<string, StringKey> = {
+  row: 'history.patternRow',
+  col: 'history.patternCol',
+  diag: 'history.patternDiag',
+  full: 'history.patternFull',
 }
 
 export default function HistoryPage() {
   const router = useRouter()
   const auth = useSession()
+  const { t, tx } = useLang()
   const [cards, setCards] = useState<HistoryCard[]>([])
   const [offset, setOffset] = useState(0)
   const [hasMore, setHasMore] = useState(false)
@@ -83,16 +87,19 @@ export default function HistoryPage() {
           <div className="hits-brand">
             Hula <em>Hits</em>
           </div>
-          <button className="hits-back" onClick={() => router.push('/hits')}>
-            ← /hits
-          </button>
+          <div className="hits-header-right">
+            <LangToggle />
+            <button className="hits-back" onClick={() => router.push('/hits')}>
+              {t('history.back')}
+            </button>
+          </div>
         </header>
 
-        <h1 className="hits-history-title">Card history</h1>
+        <h1 className="hits-history-title">{t('history.title')}</h1>
 
         {!auth.loading && !auth.profile && (
           <div className="hits-history-anon-banner">
-            🔓 Anon history ·{' '}
+            {t('history.anonPrefix')}
             <button
               type="button"
               className="hits-identity-link"
@@ -101,18 +108,18 @@ export default function HistoryPage() {
                 track('signin_opened', { from: '/hits/history' })
               }}
             >
-              Sign in para hindi mawala kapag nag-clear ng browser →
+              {t('history.anonLink')}
             </button>
           </div>
         )}
 
         {loading ? (
-          <div className="hits-history-empty">Loading…</div>
+          <div className="hits-history-empty">{t('common.loading')}</div>
         ) : cards.length === 0 ? (
           <div className="hits-history-empty">
-            Wala pang card.{' '}
+            {t('history.emptyPrefix')}
             <button className="hits-identity-link" onClick={() => router.push('/hits')}>
-              Maglaro muna →
+              {t('history.emptyLink')}
             </button>
           </div>
         ) : (
@@ -123,7 +130,7 @@ export default function HistoryPage() {
                   <div className="hits-history-row-main">
                     <div className="hits-history-row-label">{c.match_label}</div>
                     <div className="hits-history-row-meta">
-                      {timeAgo(c.created_at)} · ₱{c.price_php} card
+                      {t('history.rowMeta', { ago: timeAgo(c.created_at), price: c.price_php })}
                     </div>
                   </div>
                   <div className="hits-history-row-result">
@@ -131,7 +138,11 @@ export default function HistoryPage() {
                       <span className="hits-history-win">
                         +₱{c.score.toLocaleString()}
                         <span className="hits-history-pattern">
-                          {c.win_pattern ? PATTERN_LABEL[c.win_pattern] ?? c.win_pattern : 'Win'}
+                          {c.win_pattern
+                            ? PATTERN_KEY[c.win_pattern]
+                              ? t(PATTERN_KEY[c.win_pattern])
+                              : c.win_pattern
+                            : t('history.win')}
                         </span>
                       </span>
                     ) : (
@@ -151,15 +162,13 @@ export default function HistoryPage() {
                   load(offset + PAGE, true)
                 }}
               >
-                {loadingMore ? 'Loading…' : 'Load more'}
+                {loadingMore ? t('common.loading') : t('history.loadMore')}
               </button>
             )}
           </>
         )}
 
-        <p className="hits-foot">
-          21+ only · <strong>Play smart</strong> · Need help? Call 8521-1542
-        </p>
+        <p className="hits-foot">{tx('common.foot')}</p>
       </div>
 
       {showSignIn && (
