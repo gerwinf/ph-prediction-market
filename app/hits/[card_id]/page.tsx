@@ -72,7 +72,7 @@ export default function HitsCardPage({ params }: PageProps) {
   // which match's events to poll.
   const live = search?.get('live') === '1'
   const matchId =
-    search?.get('match') || (cardType === 'sports' ? 'pba-gin-ros-2026-05-24' : 'daily-2026-07-20')
+    search?.get('match') || (cardType === 'sports' ? 'wc-por-esp-2026-07-06' : 'daily-2026-07-20')
 
   // Pass matchId so the client-side generator picks the same
   // match-aware pool the server used when /api/cards stored the row.
@@ -577,7 +577,7 @@ export default function HitsCardPage({ params }: PageProps) {
             <span className="hits-mode-badge" data-status="demo">DEMO</span>
           )}
           <span className="hits-ticker-clock">
-            {currentEvent ? currentEvent.clock : (cardType === 'daily' ? '06:00 AM' : 'TIP-OFF')}
+            {currentEvent ? currentEvent.clock : (cardType === 'daily' ? '06:00 AM' : 'KICK-OFF')}
           </span>
           <span className="hits-ticker-event">
             {currentEvent ? currentEvent.desc : `${sample.home} vs ${sample.away}`}

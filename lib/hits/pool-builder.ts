@@ -19,6 +19,7 @@
  */
 import type { GameEvent } from './types'
 import { CANDIDATE_EVENTS } from './events'
+import { WC_GENERIC_EVENTS } from './events-wc'
 import { eventCellToGameEvent } from '../catalog/types'
 import {
   PLAYERS_BY_TEAM,
@@ -27,6 +28,13 @@ import {
   type Player,
   type TeamCode,
 } from './players'
+import {
+  WC_PLAYERS_BY_TEAM,
+  WC_TEAMS,
+  teamsFromWcMatchId,
+  type WcPlayer,
+  type WcTeamCode,
+} from './players-wc'
 
 /**
  * Generic basketball drama tiles — fire on any PBA game regardless of
@@ -102,11 +110,59 @@ function teamTiles(team: TeamCode): GameEvent[] {
   ]
 }
 
+// Football per-player tiles, keyed by position so a card leans on the players
+// most likely to make things happen. Ids are `${player.id}-<suffix>`.
+function wcPlayerTiles(player: WcPlayer): GameEvent[] {
+  const name = player.shortName ?? player.name
+  if (player.pos === 'forward') {
+    return [
+      { id: `${player.id}-goal`,  label: `${name} scores`,          category: 'scoring', rarity: 'common' },
+      { id: `${player.id}-sot`,   label: `${name} shot on target`,  category: 'play',    rarity: 'common' },
+      { id: `${player.id}-brace`, label: `${name} scores 2+`,       category: 'scoring', rarity: 'rare' },
+    ]
+  }
+  if (player.pos === 'mid') {
+    return [
+      { id: `${player.id}-assist`, label: `${name} assist`,         category: 'play',    rarity: 'common' },
+      { id: `${player.id}-goal`,   label: `${name} scores`,         category: 'scoring', rarity: 'uncommon' },
+      { id: `${player.id}-card`,   label: `${name} booked`,         category: 'foul',    rarity: 'uncommon' },
+    ]
+  }
+  // defender
+  return [
+    { id: `${player.id}-card`,     label: `${name} booked`,         category: 'foul',    rarity: 'common' },
+    { id: `${player.id}-goal`,     label: `${name} scores`,         category: 'scoring', rarity: 'rare' },
+  ]
+}
+
+function wcTeamTiles(team: WcTeamCode): GameEvent[] {
+  const short = WC_TEAMS[team].short
+  const lower = team.toLowerCase()
+  return [
+    { id: `${lower}-first`,     label: `${short} scores first`,   category: 'team', rarity: 'common' },
+    { id: `${lower}-half-lead`, label: `${short} leads at half`,  category: 'team', rarity: 'common' },
+    { id: `${lower}-win`,       label: `${short} wins`,           category: 'team', rarity: 'common' },
+  ]
+}
+
 /**
  * Build the pool for a given match id. Includes ALL events that COULD
  * fire — the card generator shuffles + samples 24 from this.
  */
 export function buildPoolForMatch(matchId: string): GameEvent[] {
+  // World Cup football fixtures (wc-<home>-<away>-<date>) get the football pool.
+  const wcTeams = teamsFromWcMatchId(matchId)
+  if (wcTeams) {
+    const tiles: GameEvent[] = [...WC_GENERIC_EVENTS]
+    for (const team of wcTeams) {
+      tiles.push(...wcTeamTiles(team))
+      for (const player of WC_PLAYERS_BY_TEAM[team]) {
+        tiles.push(...wcPlayerTiles(player))
+      }
+    }
+    return tiles
+  }
+
   const teams = teamsFromMatchId(matchId)
   if (!teams) return CANDIDATE_EVENTS
 
