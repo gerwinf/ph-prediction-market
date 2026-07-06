@@ -10,7 +10,6 @@ import {
   type MarketRow,
 } from '../lib/catalog/seed-data'
 import type { CatalogBinaryMarket } from '../lib/catalog/types'
-import { liveVol } from '../lib/worldcup/odds'
 
 // Live Polymarket odds (see lib/oracle/slugs.ts LIVE_MARKETS) are overlaid onto
 // any row carrying a `slug`; untagged (PH-local) rows stay hardcoded. The `pct`
@@ -194,7 +193,7 @@ function FeaturedCard({ prices }: { prices: PricesMap }) {
     <div className="featured">
       <div className="featured-head">
         <span className="featured-tag">Featured · World Cup 2026</span>
-        <span className="featured-vol">VOL {liveVol(prices, 'wc-argentina', '₱4.21M')}</span>
+        <span className="featured-vol">Live via Polymarket</span>
       </div>
       <h3 className="featured-q">Will Argentina win the 2026 FIFA World Cup?</h3>
       <div className="featured-bar">
@@ -331,7 +330,7 @@ function MarketCard({ m, prices }: { m: MarketRow; prices: PricesMap }) {
     <article className="card">
       <div className="card-head">
         <span className="card-cat">{m.cat}</span>
-        <span className="card-vol">VOL {liveVol(prices, m.slug, m.vol)}</span>
+        {m.slug && <span className="card-vol">Live odds</span>}
       </div>
       <h3 className="card-q">{m.q}</h3>
       <div className="card-prob">
