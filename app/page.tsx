@@ -310,7 +310,7 @@ function Hero({ prices }: { prices: PricesMap }) {
             The market for <em>what happens next.</em>
           </h1>
           <p className="lede">
-            Hula is the first Filipino prediction market — trade the outcome of basketball, boxing, billboards, and the biggest stories of the day. Real money, real probabilities, regulated locally.
+            Hula is the first Filipino prediction market — trade the outcome of basketball, boxing, billboards, and the biggest stories of the day. Real odds, settled in pesos. Pre-launch — reserve your handle for Day 1.
           </p>
           <EmailForm id="waitlist" variant="hero" />
           <div style={{ marginTop: 14 }}>
