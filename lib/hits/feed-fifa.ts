@@ -212,6 +212,28 @@ export function fixtureStatusFromTimeline(
 }
 
 /**
+ * Ticker-only commentary: one event per FIFA timeline moment that has a
+ * description (fouls, corners, saves, attempts…). Key `fifa-<EventId>` never
+ * matches a card cell, so these drive the live ticker WITHOUT lighting
+ * anything — a goalless half otherwise leaves the card visibly dead between
+ * the sparse mappable moments. Pure; dedupe against already-fired keys.
+ */
+export function commentaryFromTimeline(
+  events: FifaTimelineEvent[],
+  firedKeys: Set<string>
+): MappedEvent[] {
+  const out: MappedEvent[] = []
+  for (const e of events) {
+    const d = desc(e)
+    if (!e.EventId || !d) continue
+    const eventKey = `fifa-${e.EventId}`
+    if (firedKeys.has(eventKey)) continue
+    out.push({ eventKey, minute: e.MatchMinute ?? '', description: d })
+  }
+  return out
+}
+
+/**
  * Running score implied by the timeline: the last event carrying both
  * HomeGoals/AwayGoals wins (FIFA stamps these on goals, period boundaries and
  * match end). Null when nothing has reported a score yet (pre-game).
@@ -355,9 +377,13 @@ export async function syncFifaEvents(matchId: string): Promise<void> {
     const firedKeys = new Set((existing ?? []).map((r) => r.event_key as string))
 
     const fresh = mapped.filter((m) => !firedKeys.has(m.eventKey))
-    if (fresh.length > 0) {
+    // Everything else becomes ticker-only commentary (`fifa-<id>` keys match
+    // no cells) so the card visibly moves between real hits.
+    const commentary = commentaryFromTimeline(timeline, firedKeys)
+    const inserts = [...fresh, ...commentary]
+    if (inserts.length > 0) {
       await admin.from('events').insert(
-        fresh.map((m) => ({
+        inserts.map((m) => ({
           match_id: matchId,
           event_key: m.eventKey,
           payload: { source: 'fifa', minute: m.minute, description: m.description },

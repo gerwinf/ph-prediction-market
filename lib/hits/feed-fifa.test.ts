@@ -3,6 +3,7 @@ import {
   mapFifaTimeline,
   fixtureStatusFromTimeline,
   scoreFromTimeline,
+  commentaryFromTimeline,
   wcCodesFromMatchId,
   type FifaTimelineEvent,
   type MatchContext,
@@ -160,6 +161,21 @@ describe('fixtureStatusFromTimeline', () => {
     expect(fixtureStatusFromTimeline([])).toBe('scheduled')
     expect(fixtureStatusFromTimeline([{ Type: 7 }])).toBe('live')
     expect(fixtureStatusFromTimeline(events)).toBe('final') // real finished match
+  })
+})
+
+describe('commentaryFromTimeline', () => {
+  it('narrates every described moment once with a fifa- key', () => {
+    const out = commentaryFromTimeline(events, new Set())
+    expect(out.length).toBeGreaterThan(90) // 101 described moments in the real match
+    expect(out.every((c) => c.eventKey.startsWith('fifa-'))).toBe(true)
+    expect(out.every((c) => c.description.length > 0)).toBe(true)
+    expect(new Set(out.map((c) => c.eventKey)).size).toBe(out.length)
+  })
+  it('skips keys that already fired (idempotent re-sync)', () => {
+    const first = commentaryFromTimeline(events, new Set())
+    const again = commentaryFromTimeline(events, new Set(first.map((c) => c.eventKey)))
+    expect(again).toEqual([])
   })
 })
 
