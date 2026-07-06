@@ -10,6 +10,7 @@ import { track } from '../../lib/analytics/track'
 import { useSession } from '../../lib/auth/use-session'
 import { SignInModal } from '../../components/auth/SignInModal'
 import { AccountMenu } from '../../components/hits/AccountMenu'
+import { readSession, writeSession } from '../../lib/hits/session'
 import { LangToggle } from '../../components/hits/LangToggle'
 import { useLang } from '../../lib/hits/i18n/LanguageProvider'
 
@@ -26,13 +27,6 @@ import { useLang } from '../../lib/hits/i18n/LanguageProvider'
  * a fixture is upcoming. Share URLs without ?live still play the demo.
  * ──────────────────────────────────────────────────────────────────────── */
 
-const STORAGE = {
-  day: 'hula-hits-day',
-  spend: 'hula-hits-session-spend',
-  cards: 'hula-hits-session-cards',
-  limit: 'hula-hits-daily-limit',
-}
-
 type Fixture = {
   id: string
   card_type: 'sports' | 'daily'
@@ -41,36 +35,6 @@ type Fixture = {
   ends_at: string | null
   status: 'scheduled' | 'live' | 'final' | 'canceled'
   venue: string | null
-}
-
-function todayISO() {
-  return new Date().toISOString().slice(0, 10)
-}
-
-function readSession() {
-  if (typeof window === 'undefined') return { day: todayISO(), spend: 0, cards: 0, limit: 0 }
-  const day = localStorage.getItem(STORAGE.day) || todayISO()
-  if (day !== todayISO()) {
-    localStorage.setItem(STORAGE.day, todayISO())
-    localStorage.setItem(STORAGE.spend, '0')
-    localStorage.setItem(STORAGE.cards, '0')
-    localStorage.removeItem(STORAGE.limit)
-    return { day: todayISO(), spend: 0, cards: 0, limit: 0 }
-  }
-  return {
-    day,
-    spend: Number(localStorage.getItem(STORAGE.spend) || 0),
-    cards: Number(localStorage.getItem(STORAGE.cards) || 0),
-    limit: Number(localStorage.getItem(STORAGE.limit) || 0),
-  }
-}
-
-function writeSession(s: { spend: number; cards: number; limit: number }) {
-  if (typeof window === 'undefined') return
-  localStorage.setItem(STORAGE.day, todayISO())
-  localStorage.setItem(STORAGE.spend, String(s.spend))
-  localStorage.setItem(STORAGE.cards, String(s.cards))
-  if (s.limit > 0) localStorage.setItem(STORAGE.limit, String(s.limit))
 }
 
 function formatStartTime(iso: string): string {
@@ -241,7 +205,9 @@ export default function HitsEntry() {
       console.error('[hits] /api/cards POST failed:', err)
     }
 
-    const params = new URLSearchParams({ bet: String(price), type })
+    // ?new=1 marks the fresh acquisition — the card page consumes it once to
+    // play the pack-rip reveal, then strips it from the URL.
+    const params = new URLSearchParams({ bet: String(price), type, new: '1' })
     if (goLive && matchId) {
       params.set('live', '1')
       params.set('match', matchId)
@@ -306,6 +272,9 @@ export default function HitsEntry() {
                 </button>
               )
             )}
+            <button className="hits-back" onClick={() => router.push('/hits/history')}>
+              {t('common.binder')}
+            </button>
           </div>
         </header>
 
