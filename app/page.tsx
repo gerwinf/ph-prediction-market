@@ -132,6 +132,7 @@ function Nav({ onBurger }: { onBurger: () => void }) {
           <a href="#markets">Sports</a>
           <a href="#markets">Showbiz</a>
           <a href="#how">How it works</a>
+          <Link href="/hits">Hula Hits</Link>
           {FEATURED_EVENT && (
             <Link className="nav-event" href={FEATURED_EVENT.href}>
               {FEATURED_EVENT.title} {FEATURED_EVENT.titleEm}
@@ -172,6 +173,7 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
       <div className="mobile-menu-links">
         <a href="#markets" onClick={go('markets')}>Markets</a>
         <a href="#how" onClick={go('how')}>How it works</a>
+        <Link href="/hits" onClick={onClose}>Hula Hits</Link>
         <a href="#waitlist" onClick={go('waitlist')}>Reserve handle</a>
         {FEATURED_EVENT && (
           <Link className="mobile-menu-event" href={FEATURED_EVENT.href} onClick={onClose}>
@@ -542,6 +544,7 @@ function Footer() {
           <div className="foot-col">
             <h5>Hula</h5>
             <ul>
+              <li><Link href="/hits">Hula Hits</Link></li>
               <li><a href="#how">How it works</a></li>
               <li><a href="#waitlist">Reserve handle</a></li>
             </ul>
