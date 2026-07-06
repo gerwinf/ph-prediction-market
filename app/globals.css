@@ -1384,11 +1384,20 @@ button:focus {
  * (matches landing + /picks). "Colorful" comes from the mango accent on hit
  * cells + win animations — not from a separate palette.
  * ────────────────────────────────────────────────────────────────────────── */
+/* Mobile-first: base sizing targets a ~390px phone (the masa device);
+ * ≥480px only widens the gutters. The column stays phone-shaped on desktop
+ * by design. */
 .hula-v2 .hits-shell {
   max-width: 520px;
   margin: 0 auto;
-  padding: 18px 24px 80px;
+  padding: 12px 12px 80px;
   padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+}
+@media (min-width: 480px) {
+  .hula-v2 .hits-shell {
+    padding: 18px 24px 80px;
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 /* ── Header ───────────────────────────────────────────────────────────── */
@@ -1397,6 +1406,9 @@ button:focus {
   padding: 4px 0 22px;
 }
 .hula-v2 .hits-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   font-family: var(--ff-display);
   font-size: 26px;
   font-weight: 500;
@@ -1407,6 +1419,25 @@ button:focus {
 .hula-v2 .hits-brand em {
   font-style: italic;
   color: var(--accent);
+}
+.hula-v2 .hits-brand-coin {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--ff-display);
+  font-style: italic;
+  font-size: 18px;
+  line-height: 1;
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 1.5px rgba(0, 0, 0, 0.18);
+}
+.hula-v2 .hits-brand-text {
+  white-space: nowrap;
 }
 .hula-v2 .hits-eyebrow {
   display: inline-flex; align-items: center; gap: 8px;
@@ -1504,10 +1535,12 @@ button:focus {
   font-weight: 500;
   cursor: pointer;
 }
-.hula-v2 .hits-buy-secondary:hover {
-  background: var(--ink);
-  color: #fff;
-  border-color: var(--ink);
+@media (hover: hover) {
+  .hula-v2 .hits-buy-secondary:hover {
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+  }
 }
 
 /* ── Virtual token balance chip + wins ticker + shuffle button ─────── */
@@ -1582,11 +1615,13 @@ button:focus {
   cursor: pointer;
   letter-spacing: 0.02em;
 }
-.hula-v2 .hits-shuffle-btn:hover:not(:disabled) {
-  background: var(--ink);
-  color: #fff;
-  border-color: var(--ink);
-  border-style: solid;
+@media (hover: hover) {
+  .hula-v2 .hits-shuffle-btn:hover:not(:disabled) {
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+    border-style: solid;
+  }
 }
 .hula-v2 .hits-shuffle-btn:disabled {
   opacity: 0.5;
@@ -1764,7 +1799,7 @@ button:focus {
 .hula-v2 .hits-capture-input {
   width: 100%;
   padding: 12px 14px;
-  font-size: 15px;
+  font-size: 16px; /* ≥16px: keeps iOS Safari from zooming on focus */
   background: #fff;
   border: 1px solid var(--line-2);
   border-radius: 10px;
@@ -1820,20 +1855,22 @@ button:focus {
   text-transform: uppercase;
   color: var(--ink-2);
   padding: 0 16px;
-  height: 38px;
+  height: 42px; /* ≥42px tap target (mobile-first) */
   border-radius: 999px;
   border: 1px solid var(--line-2);
   background: transparent;
   display: inline-flex;
   align-items: center;
 }
-.hula-v2 .hits-back:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
+@media (hover: hover) {
+  .hula-v2 .hits-back:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
+}
 
 /* ── Language toggle (EN | TL) ────────────────────────────────────────── */
 .hula-v2 .hits-lang-toggle {
   display: inline-flex;
   align-items: center;
-  height: 38px;
+  height: 42px; /* ≥42px tap target (mobile-first) */
   padding: 3px;
   gap: 2px;
   border-radius: 999px;
@@ -2293,44 +2330,97 @@ button:focus {
   color: var(--ink);
 }
 
-/* ── Account menu dropdown (signed-in header) ─────────────────────────── */
-.hula-v2 .hits-account-wrap {
+/* ── Header overflow menu (☰ — account, nav, language) ────────────────── */
+.hula-v2 .hits-menu-wrap {
   position: relative;
   display: inline-block;
 }
-.hula-v2 .hits-account-menu {
+.hula-v2 .hits-menu-btn {
+  width: 42px;  /* ≥42px tap target (mobile-first) */
+  height: 42px;
+  border-radius: 999px;
+  border: 1px solid var(--line-2);
+  background: transparent;
+  color: var(--ink-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.hula-v2 .hits-menu-btn[aria-expanded='true'] {
+  color: var(--ink);
+  border-color: var(--ink-3);
+}
+@media (hover: hover) {
+  .hula-v2 .hits-menu-btn:hover {
+    color: var(--ink);
+    border-color: var(--ink-3);
+  }
+}
+.hula-v2 .hits-menu {
   position: absolute;
-  top: calc(100% + 6px);
+  top: calc(100% + 8px);
   right: 0;
-  min-width: 168px;
+  min-width: 208px;
   background: var(--paper);
   border: 1px solid var(--line-2);
-  border-radius: 12px;
-  box-shadow: 0 12px 32px rgba(0,0,0,0.16);
+  border-radius: 14px;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.28);
   padding: 6px;
-  z-index: 50;
+  z-index: 60;
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
-.hula-v2 .hits-account-menu-item {
+.hula-v2 .hits-menu-id {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px 10px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 4px;
+  min-width: 0;
+}
+.hula-v2 .hits-menu-id-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.hula-v2 .hits-menu-id-email {
+  font-family: var(--ff-mono);
+  font-size: 10.5px;
+  color: var(--ink-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hula-v2 .hits-menu-item {
   display: block;
   width: 100%;
   text-align: left;
   background: none;
   border: none;
-  padding: 10px 12px;
+  padding: 13px 12px; /* ≥44px row height for touch */
   font-family: var(--ff-sans);
   font-size: 14px;
   color: var(--ink);
   border-radius: 8px;
   cursor: pointer;
 }
-.hula-v2 .hits-account-menu-item:hover {
+.hula-v2 .hits-menu-item:hover {
   background: var(--bg-2);
 }
-.hula-v2 .hits-account-menu-signout {
+.hula-v2 .hits-menu-signout {
   color: var(--down);
+  border-top: 1px solid var(--line);
+  border-radius: 0 0 8px 8px;
+  margin-top: 4px;
+}
+.hula-v2 .hits-menu-lang {
+  padding: 8px 10px 6px;
+  border-top: 1px solid var(--line);
+  margin-top: 4px;
 }
 
 /* ── Card history ─────────────────────────────────────────────────────── */
@@ -2592,30 +2682,97 @@ button:focus {
 }
 .hula-v2 .hits-limit-chip-dot { width: 5px; height: 5px; border-radius: 999px; background: var(--accent); }
 
-/* ── Live ticker (active card page) ───────────────────────────────────── */
-.hula-v2 .hits-ticker {
-  display: flex; align-items: center; gap: 12px;
-  background: var(--ink);
-  border-radius: 14px;
-  padding: 12px 14px;
-  color: #f5f1e6;
+/* ── Scoreboard (active card page) ────────────────────────────────────────
+ * Dark-native: the score panel keeps the same deep-forest look in both
+ * themes, so colors here are literal rather than var()-driven. */
+.hula-v2 .hits-score {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: linear-gradient(165deg, #17301f 0%, #0f2117 100%);
+  border: 1px solid rgba(244, 239, 220, 0.10);
+  border-radius: 16px;
+  padding: 12px 14px 13px;
+  color: #f4efdc;
   font-size: 13px;
   margin-bottom: 14px;
   position: sticky;
-  top: 8px;
+  /* Clear the notch/status bar when installed to the home screen. */
+  top: calc(8px + env(safe-area-inset-top, 0px));
   z-index: 10;
-  box-shadow: 0 12px 28px -16px rgba(15, 36, 25, 0.45);
+  box-shadow: 0 16px 34px -18px rgba(0, 0, 0, 0.6);
 }
-.hula-v2 .hits-ticker-clock {
+.hula-v2 .hits-score-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hula-v2 .hits-score-clock {
   font-family: var(--ff-mono);
   font-size: 11px;
   letter-spacing: 0.06em;
-  background: var(--accent);
-  color: #fff;
-  padding: 5px 9px;
+  background: rgba(240, 194, 79, 0.16);
+  color: #f0c24f;
+  padding: 4px 9px;
   border-radius: 6px;
-  font-weight: 500;
+  font-weight: 600;
   flex-shrink: 0;
+}
+.hula-v2 .hits-score-hits {
+  margin-left: auto;
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  color: #8aa08f;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+.hula-v2 .hits-score-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 2px 0;
+}
+.hula-v2 .hits-score-team {
+  font-family: var(--ff-mono);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #c9d4c3;
+}
+.hula-v2 .hits-score-nums {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.hula-v2 .hits-score-num {
+  font-family: var(--ff-display);
+  font-size: 38px;
+  font-weight: 500;
+  line-height: 1;
+  color: #f4efdc;
+  font-variant-numeric: tabular-nums;
+}
+.hula-v2 .hits-score-sep {
+  font-size: 20px;
+  color: #8aa08f;
+}
+.hula-v2 .hits-score-vs {
+  font-family: var(--ff-display);
+  font-style: italic;
+  font-size: 20px;
+  color: #8aa08f;
+}
+.hula-v2 .hits-score-event {
+  font-family: var(--ff-sans);
+  font-size: 13px;
+  letter-spacing: -0.005em;
+  text-align: center;
+  color: rgba(244, 239, 220, 0.85);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-height: 18px;
 }
 /* Pre-game banner — shown on a pre-bought card before tip-off. */
 .hula-v2 .hits-pregame-banner {
@@ -2639,20 +2796,6 @@ button:focus {
   font-size: 12.5px;
   line-height: 1.35;
   opacity: 0.82;
-}
-.hula-v2 .hits-ticker-event {
-  flex: 1; min-width: 0;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  font-family: var(--ff-sans);
-  font-size: 13.5px;
-  letter-spacing: -0.005em;
-}
-.hula-v2 .hits-ticker-score {
-  font-family: var(--ff-mono);
-  font-size: 11px;
-  color: #c8c2b3;
-  letter-spacing: 0.04em;
-  flex-shrink: 0;
 }
 .hula-v2 .hits-mode-badge {
   display: inline-flex; align-items: center; gap: 5px;
@@ -2688,34 +2831,39 @@ button:focus {
   animation: hits-pulse 1.2s ease-in-out infinite;
 }
 
-/* ── Hits card grid ──────────────────────────────────────────────────── */
+/* ── Hits card grid (mobile-first: compact chrome, cells get the pixels) ── */
 .hula-v2 .hits-card {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 6px;
-  padding: 10px;
+  padding: 8px;
   background: var(--paper);
   border: 1px solid var(--line);
   border-radius: 18px;
   box-shadow: 0 1px 0 rgba(0,0,0,0.02), 0 24px 48px -28px rgba(21,22,25,.18);
 }
 .hula-v2 .hits-cell {
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 1 / 1.08;
   background: var(--bg);
   border: 1px solid var(--line-2);
-  border-radius: 10px;
+  border-radius: 12px;
   display: flex; align-items: center; justify-content: center;
-  padding: 4px;
+  padding: 4px 3px;
   text-align: center;
   font-family: var(--ff-sans);
-  font-size: 10.5px;
-  line-height: 1.15;
+  font-size: 11px;
+  line-height: 1.14;
   font-weight: 500;
   letter-spacing: -0.01em;
   color: var(--ink-2);
   position: relative;
   overflow: hidden;
   transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@media (min-width: 480px) {
+  .hula-v2 .hits-card { gap: 7px; padding: 10px; }
+  .hula-v2 .hits-cell { font-size: 12px; padding: 5px 4px; line-height: 1.18; }
+  .hula-v2 .hits-cell[data-state='free'] { font-size: 17px; }
 }
 .hula-v2 .hits-cell[data-state='hit'] {
   background: var(--accent);
@@ -2730,7 +2878,7 @@ button:focus {
   border-color: var(--ink);
   color: #fff;
   font-family: var(--ff-display);
-  font-size: 17px;
+  font-size: 16px;
   font-style: italic;
   font-weight: 500;
   letter-spacing: -0.02em;
@@ -2994,7 +3142,9 @@ button:focus {
   cursor: pointer;
   transition: all 0.12s ease;
 }
-.hula-v2 .hits-share-btn:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
+@media (hover: hover) {
+  .hula-v2 .hits-share-btn:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
+}
 .hula-v2 .hits-replay-btn {
   background: var(--ink);
   color: #fff;
@@ -3016,15 +3166,18 @@ button:focus {
 }
 .hula-v2 .hits-foot strong { color: var(--ink); font-weight: 500; }
 
-/* ── Mobile tighten ───────────────────────────────────────────────────── */
+/* ── Mobile tighten ───────────────────────────────────────────────────
+ * Base styles are already phone-sized (mobile-first); this block only
+ * covers the very small (≤380px) tier. */
 @media (max-width: 380px) {
-  .hula-v2 .hits-shell { padding: 14px 18px 80px; }
-  .hula-v2 .hits-cell { font-size: 9.5px; padding: 3px; line-height: 1.12; }
+  .hula-v2 .hits-cell { font-size: 10.5px; padding: 3px; line-height: 1.12; }
   .hula-v2 .hits-cell[data-state='free'] { font-size: 15px; }
+  .hula-v2 .hits-score-num { font-size: 32px; }
   .hula-v2 .hits-win-h { font-size: 34px; }
   .hula-v2 .hits-win-payout-amt { font-size: 28px; }
   .hula-v2 .hits-limit-h { font-size: 22px; }
-  .hula-v2 .hits-brand { font-size: 22px; }
+  .hula-v2 .hits-brand { font-size: 22px; gap: 8px; }
+  .hula-v2 .hits-brand-coin { width: 26px; height: 26px; font-size: 15px; }
   /* Private-cell labels need to shrink even further; cells are ~58px wide. */
   .hula-v2 .private-cell-label { font-size: 8.5px; line-height: 1.05; }
   .hula-v2 .private-cell-pred-pill { font-size: 7px; padding: 1px 3px; }
@@ -3457,4 +3610,260 @@ button:focus {
 @media (prefers-reduced-motion: reduce) {
   .hula-v2 .hits-rip-pack, .hula-v2 .hits-rip-pack-shine, .hula-v2 .hits-rip-pack-cta,
   .hula-v2 .hits-pocket-live { animation: none; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * /hits dark re-theme — deep forest + gold (masa "casino" direction)
+ *
+ * Scoped to .hula-v2.hits-dark (all /hits routes). Strategy: flip the
+ * design tokens so every var()-driven rule adapts for free, then patch the
+ * handful of components that used var(--ink) as a DARK BACKGROUND on the
+ * cream theme (those would invert to cream-on-cream otherwise).
+ * ═══════════════════════════════════════════════════════════════════════ */
+.hula-v2.hits-dark {
+  --bg: #0b1710;
+  --bg-2: #142519;
+  --ink: #f4efdc;
+  --ink-2: #c9d4c3;
+  --ink-3: #8aa08f;
+  --line: rgba(244, 239, 220, 0.09);
+  --line-2: rgba(244, 239, 220, 0.22);
+  --paper: #122318;
+  --accent: #f0c24f;
+  --accent-ink: #201604;
+  --up: #57d68f;
+  --down: #ff8a7d;
+  background:
+    radial-gradient(120% 46% at 50% 0%, #163020 0%, #0b1710 62%) no-repeat,
+    #0b1710;
+  min-height: 100dvh;
+}
+
+/* ── Header ── */
+@media (hover: hover) {
+  .hula-v2.hits-dark .hits-back:hover {
+    background: rgba(244, 239, 220, 0.10);
+    color: var(--ink);
+    border-color: var(--line-2);
+  }
+}
+.hula-v2.hits-dark .hits-lang-opt[data-active='true'] {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.hula-v2.hits-dark .hits-token-chip {
+  background: rgba(240, 194, 79, 0.12);
+  color: var(--accent);
+  border-color: rgba(240, 194, 79, 0.45);
+  box-shadow: none;
+}
+.hula-v2.hits-dark .hits-token-chip[data-low='true'] {
+  background: rgba(220, 38, 38, 0.16);
+  color: #ff9c92;
+  border-color: rgba(220, 38, 38, 0.5);
+}
+
+/* ── Entry hero + purchase ── */
+.hula-v2.hits-dark .hits-hero[data-mode='demo'],
+.hula-v2.hits-dark .hits-hero[data-mode='upcoming'],
+.hula-v2.hits-dark .hits-hero[data-mode='fallback'],
+.hula-v2.hits-dark .hits-hero[data-mode='loading'] {
+  background: linear-gradient(165deg, #17301f 0%, #0f2117 100%);
+  border: 1px solid var(--line);
+  box-shadow: none;
+}
+.hula-v2.hits-dark .hits-hero[data-mode='daily'] {
+  background: linear-gradient(135deg, #f0c24f 0%, #c9992d 100%);
+  color: var(--accent-ink);
+  box-shadow: none;
+}
+.hula-v2.hits-dark .hits-purchase {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 20px 2px 4px;
+}
+.hula-v2.hits-dark .hits-purchase-h {
+  font-family: var(--ff-display);
+  font-weight: 500;
+  font-size: clamp(30px, 7.5vw, 40px);
+  line-height: 1.04;
+  letter-spacing: -0.015em;
+}
+.hula-v2.hits-dark .hits-price-btn {
+  background: var(--paper);
+  border-color: var(--line);
+}
+.hula-v2.hits-dark .hits-price-btn:hover { border-color: var(--line-2); }
+.hula-v2.hits-dark .hits-price-btn[data-selected='true'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+.hula-v2.hits-dark .hits-price-btn[data-selected='true'] .hits-price-sub {
+  color: rgba(32, 22, 4, 0.72);
+}
+.hula-v2.hits-dark .hits-buy-btn {
+  background: #37c871;
+  color: #06130b;
+  font-weight: 700;
+  font-size: 16px;
+}
+.hula-v2.hits-dark .hits-buy-btn:hover { filter: brightness(1.06); }
+.hula-v2.hits-dark .hits-buy-btn[data-disabled='true'] {
+  background: var(--bg-2);
+  color: var(--ink-3);
+  font-weight: 500;
+}
+@media (hover: hover) {
+  .hula-v2.hits-dark .hits-buy-secondary:hover {
+    background: rgba(244, 239, 220, 0.10);
+    color: var(--ink);
+    border-color: var(--line-2);
+  }
+}
+.hula-v2.hits-dark .hits-upcoming-row { background: var(--paper); }
+.hula-v2.hits-dark .hits-upcoming-row[data-active='true'] {
+  box-shadow: 0 0 0 2px rgba(240, 194, 79, 0.25);
+}
+.hula-v2.hits-dark .hits-upcoming-row[data-active='true'] .hits-upcoming-cta {
+  color: var(--accent);
+}
+
+/* ── Card page: grid + banners ── */
+.hula-v2.hits-dark .hits-card {
+  background: rgba(244, 239, 220, 0.03);
+  border-color: rgba(244, 239, 220, 0.08);
+  box-shadow: none;
+}
+.hula-v2.hits-dark .hits-cell {
+  background: #152b1d;
+  border-color: rgba(244, 239, 220, 0.10);
+  color: #dfe7d8;
+}
+.hula-v2.hits-dark .hits-cell[data-state='hit'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+  box-shadow: 0 6px 18px -4px rgba(240, 194, 79, 0.45);
+}
+.hula-v2.hits-dark .hits-cell[data-state='free'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+.hula-v2.hits-dark .hits-pregame-banner {
+  background: var(--paper);
+  border-color: var(--line-2);
+  color: var(--ink);
+}
+.hula-v2.hits-dark .hits-wins-chip {
+  background: rgba(87, 214, 143, 0.12);
+  color: #8fe3b4;
+  border-color: rgba(87, 214, 143, 0.25);
+}
+@media (hover: hover) {
+  .hula-v2.hits-dark .hits-shuffle-btn:hover:not(:disabled) {
+    background: rgba(244, 239, 220, 0.10);
+    color: var(--ink);
+    border-color: var(--line-2);
+  }
+}
+.hula-v2.hits-dark .private-payouts-row {
+  border-bottom-color: rgba(244, 239, 220, 0.06);
+}
+
+/* ── Card page: bottom actions ── */
+@media (hover: hover) {
+  .hula-v2.hits-dark .hits-share-btn:hover {
+    background: rgba(244, 239, 220, 0.10);
+    color: var(--ink);
+    border-color: var(--line-2);
+  }
+}
+.hula-v2.hits-dark .hits-replay-btn {
+  background: #37c871;
+  color: #06130b;
+  border-color: transparent;
+  font-weight: 700;
+}
+.hula-v2.hits-dark .hits-replay-btn:hover {
+  background: #37c871;
+  border-color: transparent;
+  filter: brightness(1.06);
+}
+
+/* ── Modals (win, limit, capture, sign-in share the same shells) ── */
+.hula-v2.hits-dark .hits-win-backdrop,
+.hula-v2.hits-dark .hits-limit-modal {
+  background: rgba(3, 9, 6, 0.62);
+}
+.hula-v2.hits-dark .hits-win-close {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.hula-v2.hits-dark .hits-limit-opt-rec {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent);
+}
+.hula-v2.hits-dark .hits-limit-opt-rec::after {
+  background: rgba(0, 0, 0, 0.28);
+  color: #fff;
+}
+.hula-v2.hits-dark .hits-capture-input {
+  background: rgba(244, 239, 220, 0.06);
+  color: var(--ink);
+}
+.hula-v2.hits-dark .hits-capture-input:focus { border-color: var(--accent); }
+.hula-v2.hits-dark .hits-capture-err { color: #ff8f85; }
+.hula-v2.hits-dark .hits-capture-submit {
+  background: #37c871;
+  color: #06130b;
+}
+
+/* ── Pack-rip overlay ── */
+.hula-v2.hits-dark .hits-rip-backdrop {
+  background: rgba(4, 10, 7, 0.94);
+}
+.hula-v2.hits-dark .hits-rip-pack-word,
+.hula-v2.hits-dark .hits-rip-pack-cta {
+  color: var(--ink);
+}
+.hula-v2.hits-dark .hits-rip-cell[data-free='true'] {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* Gold pop for freshly-hit cells (base keyframes glow mango). */
+@keyframes hits-pop-gold {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.18) rotate(-3deg); box-shadow: 0 0 32px rgba(240, 194, 79, 0.8); }
+  100% { transform: scale(1.02) rotate(0); }
+}
+.hula-v2.hits-dark .hits-cell[data-just-hit='true'] {
+  animation: hits-pop-gold 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ── Mobile-first touch affordances ──────────────────────────────────────
+ * :active fires on tap (hover doesn't exist on touch); pressed-state scale
+ * replaces the default gray tap highlight. */
+.hula-v2 .hits-shell,
+.hula-v2 .hits-shell button {
+  -webkit-tap-highlight-color: transparent;
+}
+.hula-v2 .hits-price-btn:active,
+.hula-v2 .hits-share-btn:active,
+.hula-v2 .hits-replay-btn:active,
+.hula-v2 .hits-upcoming-row:active,
+.hula-v2 .hits-menu-item:active,
+.hula-v2 .hits-menu-btn:active,
+.hula-v2 .hits-back:active,
+.hula-v2 .hits-postrip-btn:active,
+.hula-v2 .hits-postrip-keep:active,
+.hula-v2 .hits-shuffle-btn:active:not(:disabled),
+.hula-v2 .hits-buy-secondary:active,
+.hula-v2 .hits-limit-opt:active {
+  transform: scale(0.98);
 }

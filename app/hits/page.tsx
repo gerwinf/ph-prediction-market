@@ -9,9 +9,8 @@ import { readBalance, debit } from '../../lib/identity/token-balance'
 import { track } from '../../lib/analytics/track'
 import { useSession } from '../../lib/auth/use-session'
 import { SignInModal } from '../../components/auth/SignInModal'
-import { AccountMenu } from '../../components/hits/AccountMenu'
+import { HitsMenu } from '../../components/hits/HitsMenu'
 import { readSession, writeSession } from '../../lib/hits/session'
-import { LangToggle } from '../../components/hits/LangToggle'
 import { useLang } from '../../lib/hits/i18n/LanguageProvider'
 
 /* ────────────────────────────────────────────────────────────────────────
@@ -229,14 +228,16 @@ export default function HitsEntry() {
   }
 
   return (
-    <main className="hula-v2">
+    <main className="hula-v2 hits-dark">
       <div className="hits-shell">
         <header className="hits-header">
           <div className="hits-brand">
-            Hula <em>Hits</em>
+            <span className="hits-brand-coin" aria-hidden="true">H</span>
+            <span className="hits-brand-text">
+              Hula <em>Hits</em>
+            </span>
           </div>
           <div className="hits-header-right">
-            <LangToggle />
             {mounted && (
               auth.loading ? (
                 // Don't show a number until we know authed vs anon — avoids
@@ -252,29 +253,25 @@ export default function HitsEntry() {
                 </span>
               )
             )}
-            {mounted && (
-              auth.loading ? null : auth.profile ? (
-                <AccountMenu
-                  displayName={auth.profile.display_name}
-                  email={auth.profile.email}
-                  onHistory={() => router.push('/hits/history')}
-                  onSignOut={() => auth.signOut()}
-                />
-              ) : (
-                <button
-                  className="hits-back"
-                  onClick={() => {
-                    setShowSignIn(true)
-                    track('signin_opened', { from: '/hits' })
-                  }}
-                >
-                  {t('common.signIn')}
-                </button>
-              )
-            )}
-            <button className="hits-back" onClick={() => router.push('/hits/history')}>
-              {t('common.binder')}
-            </button>
+            <HitsMenu
+              profile={
+                auth.profile
+                  ? { displayName: auth.profile.display_name, email: auth.profile.email }
+                  : null
+              }
+              onSignIn={() => {
+                setShowSignIn(true)
+                track('signin_opened', { from: '/hits' })
+              }}
+              onSignOut={() => auth.signOut()}
+              items={[
+                {
+                  key: 'binder',
+                  label: t('menu.binder'),
+                  onSelect: () => router.push('/hits/history'),
+                },
+              ]}
+            />
           </div>
         </header>
 

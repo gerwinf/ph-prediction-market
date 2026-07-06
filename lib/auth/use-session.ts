@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback, useRef } from 'react'
-import { createClient } from '../supabase/client'
+import { tryCreateClient } from '../supabase/client'
 import { migrateToProfileBalance } from '../identity/token-balance'
 
 /* ────────────────────────────────────────────────────────────────────────
@@ -81,15 +81,23 @@ export function useSession(): SessionState {
   }, [fetchProfile])
 
   const signOut = useCallback(async () => {
-    const supabase = createClient()
-    await supabase.auth.signOut()
+    const supabase = tryCreateClient()
+    if (supabase) await supabase.auth.signOut()
     setUser(null)
     setProfile(null)
   }, [])
 
   useEffect(() => {
     let cancelled = false
-    const supabase = createClient()
+    const supabase = tryCreateClient()
+    // No Supabase env (creds-less workspace / misconfigured deploy): behave
+    // as permanently-anonymous instead of crashing the whole page tree.
+    if (!supabase) {
+      setUser(null)
+      setProfile(null)
+      setLoading(false)
+      return
+    }
 
     // If the URL still carries a PKCE `code` (e.g. an old magic link that
     // points straight at the app instead of /auth/callback), the SDK

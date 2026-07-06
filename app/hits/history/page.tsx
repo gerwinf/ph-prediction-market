@@ -9,7 +9,7 @@ import { track } from '../../../lib/analytics/track'
 import { generateCard, isFreeCell } from '../../../lib/hits/card-generator'
 import { deriveBinderStats, binderHitIndices } from '../../../lib/hits/binder'
 import { useLang } from '../../../lib/hits/i18n/LanguageProvider'
-import { LangToggle } from '../../../components/hits/LangToggle'
+import { HitsMenu } from '../../../components/hits/HitsMenu'
 import type { StringKey } from '../../../lib/hits/i18n/strings'
 
 /* ────────────────────────────────────────────────────────────────────────
@@ -142,17 +142,34 @@ export default function BinderPage() {
   }
 
   return (
-    <main className="hula-v2">
+    <main className="hula-v2 hits-dark">
       <div className="hits-shell">
         <header className="hits-header">
           <div className="hits-brand">
-            Hula <em>Hits</em>
+            <span className="hits-brand-coin" aria-hidden="true">H</span>
+            <span className="hits-brand-text">
+              Hula <em>Hits</em>
+            </span>
           </div>
           <div className="hits-header-right">
-            <LangToggle />
             <button className="hits-back" onClick={() => router.push('/hits')}>
               {t('history.back')}
             </button>
+            <HitsMenu
+              profile={
+                auth.profile
+                  ? { displayName: auth.profile.display_name, email: auth.profile.email }
+                  : null
+              }
+              onSignIn={() => {
+                setShowSignIn(true)
+                track('signin_opened', { from: '/hits/history' })
+              }}
+              onSignOut={() => auth.signOut()}
+              items={[
+                { key: 'new', label: t('menu.newCard'), onSelect: () => router.push('/hits') },
+              ]}
+            />
           </div>
         </header>
 

@@ -27,7 +27,7 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
   const admin = createAdminClient()
   const { data, error } = await admin
     .from('match_fixtures')
-    .select('id, card_type, match_label, starts_at, ends_at, status')
+    .select('id, card_type, match_label, starts_at, ends_at, status, home_score, away_score')
     .eq('id', id)
     .maybeSingle()
 

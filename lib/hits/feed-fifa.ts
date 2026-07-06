@@ -211,6 +211,23 @@ export function fixtureStatusFromTimeline(
   return 'scheduled'
 }
 
+/**
+ * Running score implied by the timeline: the last event carrying both
+ * HomeGoals/AwayGoals wins (FIFA stamps these on goals, period boundaries and
+ * match end). Null when nothing has reported a score yet (pre-game).
+ */
+export function scoreFromTimeline(
+  events: FifaTimelineEvent[]
+): { home: number; away: number } | null {
+  for (let i = events.length - 1; i >= 0; i--) {
+    const e = events[i]
+    if (typeof e.HomeGoals === 'number' && typeof e.AwayGoals === 'number') {
+      return { home: e.HomeGoals, away: e.AwayGoals }
+    }
+  }
+  return null
+}
+
 /* ────────────────────────────────────────────────────────────────────────
  * Server-side sync (called from GET /api/events for wc- matches)
  * ──────────────────────────────────────────────────────────────────────── */
@@ -348,18 +365,28 @@ export async function syncFifaEvents(matchId: string): Promise<void> {
       )
     }
 
-    // Advance fixture status (forward only — never demote a final match).
+    // Advance fixture status (forward only — never demote a final match) and
+    // persist the running score for the card page's scoreboard.
     const implied = fixtureStatusFromTimeline(timeline)
-    if (implied !== 'scheduled') {
+    const score = scoreFromTimeline(timeline)
+    if (implied !== 'scheduled' || score) {
       const { data: fix } = await admin
         .from('match_fixtures')
-        .select('status')
+        .select('status, home_score, away_score')
         .eq('id', matchId)
         .maybeSingle()
       const current = fix?.status as string | undefined
       const rank: Record<string, number> = { scheduled: 0, live: 1, final: 2 }
+      const patch: Record<string, unknown> = {}
       if (current && (rank[implied] ?? 0) > (rank[current] ?? 0)) {
-        await admin.from('match_fixtures').update({ status: implied }).eq('id', matchId)
+        patch.status = implied
+      }
+      if (score && (fix?.home_score !== score.home || fix?.away_score !== score.away)) {
+        patch.home_score = score.home
+        patch.away_score = score.away
+      }
+      if (fix && Object.keys(patch).length > 0) {
+        await admin.from('match_fixtures').update(patch).eq('id', matchId)
       }
     }
   } catch {

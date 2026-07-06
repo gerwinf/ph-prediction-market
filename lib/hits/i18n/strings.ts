@@ -224,6 +224,10 @@ export const STRINGS = {
   'account.history': { en: '📋 Card history', tl: '📋 Card history' },
   'account.signOut': { en: 'Sign out', tl: 'Sign out' },
 
+  // ── Header overflow menu ────────────────────────────────────────────
+  'menu.newCard': { en: 'New card', tl: 'Bagong card' },
+  'menu.binder': { en: 'My binder', tl: 'My binder' },
+
   // ── Contact capture modal ───────────────────────────────────────────
   'capture.doneH': { en: "You're on the *insider list.*", tl: 'Sali ka na sa *insider list.*' },
   'capture.doneSub': {

@@ -17,17 +17,20 @@ export const SAMPLE_MATCH: Match = {
   awayColor: '#c60b1e',
   tipoff: 'Tonight · 3:00 AM PHT',
   durationMs: 90_000,
+  // `score` = running [home, away] after the event — drives the demo
+  // scoreboard the same way home_score/away_score on the fixture row does
+  // for a live game.
   timeline: [
-    { atMs:  4_000, gameClock: "6'",     eventId: 'yamal-sot',        description: 'Yamal forces an early save' },
-    { atMs: 10_000, gameClock: "12'",    eventId: 'first-goal-15',    description: 'Spain break the deadlock early' },
+    { atMs:  4_000, gameClock: "6'",     eventId: 'yamal-sot',        description: 'Yamal forces an early save', score: [0, 0] },
+    { atMs: 10_000, gameClock: "12'",    eventId: 'first-goal-15',    description: 'Spain break the deadlock early', score: [0, 1] },
     { atMs: 16_000, gameClock: "23'",    eventId: 'esp-first',        description: 'Spain score first' },
     { atMs: 22_000, gameClock: "34'",    eventId: 'bruno-card',       description: 'Bruno Fernandes booked' },
     { atMs: 30_000, gameClock: 'HT',     eventId: 'esp-half-lead',    description: 'Spain lead at the break' },
-    { atMs: 38_000, gameClock: "52'",    eventId: 'leao-goal',        description: 'Leão equalizes for Portugal' },
+    { atMs: 38_000, gameClock: "52'",    eventId: 'leao-goal',        description: 'Leão equalizes for Portugal', score: [1, 1] },
     { atMs: 46_000, gameClock: "61'",    eventId: 'both-teams-score', description: 'Both teams have scored' },
     { atMs: 54_000, gameClock: "68'",    eventId: 'var-review',       description: 'VAR checks a penalty shout' },
     { atMs: 60_000, gameClock: "70'",    eventId: 'penalty-given',    description: 'Penalty to Spain' },
-    { atMs: 66_000, gameClock: "71'",    eventId: 'yamal-goal',       description: 'Yamal converts from the spot' },
+    { atMs: 66_000, gameClock: "71'",    eventId: 'yamal-goal',       description: 'Yamal converts from the spot', score: [1, 2] },
     { atMs: 74_000, gameClock: "84'",    eventId: 'yellow-card',      description: 'Late booking as it gets tense' },
     { atMs: 82_000, gameClock: "90+3'",  eventId: 'injury-time-goal', description: 'Portugal push in stoppage time' },
     { atMs: 88_000, gameClock: 'FT',     eventId: 'esp-win',          description: 'Spain edge it · Spain 2, Portugal 1' },
