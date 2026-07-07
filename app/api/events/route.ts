@@ -17,6 +17,7 @@ import { NextResponse } from 'next/server'
 import { unstable_noStore as noStore } from 'next/cache'
 import { createAdminClient } from '../../../lib/supabase/admin'
 import { syncFifaEvents } from '../../../lib/hits/feed-fifa'
+import { syncApiFootballEvents } from '../../../lib/hits/feed-apifootball'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -39,6 +40,10 @@ export async function GET(req: Request) {
   // cache pattern as /api/prices, no cron needed. Never throws; a broken feed
   // just means cells stop lighting until /ops fires manually.
   await syncFifaEvents(matchId)
+  // Supplementary: API-Football fills the FIFA-blind keys (VAR, missed
+  // pens). No-ops without API_FOOTBALL_KEY, off-live fixtures, or inside
+  // its own 240s TTL — free-plan quota is 100 requests/day.
+  await syncApiFootballEvents(matchId)
 
   const admin = createAdminClient()
   // Filter to events whose stamp has reached "now". The demo fixture
