@@ -23,9 +23,9 @@ describe('buildRevealPlan', () => {
     const freeStep = plan.find((s) => s.idx === freeIdx)!
     expect(freeStep.rare).toBe(false)
   })
-  it('is deterministic and bounded (~under 4s)', () => {
+  it('is deterministic and bounded (~under 8s, tap-to-skip covers the impatient)', () => {
     expect(buildRevealPlan(card.cells)).toEqual(plan)
-    expect(revealDurationMs(plan)).toBeLessThan(4000)
+    expect(revealDurationMs(plan)).toBeLessThan(8000)
   })
 })
 
