@@ -40,24 +40,6 @@ const T = (name: string, iso: string): Team => ({ name, iso })
 // manage these from /ops/markets without a deploy.
 export const FIXTURES: Fixture[] = [
   {
-    id: 'wc-por-esp',
-    home: T('Portugal', 'pt'),
-    away: T('Spain', 'es'),
-    group: 'Round of 16',
-    kickoffISO: '2026-07-06T19:00:00.000Z',
-    venue: 'AT&T Stadium, Arlington',
-    fallback: { home: 32, draw: 28, away: 40 },
-  },
-  {
-    id: 'wc-usa-bel',
-    home: T('USA', 'us'),
-    away: T('Belgium', 'be'),
-    group: 'Round of 16',
-    kickoffISO: '2026-07-06T21:00:00.000Z',
-    venue: 'Lumen Field, Seattle',
-    fallback: { home: 34, draw: 27, away: 39 },
-  },
-  {
     id: 'wc-fra-mar',
     home: T('France', 'fr'),
     away: T('Morocco', 'ma'),
