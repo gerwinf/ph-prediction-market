@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     'MMFF predictions',
     'World Cup odds Philippines',
     'PAGCOR',
-    'sports betting Philippines',
+    'sports predictions Philippines',
     'GCash',
     'pesos',
   ],
