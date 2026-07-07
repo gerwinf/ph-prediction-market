@@ -19,7 +19,12 @@
  */
 import type { GameEvent } from './types'
 import { CANDIDATE_EVENTS } from './events'
-import { WC_GENERIC_EVENTS, WC_EASY_EVENTS, WC_POOL_V1_MATCHES } from './events-wc'
+import {
+  WC_GENERIC_EVENTS,
+  WC_EASY_EVENTS,
+  WC_POOL_V1_MATCHES,
+  WC_FEED_BLIND_IDS,
+} from './events-wc'
 import { eventCellToGameEvent } from '../catalog/types'
 import {
   PLAYERS_BY_TEAM,
@@ -161,8 +166,13 @@ export function buildPoolForMatch(matchId: string): GameEvent[] {
   // World Cup football fixtures (wc-<home>-<away>-<date>) get the football pool.
   const wcTeams = teamsFromWcMatchId(matchId)
   if (wcTeams) {
-    const tiles: GameEvent[] = [...WC_GENERIC_EVENTS]
-    if (isWcPoolV2(matchId)) tiles.push(...WC_EASY_EVENTS)
+    // v2 pools drop the feed-blind tiles (manual-/ops-only) and add the
+    // easy ones; v1 pools stay byte-identical (sold cards regenerate).
+    const v2 = isWcPoolV2(matchId)
+    const tiles: GameEvent[] = v2
+      ? WC_GENERIC_EVENTS.filter((e) => !WC_FEED_BLIND_IDS.has(e.id))
+      : [...WC_GENERIC_EVENTS]
+    if (v2) tiles.push(...WC_EASY_EVENTS)
     for (const team of wcTeams) {
       tiles.push(...wcTeamTiles(team))
       for (const player of WC_PLAYERS_BY_TEAM[team]) {
