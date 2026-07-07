@@ -173,6 +173,10 @@ export const STRINGS = {
   'common.binder': { en: 'Binder', tl: 'Binder' },
   'rip.tap': { en: 'Tap to open', tl: 'Tap para buksan' },
   'rip.skip': { en: 'Tap to skip', tl: 'Tap para laktawan' },
+  'rip.rareNote': {
+    en: '✨ {n} rare pull — rainbow cells are hard-to-hit events with bragging rights',
+    tl: '✨ {n} rare pull — ang rainbow cells ay bihirang events, pang-yabang pag tumama',
+  },
   'strip.q': { en: 'How was your pull?', tl: 'Kamusta ang pull mo?' },
   'strip.keep': { en: 'Play this card →', tl: 'Laruin ang card na ’to →' },
   'strip.shuffle': { en: 'No luck? Shuffle · ₱{cost}', tl: 'Hindi swerte? Shuffle · ₱{cost}' },
