@@ -10,9 +10,9 @@ import type { GameEvent } from './types'
 
 export type RevealStep = { idx: number; delayMs: number; rare: boolean }
 
-const COMMON_STAGGER_MS = 45
-const RARE_STAGGER_MS = 300
-const RARE_GAP_MS = 250 // pause between the common cascade and the first rare
+const COMMON_STAGGER_MS = 55
+const RARE_STAGGER_MS = 550
+const RARE_GAP_MS = 500 // beat of anticipation before the first rare flips
 
 export function buildRevealPlan(cells: GameEvent[]): RevealStep[] {
   const commons: number[] = []
@@ -34,10 +34,11 @@ export function buildRevealPlan(cells: GameEvent[]): RevealStep[] {
   return steps
 }
 
-/** Total runtime of a reveal plan (last step + settle margin). */
+/** Total runtime of a reveal plan (last step + a hold so the rare glow is
+ * readable before the board goes live — testers missed the flourish at 500ms). */
 export function revealDurationMs(plan: RevealStep[]): number {
   const last = plan.reduce((m, s) => Math.max(m, s.delayMs), 0)
-  return last + 500
+  return last + 1600
 }
 
 /**

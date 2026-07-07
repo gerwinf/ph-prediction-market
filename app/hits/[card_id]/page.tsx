@@ -17,7 +17,7 @@ import { HitsBrand } from '../../../components/hits/HitsBrand'
 import { useLang } from '../../../lib/hits/i18n/LanguageProvider'
 import { wcCodesFromMatchId } from '../../../lib/hits/feed-fifa'
 import { PackRipReveal } from '../../../components/hits/PackRipReveal'
-import { shouldShowRip } from '../../../lib/hits/reveal'
+import { shouldShowRip, buildRevealPlan, revealDurationMs } from '../../../lib/hits/reveal'
 import { readSession, writeSession, wouldExceedLimit, type HitsSession } from '../../../lib/hits/session'
 
 const CAPTURE_KEY = 'hula-captured'
@@ -151,7 +151,13 @@ function HitsCardView({ params }: PageProps) {
   // every buy path); it's consumed once and stripped from the URL so a refresh
   // or a binder-open never re-rips. The strip shows even when the animation is
   // skipped (reduced motion / ?speed) — the upsell beat isn't motion-gated.
-  const [ripping, setRipping] = useState(false)
+  // 'pack' → overlay with the booster pack; 'cascade' → cells animate onto
+  // the REAL board (same grid, same position — no jump when it settles);
+  // null → reveal finished. Testers lost the plot when the flourish faded in
+  // 500ms on a separately-positioned overlay grid; the cascade now happens in
+  // place and holds long enough to read.
+  const [ripPhase, setRipPhase] = useState<'pack' | 'cascade' | null>(null)
+  const ripping = ripPhase !== null
   const [postRip, setPostRip] = useState(false)
   const [session, setSession] = useState<HitsSession>({ day: '', spend: 0, cards: 0, limit: 0 })
   useEffect(() => {
@@ -164,12 +170,26 @@ function HitsCardView({ params }: PageProps) {
       typeof window !== 'undefined' &&
       !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
     if (shouldShowRip({ isNew: true, speed, prefersReducedMotion })) {
-      setRipping(true)
+      setRipPhase('pack')
       track('pack_rip_shown', { bet, type: cardType }, card_id)
     }
     setPostRip(true)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // In-place cascade: reveal order + per-cell delays over the real board.
+  const revealPlan = useMemo(() => buildRevealPlan(card.cells), [card.cells])
+  const revealByIdx = useMemo(() => {
+    const m = new Map<number, { delayMs: number; rare: boolean }>()
+    revealPlan.forEach((step) => m.set(step.idx, { delayMs: step.delayMs, rare: step.rare }))
+    return m
+  }, [revealPlan])
+  const rareCount = useMemo(() => revealPlan.filter((step) => step.rare).length, [revealPlan])
+  useEffect(() => {
+    if (ripPhase !== 'cascade') return
+    const timer = setTimeout(() => setRipPhase(null), revealDurationMs(revealPlan))
+    return () => clearTimeout(timer)
+  }, [ripPhase, revealPlan])
 
   useEffect(() => {
     setBalance(readBalance())
@@ -796,11 +816,19 @@ function HitsCardView({ params }: PageProps) {
           </span>
         </section>
 
-        <section className="hits-card">
+        {/* During the reveal the cascade animates THESE cells (same grid,
+            same position — the board never jumps). 'pack' hides them behind
+            the overlay; 'cascade' staggers them in, rares last. Tap skips. */}
+        <section
+          className="hits-card"
+          data-rip-phase={ripPhase ?? undefined}
+          onClick={ripPhase === 'cascade' ? () => setRipPhase(null) : undefined}
+        >
           {card.cells.map((cell, idx) => {
             const isHit = hitIndices.has(idx)
             const isFree = isFreeCell(idx)
             const state = isFree ? 'free' : isHit ? 'hit' : 'pending'
+            const step = ripPhase === 'cascade' ? revealByIdx.get(idx) : undefined
             return (
               <div
                 key={idx}
@@ -809,12 +837,23 @@ function HitsCardView({ params }: PageProps) {
                 data-rarity={cell.rarity}
                 data-just-hit={justHitIdx === idx}
                 data-pattern-flash={flashPattern.has(idx)}
+                data-reveal={step ? (step.rare ? 'rare' : 'common') : undefined}
+                style={step ? { animationDelay: `${step.delayMs}ms` } : undefined}
               >
                 {cell.label}
               </div>
             )
           })}
         </section>
+
+        {ripPhase === 'cascade' && (
+          <section className="hits-rip-under" aria-live="polite">
+            {rareCount > 0 && (
+              <div className="hits-rip-rare-note">{t('rip.rareNote', { n: rareCount })}</div>
+            )}
+            <div className="hits-rip-skip">{t('rip.skip')}</div>
+          </section>
+        )}
 
         {postRip && canShuffle && !done && !ripping ? (
           <section className="hits-postrip-strip">
@@ -920,12 +959,11 @@ function HitsCardView({ params }: PageProps) {
         <p className="hits-foot">{tx('card.foot')}</p>
       </div>
 
-      {ripping && (
+      {ripPhase === 'pack' && (
         <PackRipReveal
-          cells={card.cells}
           title={fixtureInfo?.matchLabel ?? `${sample.home} vs ${sample.away}`}
           sublabel={meta.sublabel}
-          onDone={() => setRipping(false)}
+          onRip={() => setRipPhase('cascade')}
         />
       )}
 
