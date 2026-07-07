@@ -101,3 +101,19 @@ describe('pool v2 gating', () => {
     expect(new Set(a.cells.map((c) => c.id)).size).toBe(25) // 24 distinct + free
   })
 })
+
+describe('pool v2 feed-blind removal', () => {
+  it('drops manual-only tiles from v2, keeps them frozen in v1', async () => {
+    const { buildPoolForMatch } = await import('./pool-builder')
+    const v2ids = new Set(buildPoolForMatch('wc-sui-col-2026-07-07').map((e) => e.id))
+    const v1ids = new Set(buildPoolForMatch('wc-arg-egy-2026-07-07').map((e) => e.id))
+    for (const id of ['woodwork', 'header-goal', 'free-kick-goal', 'goal-outside-box', 'keeper-save-pen']) {
+      expect(v2ids.has(id)).toBe(false)
+      expect(v1ids.has(id)).toBe(true)
+    }
+    // API-Football-covered keys stay in
+    for (const id of ['var-review', 'var-overturn', 'penalty-missed']) {
+      expect(v2ids.has(id)).toBe(true)
+    }
+  })
+})

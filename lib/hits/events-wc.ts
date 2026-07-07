@@ -80,6 +80,22 @@ export const WC_POOL_V1_MATCHES = new Set([
   'wc-arg-egy-2026-07-07',
 ])
 
+/**
+ * Tiles NO feed can auto-detect (FIFA has no type; API-Football carries no
+ * shot detail) — they only ever fire via manual /ops. Excluded from v2
+ * pools so cards don't carry cells that realistically never light; kept in
+ * WC_GENERIC_EVENTS because frozen v1 pools still reference them.
+ * (var-review/var-overturn/penalty-missed are NOT here — the API-Football
+ * sync auto-fires those.)
+ */
+export const WC_FEED_BLIND_IDS = new Set([
+  'woodwork',
+  'header-goal',
+  'free-kick-goal',
+  'goal-outside-box',
+  'keeper-save-pen',
+])
+
 export const WC_EVENT_BY_ID: Record<string, GameEvent> = Object.fromEntries(
   [...WC_GENERIC_EVENTS, ...WC_EASY_EVENTS].map((e) => [e.id, e])
 )
