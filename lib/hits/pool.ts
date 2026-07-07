@@ -53,15 +53,25 @@ export type Allocation = {
   refund: boolean
 }
 
+// Consolation tuning (decided 2026-07-08 from the first two shadow
+// settlements): unbounded 1×/lit-cell inverted the tier ordering — a
+// 13-lit-cell "loser" out-earned a completed row (13× > 5×) — and burned
+// ~₱165 of seed per card on busy matches. Floor 3 keeps sub-3-cell cards at
+// zero; cap 4 keeps consolation strictly below the lowest pattern tier (5×).
+export const CONSOLATION_FLOOR_CELLS = 3
+export const CONSOLATION_CAP_MULT = 4
+
 /**
  * Claim weight in centavos. Highest satisfied tier, non-additive; the
- * consolation tier (interpretation Y, CEO review) weighs 1× per lit cell for
- * cards with ≥1 lit cell and no pattern.
+ * consolation tier weighs 1× per lit cell, floored at
+ * CONSOLATION_FLOOR_CELLS and capped at CONSOLATION_CAP_MULT × stake.
  */
 export function claimWeightCentavos(card: PoolCard): number {
   const stakeCentavos = Math.round(card.pricePhp * 100)
   if (card.bestMultiplier > 0) return card.bestMultiplier * stakeCentavos
-  if (card.litCells > 0) return card.litCells * stakeCentavos
+  if (card.litCells >= CONSOLATION_FLOOR_CELLS) {
+    return Math.min(card.litCells, CONSOLATION_CAP_MULT) * stakeCentavos
+  }
   return 0
 }
 

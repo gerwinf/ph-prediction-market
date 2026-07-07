@@ -31,9 +31,12 @@ describe('claimWeightCentavos', () => {
     expect(claimWeightCentavos(card('a', 20, 250))).toBe(250 * 2000)
     expect(claimWeightCentavos(card('a', 50, 10))).toBe(10 * 5000)
   })
-  it('consolation (interpretation Y): 1× per lit cell when no pattern', () => {
+  it('consolation: 1× per lit cell, floored at 3 and capped at 4× stake', () => {
     expect(claimWeightCentavos(card('a', 20, 0, 4))).toBe(4 * 2000)
-    expect(claimWeightCentavos(card('a', 20, 0, 1))).toBe(2000)
+    expect(claimWeightCentavos(card('a', 20, 0, 3))).toBe(3 * 2000)
+    expect(claimWeightCentavos(card('a', 20, 0, 13))).toBe(4 * 2000) // capped — never beats a row (5×)
+    expect(claimWeightCentavos(card('a', 20, 0, 2))).toBe(0) // below the floor
+    expect(claimWeightCentavos(card('a', 20, 0, 1))).toBe(0)
   })
   it('zero for a card with nothing lit', () => {
     expect(claimWeightCentavos(card('a', 20, 0, 0))).toBe(0)

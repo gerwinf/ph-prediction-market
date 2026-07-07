@@ -46,11 +46,14 @@ surplus = P − Σ pay_i  →  reserve (includes the no-winner case: W = 0 → a
 ```
 
 Claim weight per card = its single highest satisfied tier (non-additive):
-full 250×, diag 10×, row/col 5×, **consolation (interpretation Y): w = (# lit
-non-free cells) × stake × 1** for cards with ≥1 lit cell and no pattern.
-Y over X (flat 1× for any lit cell) because it is the only reading consistent
-with "multipliers define relative claim weights" and avoids the 1-cell ≡
-23-cell cliff. When the reserve is healthy, `u = 1` and every winner receives
+full 250×, diag 10×, row/col 5×, **consolation: w = min(lit cells, 4) ×
+stake, only at ≥3 lit non-free cells** (floor 3 / cap 4× — decided 2026-07-08
+from the first two shadow settlements: unbounded interpretation-Y inverted the
+tier ordering — a 13-lit-cell patternless card out-earned a completed row —
+and burned ~₱165 of seed per card; the cap keeps consolation strictly below
+the lowest pattern tier and halves seed burn. Y-shape retained over flat X
+because proportional-to-cells stays consistent with "multipliers define
+relative claim weights"). When the reserve is healthy, `u = 1` and every winner receives
 exactly its cap — the seeded launch period *feels* fixed-odds.
 
 Cancelled/postponed fixture: full refund (`pay_i = stake_i`, no takeout, no
