@@ -1,5 +1,5 @@
 import { CARD_TYPES, type CardType } from './card-types'
-import { buildPoolForMatch } from './pool-builder'
+import { buildPoolForMatch, isWcPoolV2 } from './pool-builder'
 import type { Card, GameEvent } from './types'
 
 // FNV-1a → mulberry32. Deterministic PRNG seeded from card_id string.
@@ -40,6 +40,29 @@ const FREE_CELL: GameEvent = {
   rarity: 'common',
 }
 
+/**
+ * Rarity-weighted deterministic sample (pool v2): commons are 3× and
+ * uncommons 2× as likely to land on a card as rares. Same seed → same
+ * card, exactly like the uniform path — the weighting only reshapes the
+ * draw distribution so cards light up more often (the POR–ESP rebalance).
+ */
+function weightedPicks(pool: GameEvent[], rng: () => number, n: number): GameEvent[] {
+  const bag: GameEvent[] = []
+  for (const e of pool) {
+    const w = e.rarity === 'common' ? 3 : e.rarity === 'uncommon' ? 2 : 1
+    for (let i = 0; i < w; i++) bag.push(e)
+  }
+  const out: GameEvent[] = []
+  const seen = new Set<string>()
+  for (const e of shuffle(bag, rng)) {
+    if (seen.has(e.id)) continue
+    seen.add(e.id)
+    out.push(e)
+    if (out.length === n) break
+  }
+  return out
+}
+
 export function generateCard(
   cardId: string,
   pricePhp: number,
@@ -58,7 +81,10 @@ export function generateCard(
   // different cards — keeps share-links semantically distinct across types.
   const seed = seedFromString(`${cardType}:${cardId}`)
   const rng = mulberry32(seed)
-  const picks = shuffle(pool, rng).slice(0, 24)
+  const weighted = cardType === 'sports' && !!matchId && isWcPoolV2(matchId)
+  const picks = weighted
+    ? weightedPicks(pool, rng, 24)
+    : shuffle(pool, rng).slice(0, 24)
   const cells: GameEvent[] = []
   for (let i = 0; i < 25; i++) {
     if (i === 12) cells.push(FREE_CELL)

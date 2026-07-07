@@ -52,6 +52,34 @@ export const WC_GENERIC_EVENTS: GameEvent[] = [
   { id: 'clean-sheet',      label: 'A team keeps a clean sheet',  category: 'team',     rarity: 'common' },
 ]
 
+/**
+ * Pool v2 "bread and butter" tiles — the POR–ESP calibration miss: a 1–0
+ * match fired only 13 of ~63 tiles → ~5 lit cells/card → zero winners on 38
+ * cards. These are HIGH-frequency moments (most fire in most matches), all
+ * auto-detectable from FIFA timeline types we already parse (offside 15,
+ * corner 16, foul 18, sub 5, save 57). Only merged into pools for matches
+ * NOT in WC_POOL_V1_MATCHES (pool changes reshuffle cells under sold cards).
+ */
+export const WC_EASY_EVENTS: GameEvent[] = [
+  { id: 'any-offside',     label: 'Offside flag raised',       category: 'play',     rarity: 'common' },
+  { id: 'corner-5',        label: '5+ corners combined',       category: 'play',     rarity: 'common' },
+  { id: 'first-corner-10', label: 'Corner in the first 10′',   category: 'play',     rarity: 'common' },
+  { id: 'saves-3',         label: 'Keeper makes 3+ saves',     category: 'play',     rarity: 'common' },
+  { id: 'fouls-10',        label: '10+ fouls in the match',    category: 'foul',     rarity: 'common' },
+  { id: 'sub-before-60',   label: 'Substitution before 60′',   category: 'coaching', rarity: 'common' },
+]
+
+/**
+ * Matches whose cards were sold on the v1 pool. A card's cells regenerate
+ * deterministically from the pool, so these pools are FROZEN forever —
+ * add a match id here before changing pool composition if it has sold cards.
+ */
+export const WC_POOL_V1_MATCHES = new Set([
+  'wc-por-esp-2026-07-06',
+  'wc-usa-bel-2026-07-07',
+  'wc-arg-egy-2026-07-07',
+])
+
 export const WC_EVENT_BY_ID: Record<string, GameEvent> = Object.fromEntries(
-  WC_GENERIC_EVENTS.map((e) => [e.id, e])
+  [...WC_GENERIC_EVENTS, ...WC_EASY_EVENTS].map((e) => [e.id, e])
 )

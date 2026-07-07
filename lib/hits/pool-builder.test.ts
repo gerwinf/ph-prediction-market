@@ -77,3 +77,27 @@ describe('basketball path unchanged (regression)', () => {
     expect(ids.has('yamal-goal')).toBe(false)
   })
 })
+
+describe('pool v2 gating', () => {
+  it('freezes v1 matches (sold cards) on the original pool', async () => {
+    const { buildPoolForMatch, isWcPoolV2 } = await import('./pool-builder')
+    const v1 = buildPoolForMatch('wc-arg-egy-2026-07-07')
+    expect(isWcPoolV2('wc-arg-egy-2026-07-07')).toBe(false)
+    expect(v1.some((e) => e.id === 'any-offside')).toBe(false)
+  })
+  it('gives future matches the easy tiles', async () => {
+    const { buildPoolForMatch, isWcPoolV2 } = await import('./pool-builder')
+    const v2 = buildPoolForMatch('wc-sui-col-2026-07-07')
+    expect(isWcPoolV2('wc-sui-col-2026-07-07')).toBe(true)
+    for (const id of ['any-offside', 'corner-5', 'saves-3', 'fouls-10']) {
+      expect(v2.some((e) => e.id === id)).toBe(true)
+    }
+  })
+  it('keeps weighted v2 card generation deterministic per card id', async () => {
+    const { generateCard } = await import('./card-generator')
+    const a = generateCard('WEIGHT1', 20, 'sports', 'wc-sui-col-2026-07-07')
+    const b = generateCard('WEIGHT1', 20, 'sports', 'wc-sui-col-2026-07-07')
+    expect(a.cells.map((c) => c.id)).toEqual(b.cells.map((c) => c.id))
+    expect(new Set(a.cells.map((c) => c.id)).size).toBe(25) // 24 distinct + free
+  })
+})
