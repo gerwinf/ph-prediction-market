@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { newCardId } from '../../lib/hits/card-generator'
 import { MULTIPLIERS } from '../../lib/hits/payouts'
 import { type CardType } from '../../lib/hits/card-types'
-import { readBalance, debit } from '../../lib/identity/token-balance'
+import { readBalance, debit, credit } from '../../lib/identity/token-balance'
 import { track } from '../../lib/analytics/track'
 import { useSession } from '../../lib/auth/use-session'
 import { SignInModal } from '../../components/auth/SignInModal'
@@ -183,6 +183,13 @@ export default function HitsEntry() {
         return
       }
       const j = await res.json().catch(() => null)
+      if (res.status === 409 && j?.error === 'match_final') {
+        // Fixture flipped final between page load and the buy. Refund the
+        // optimistic anon debit; the fixtures refetch on next visit will
+        // drop the dead game from the list.
+        if (!auth.profile) setBalance(credit(price))
+        return
+      }
       if (j?.ok && j.balance !== null && typeof j.balance === 'number') {
         // Authed: server is the source of truth. Refresh hook profile
         // so the chip + downstream pages see the new value.

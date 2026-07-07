@@ -372,6 +372,12 @@ function HitsCardView({ params }: PageProps) {
 
   async function handleShuffle() {
     if (!canShuffle) return
+    // Same final-whistle guard as handleBuyPack — a re-roll on a finished
+    // match would be a dead card.
+    if (live && (matchStatus === 'final' || matchStatus === 'canceled')) {
+      router.push('/hits')
+      return
+    }
     const result = debit(shuffleCost)
     if (!result.ok) return
     setBalance(result.newBalance)
@@ -379,7 +385,7 @@ function HitsCardView({ params }: PageProps) {
 
     const newId = newCardId()
     try {
-      await fetch('/api/cards', {
+      const res = await fetch('/api/cards', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -389,6 +395,14 @@ function HitsCardView({ params }: PageProps) {
           matchId: live ? matchId : undefined,
         }),
       })
+      if (res.status === 409) {
+        const j = await res.json().catch(() => null)
+        if (j?.error === 'match_final') {
+          setBalance(credit(shuffleCost))
+          router.push('/hits')
+          return
+        }
+      }
     } catch {
       /* swallow */
     }
@@ -583,6 +597,13 @@ function HitsCardView({ params }: PageProps) {
 
   async function handleBuyPack(source: 'post_rip' | 'complete') {
     if (packBlocked) return
+    // Game over — another card for THIS match could never light a cell.
+    // Send the player to the entry page to pick the next game instead.
+    if (live && (matchStatus === 'final' || matchStatus === 'canceled')) {
+      track('another_card_redirected_final', { source }, card_id)
+      router.push('/hits')
+      return
+    }
     track('another_card_clicked', { done, bet: card.pricePhp, source }, card_id)
 
     if (!auth.profile) {
@@ -609,6 +630,16 @@ function HitsCardView({ params }: PageProps) {
       if (res.status === 402) {
         await auth.refresh()
         return
+      }
+      if (res.status === 409) {
+        const j = await res.json().catch(() => null)
+        if (j?.error === 'match_final') {
+          // Match flipped final between our status poll and the buy.
+          // Refund the optimistic anon debit and bounce to the entry page.
+          if (!auth.profile) setBalance(credit(card.pricePhp))
+          router.push('/hits')
+          return
+        }
       }
     } catch {
       /* swallow — page still routes, card_id seeds the client view */

@@ -146,6 +146,22 @@ export async function POST(req: Request) {
 
   const matchId = body.matchId || DEFAULT_MATCH_BY_TYPE[cardType]
 
+  // A card EXPLICITLY bound to a real fixture must not be sold after the
+  // final whistle — its cells could never light (observed: post-final buys
+  // through shared card links). Default bindings skip the check: a demo
+  // buy's match_id is bookkeeping and the client plays the canned timeline.
+  if (body.matchId && !body.matchId.startsWith('demo-')) {
+    const adminFix = createAdminClient()
+    const { data: fix } = await adminFix
+      .from('match_fixtures')
+      .select('status')
+      .eq('id', body.matchId)
+      .maybeSingle()
+    if (fix && (fix.status === 'final' || fix.status === 'canceled')) {
+      return NextResponse.json({ ok: false, error: 'match_final' }, { status: 409 })
+    }
+  }
+
   // Build the card deterministically from cardId + cardType + matchId
   // — same formula the active card page uses (via the pool-builder),
   // so cells stored in DB match what the client renders for live
