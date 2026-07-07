@@ -57,3 +57,8 @@ alter table public.match_fixtures
 --     -- any failure rolls the whole pass back; no half-credited players.
 --   end $$;
 -- ─────────────────────────────────────────────────────────────────────────
+
+-- RLS: repo posture is RLS-on for every table (002_rls.sql). No policies —
+-- settlement data is service-role-only; anon/authenticated keys get nothing.
+alter table public.pool_reserve_ledger enable row level security;
+alter table public.pool_settlements enable row level security;
