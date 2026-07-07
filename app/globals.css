@@ -3921,3 +3921,40 @@ button:focus {
 .legal-prose ul { padding-left: 20px; margin: 0 0 14px; }
 .legal-prose li { margin-bottom: 8px; }
 .legal-prose a { color: var(--accent); }
+
+/* ── Rarity carry-over (Jules feedback: rip rainbow vanished on the card) ──
+ * Rare cells keep a soft holo ring on the live card so the rip's rainbow
+ * means something. Hit/free fills win over the ring (pending only). */
+.hula-v2 .hits-cell[data-rarity='rare'][data-state='pending'] {
+  border: 1.5px solid transparent;
+  background:
+    linear-gradient(#152b1d, #152b1d) padding-box,
+    linear-gradient(120deg, #f5c542, #e8724a, #7db8ff, #b06fe0, #f5c542) border-box;
+}
+.hula-v2 .hits-rip-rare-note {
+  margin-top: 12px;
+  text-align: center;
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  line-height: 1.5;
+  color: #f5c542;
+  letter-spacing: 0.03em;
+  padding: 0 12px;
+}
+
+/* Binder link in the card-meta strip (replaces the raw card id — testers
+ * didn't know where their other cards lived). */
+.hula-v2 .hits-card-meta-binder {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.hula-v2 .hits-card-meta-binder:hover { color: var(--ink); }

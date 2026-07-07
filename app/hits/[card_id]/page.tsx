@@ -777,7 +777,13 @@ function HitsCardView({ params }: PageProps) {
         )}
 
         <section className="hits-card-meta">
-          <span className="hits-card-meta-id">{card_id}</span>
+          <button
+            type="button"
+            className="hits-card-meta-binder"
+            onClick={() => router.push('/hits/history')}
+          >
+            {t('menu.binder')} →
+          </button>
           <span className="hits-card-meta-bet">{t('card.betSuffix', { amount: card.pricePhp })}</span>
           <span className="hits-card-meta-payout" data-zero={payout.payoutPhp === 0}>
             {payout.payoutPhp > 0 ? `+₱${payout.payoutPhp.toLocaleString()}` : '—'}
@@ -794,6 +800,7 @@ function HitsCardView({ params }: PageProps) {
                 key={idx}
                 className="hits-cell"
                 data-state={state}
+                data-rarity={cell.rarity}
                 data-just-hit={justHitIdx === idx}
                 data-pattern-flash={flashPattern.has(idx)}
               >

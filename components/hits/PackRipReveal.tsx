@@ -101,6 +101,11 @@ export function PackRipReveal({
               )
             })}
           </div>
+          {plan.some((s) => s.rare) && (
+            <div className="hits-rip-rare-note">
+              {t('rip.rareNote', { n: plan.filter((s) => s.rare).length })}
+            </div>
+          )}
           <div className="hits-rip-skip">{t('rip.skip')}</div>
         </div>
       )}
