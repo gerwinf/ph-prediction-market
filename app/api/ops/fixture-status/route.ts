@@ -21,6 +21,7 @@
  */
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '../../../../lib/supabase/admin'
+import { settleFixtureIfNeeded } from '../../../../lib/hits/settle'
 
 export const dynamic = 'force-dynamic'
 
@@ -165,6 +166,12 @@ export async function POST(req: Request) {
           .eq('id', userId)
       }
     }
+  }
+
+  // Parimutuel shadow settlement (CEO review 1A trigger #2): record the pool
+  // allocation for a final/canceled fixture. Idempotent + never throws.
+  if (status === 'final' || status === 'canceled') {
+    await settleFixtureIfNeeded(fixtureId, { force: true })
   }
 
   return NextResponse.json({ ok: true, fixture: data, settled: settledCount, refunded: refundedCount })

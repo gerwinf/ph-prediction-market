@@ -13,6 +13,7 @@
  * automatically when CRON_SECRET is set).
  */
 import { NextResponse } from 'next/server'
+import { sweepUnsettledFixtures } from '../../../../lib/hits/settle'
 import { createAdminClient } from '../../../../lib/supabase/admin'
 import { ingestSignals, refreshApprovedPrices, retireEndedMarkets } from '../../../../lib/catalog/maintain'
 import { fetchPbaSchedule } from '../../../../lib/fixtures/fetch-pba'
@@ -47,6 +48,10 @@ export async function GET(req: Request) {
   await step('reprice', () => refreshApprovedPrices(admin))
   await step('retire', () => retireEndedMarkets(admin, now))
   await step('pba', async () => ingestPbaFixtures(admin, await fetchPbaSchedule(), now))
+
+  // Settlement catch-up (CEO review 1A trigger #3): shadow-settle any
+  // final fixture the lazy triggers missed; warns on settlement_lag >1h.
+  await step('settlement_sweep', () => sweepUnsettledFixtures())
 
   return NextResponse.json(out)
 }

@@ -383,13 +383,14 @@ function HitsCardView({ params }: PageProps) {
     setBalance(result.newBalance)
     track('shuffle_used', { cost: shuffleCost, bet: card.pricePhp }, card_id)
 
-    const newId = newCardId()
+    // Server issues the card id (board choice must not be client-controlled).
+    // Fallback to a local id only if the API is unreachable — demo keeps working.
+    let newId = newCardId()
     try {
       const res = await fetch('/api/cards', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          cardId: newId,
           cardType,
           pricePhp: card.pricePhp,
           matchId: live ? matchId : undefined,
@@ -403,6 +404,8 @@ function HitsCardView({ params }: PageProps) {
           return
         }
       }
+      const j = await res.json().catch(() => null)
+      if (j?.ok && typeof j.card?.id === 'string') newId = j.card.id
     } catch {
       /* swallow */
     }
@@ -615,13 +618,14 @@ function HitsCardView({ params }: PageProps) {
     writeSession(nextSession)
     setSession(nextSession)
 
-    const newId = newCardId()
+    // Server issues the card id (board choice must not be client-controlled).
+    // Fallback to a local id only if the API is unreachable — demo keeps working.
+    let newId = newCardId()
     try {
       const res = await fetch('/api/cards', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          cardId: newId,
           cardType,
           pricePhp: card.pricePhp,
           matchId: live ? matchId : undefined,
@@ -641,6 +645,8 @@ function HitsCardView({ params }: PageProps) {
           return
         }
       }
+      const j = await res.json().catch(() => null)
+      if (j?.ok && typeof j.card?.id === 'string') newId = j.card.id
     } catch {
       /* swallow — page still routes, card_id seeds the client view */
     }

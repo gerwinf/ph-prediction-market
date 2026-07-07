@@ -18,6 +18,7 @@ import { unstable_noStore as noStore } from 'next/cache'
 import { createAdminClient } from '../../../lib/supabase/admin'
 import { syncFifaEvents } from '../../../lib/hits/feed-fifa'
 import { syncApiFootballEvents } from '../../../lib/hits/feed-apifootball'
+import { settleFixtureIfNeeded } from '../../../lib/hits/settle'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -44,6 +45,11 @@ export async function GET(req: Request) {
   // pens). No-ops without API_FOOTBALL_KEY, off-live fixtures, or inside
   // its own 240s TTL — free-plan quota is 100 requests/day.
   await syncApiFootballEvents(matchId)
+  // Settle-on-read: if this fixture is final/canceled and has no settlement
+  // row, record one (shadow phase: logs, credits nothing). Idempotent behind
+  // a UNIQUE constraint + 30s TTL; never throws. Settlement must be
+  // inevitable — this poll is the primary trigger.
+  await settleFixtureIfNeeded(matchId)
 
   const admin = createAdminClient()
   // Filter to events whose stamp has reached "now". The demo fixture
