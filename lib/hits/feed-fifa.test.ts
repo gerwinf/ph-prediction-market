@@ -33,6 +33,14 @@ describe('mapFifaTimeline — real Mexico vs England timeline', () => {
     expect(keys.has('first-goal-15')).toBe(false) // opener came 36'
     expect(keys.has('injury-time-goal')).toBe(false) // no stoppage goals
   })
+  it('maps the pool-v2 bread-and-butter tiles', () => {
+    expect(keys.has('any-offside')).toBe(true)
+    expect(keys.has('corner-5')).toBe(true) // 14 corners
+    expect(keys.has('first-corner-10')).toBe(true)
+    expect(keys.has('saves-3')).toBe(true) // 5 saves
+    expect(keys.has('fouls-10')).toBe(true)
+    expect(keys.has('sub-before-60')).toBe(true)
+  })
   it('maps penalties, cards, corners', () => {
     expect(keys.has('penalty-given')).toBe(true)
     expect(keys.has('penalty-scored')).toBe(true) // Kane 60'

@@ -19,7 +19,7 @@
  */
 import type { GameEvent } from './types'
 import { CANDIDATE_EVENTS } from './events'
-import { WC_GENERIC_EVENTS } from './events-wc'
+import { WC_GENERIC_EVENTS, WC_EASY_EVENTS, WC_POOL_V1_MATCHES } from './events-wc'
 import { eventCellToGameEvent } from '../catalog/types'
 import {
   PLAYERS_BY_TEAM,
@@ -149,11 +149,20 @@ function wcTeamTiles(team: WcTeamCode): GameEvent[] {
  * Build the pool for a given match id. Includes ALL events that COULD
  * fire — the card generator shuffles + samples 24 from this.
  */
+/**
+ * Pool v2 = generic + easy tiles + rarity-weighted sampling. Everything not
+ * frozen on v1 (matches that sold cards before the 2026-07-07 rebalance).
+ */
+export function isWcPoolV2(matchId: string): boolean {
+  return teamsFromWcMatchId(matchId) !== null && !WC_POOL_V1_MATCHES.has(matchId)
+}
+
 export function buildPoolForMatch(matchId: string): GameEvent[] {
   // World Cup football fixtures (wc-<home>-<away>-<date>) get the football pool.
   const wcTeams = teamsFromWcMatchId(matchId)
   if (wcTeams) {
     const tiles: GameEvent[] = [...WC_GENERIC_EVENTS]
+    if (isWcPoolV2(matchId)) tiles.push(...WC_EASY_EVENTS)
     for (const team of wcTeams) {
       tiles.push(...wcTeamTiles(team))
       for (const player of WC_PLAYERS_BY_TEAM[team]) {

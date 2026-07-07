@@ -28,7 +28,9 @@ const T = {
   PERIOD_START: 7,
   PERIOD_END: 8,
   ATTEMPT: 12,
+  OFFSIDE: 15,
   CORNER: 16,
+  FOUL: 18,
   MATCH_END: 26,
   PEN_GOAL: 41,
   SAVE: 57,
@@ -106,6 +108,8 @@ export function mapFifaTimeline(
 
   let yellows = 0
   let corners = 0
+  let fouls = 0
+  let saves = 0
   let periodStarts = 0
   let firstPeriodEnded = false
   const goalsByPlayer = new Map<string, number>()
@@ -155,7 +159,19 @@ export function mapFifaTimeline(
       if (d.includes('red card')) add('red-card', e)
     } else if (type === T.CORNER) {
       corners += 1
+      if (minuteNum(e.MatchMinute) <= 10 && !(e.MatchMinute ?? '').includes('+')) {
+        add('first-corner-10', e)
+      }
+      if (corners >= 5) add('corner-5', e)
       if (corners >= 10) add('corner-count-10', e)
+    } else if (type === T.OFFSIDE) {
+      add('any-offside', e)
+    } else if (type === T.FOUL) {
+      fouls += 1
+      if (fouls >= 10) add('fouls-10', e)
+    } else if (type === T.SAVE) {
+      saves += 1
+      if (saves >= 3) add('saves-3', e)
     } else if (type === T.ATTEMPT) {
       // An attempt immediately answered by a keeper save = shot on target.
       if (events[i + 1]?.Type === T.SAVE) {
@@ -178,6 +194,7 @@ export function mapFifaTimeline(
       }
     } else if (type === T.SUB) {
       if (e.IdPlayer) subbedInPlayerIds.add(e.IdPlayer)
+      if (minuteNum(e.MatchMinute) <= 60) add('sub-before-60', e)
     } else if (type === T.MATCH_END) {
       const home = e.HomeGoals ?? 0
       const away = e.AwayGoals ?? 0
