@@ -91,6 +91,26 @@ per spec §4: `φ0 = h·vT`, 15% PAGCOR share / 85% operator margin.
 ticker) and returns `{ pending: true, estPhp }`. Anon localStorage credit
 moves to settlement-poll time on the card page.
 
+**Settlement triggers (CEO review 1A):** the lazy status flip alone is not a
+reliable trigger — it only runs while a card page is polling. Settlement must
+be inevitable: (1) **settle-on-read catch-up** — any `/api/events` or
+`/api/fixtures/[id]` read that observes `final` + no `pool_settlements` row
+triggers idempotent settlement (same table-is-the-cache pattern as prices and
+the feed); (2) the `/api/ops/fixture-status` route settles when ops flips a
+fixture final; (3) the daily `maintain-catalog` cron logs a `settlement_lag`
+warning for any fixture final >1h without a settlement row. FIFA post-final
+corrections (24h re-resolution window) re-enter through the ops route, which
+may supersede a shadow settlement row (never a credited one without ops
+confirmation).
+
+**Settlement integrity (CEO review 2A):** `pool_settlements.match_id` carries
+a UNIQUE constraint so concurrent triggers cannot double-settle (shadow output
+is a single atomic insert). Phase-3 crediting (N balance updates + card rows +
+ledger rows) MUST run as a single Postgres function (RPC) so the whole pass is
+one transaction — Supabase's REST client cannot compose multi-statement
+transactions, and a mid-pass crash would otherwise strand half-credited
+players.
+
 ### Live estimate endpoint
 
 `GET /api/hits/pool?match=<id>` → `{ poolPhp, reservePhp, jackpotPhp,
@@ -105,6 +125,11 @@ server-generated id; the client navigates to the returned id. Kills the
 pick-your-board exploit (client generates ids locally until a dense board
 appears). Demo cards may keep client ids (no economic surface). Share links
 unaffected — the id remains the deterministic board seed.
+
+Same commit (CEO review 3A): **server-side stake whitelist** — `pricePhp` must
+be one of {20, 50}; anything else is 400. Stake is the claim weight under
+parimutuel, so a client-claimed price is a pool-theft vector the moment money
+is real. Both fixes are the same posture: the server stops trusting the client.
 
 ### Rollout
 
@@ -157,3 +182,29 @@ mode they were bought in (pool-freeze invariant extends to settlement mode).
 - Order-book (§2) — separate product surface.
 - Demo-card mechanics (explicitly unchanged).
 - On-chain CTF settlement (spec footnote 2).
+
+## Build order — reduced scope (CEO review, 2026-07-07)
+
+Decided sequencing (leverage = expiry order: the WC settlement test bed dies
+Jul 19, live content dies Jul 19, real-money UX has no date yet):
+
+**BUILD NOW (the B slice):** server-issued ids + stake whitelist (P0, one
+commit) · `allocate()` + tests · migrations (`pool_reserve_ledger`,
+`pool_settlements` with UNIQUE(match_id), `settlement_mode` flag) · shadow
+settlement with settle-on-read catch-up, ops trigger, and cron lag check —
+shadow-run against the remaining WC knockout fixtures for real-data parity.
+
+**DEFERRED (TODOS.md):** PBA live content pipeline (P1 — next workstream) ·
+the five UI deltas + estimate endpoint + i18n (P2 — trigger: real-money date) ·
+seeding automation + "About the pool" disclosure (P2 — bundled with UI phase).
+
+## GSTACK REVIEW REPORT
+
+| Review | Trigger | Why | Runs | Status | Findings |
+|--------|---------|-----|------|--------|----------|
+| CEO Review | `/plan-ceo-review` | Scope & strategy | 1 | issues_resolved | mode: SCOPE REDUCTION; 3 findings (2 critical gaps) — all accepted as recommended; 3 TODOs deferred |
+| Eng Review | `/plan-eng-review` | Architecture & tests (required) | 0 | — | not run |
+| Design Review | `/plan-design-review` | UI/UX gaps | 0 | — | n/a — UI deferred out of this slice |
+
+- **UNRESOLVED:** 0
+- **VERDICT:** CEO CLEARED (reduced scope locked: shadow engine + P0 now, PBA next, UI on real-money date) — eng review recommended before implementation.
