@@ -21,7 +21,7 @@ import { unstable_noStore as noStore } from 'next/cache'
 import { createAdminClient } from '../../../lib/supabase/admin'
 import { createClient as createServerSupabase } from '../../../lib/supabase/server'
 import { getOrCreateDeviceId, readDeviceId } from '../../../lib/identity/device-id'
-import { generateCard } from '../../../lib/hits/card-generator'
+import { generateCard, newCardId } from '../../../lib/hits/card-generator'
 import type { CardType } from '../../../lib/hits/card-types'
 import { ensureDemoEvents } from '../../../lib/demo/seed-events'
 
@@ -131,20 +131,28 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: 'invalid_body' }, { status: 400 })
   }
 
-  const { cardId, pricePhp } = body
+  const { pricePhp } = body
   const cardType = body.cardType as CardType | undefined
 
-  if (!cardId || typeof cardId !== 'string') {
-    return NextResponse.json({ ok: false, error: 'card_id_required' }, { status: 400 })
-  }
   if (cardType !== 'sports' && cardType !== 'daily') {
     return NextResponse.json({ ok: false, error: 'invalid_card_type' }, { status: 400 })
   }
-  if (!pricePhp || pricePhp <= 0) {
+  // Stake whitelist (CEO review 3A): under parimutuel, stake IS the claim
+  // weight — a client-claimed price is a pool-theft vector. Server owns it.
+  if (pricePhp !== 20 && pricePhp !== 50) {
     return NextResponse.json({ ok: false, error: 'invalid_price' }, { status: 400 })
   }
 
   const matchId = body.matchId || DEFAULT_MATCH_BY_TYPE[cardType]
+
+  // Server-issued card ids (CEO review 3A): fixture-bound buys get a
+  // server-generated id — client-chosen ids let a player enumerate boards
+  // locally and buy a stacked one. Demo buys may keep a valid client id
+  // (no economic surface; also keeps mid-deploy legacy clients working).
+  const isFixtureBound = Boolean(body.matchId && !body.matchId.startsWith('demo-'))
+  const clientId =
+    typeof body.cardId === 'string' && /^[A-Z2-9]{6}$/.test(body.cardId) ? body.cardId : null
+  let cardId = !isFixtureBound && clientId ? clientId : newCardId()
 
   // A card EXPLICITLY bound to a real fixture must not be sold after the
   // final whistle — its cells could never light (observed: post-final buys
@@ -161,13 +169,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false, error: 'match_final' }, { status: 409 })
     }
   }
-
-  // Build the card deterministically from cardId + cardType + matchId
-  // — same formula the active card page uses (via the pool-builder),
-  // so cells stored in DB match what the client renders for live
-  // fixtures. Daily cards or unknown match ids fall back to the static
-  // pool inside generateCard.
-  const card = generateCard(cardId, pricePhp, cardType, matchId)
 
   const deviceId = await getOrCreateDeviceId()
 
@@ -216,25 +217,36 @@ export async function POST(req: Request) {
     newBalanceForResponse = next
   }
 
-  // Seed for the cells column: store the FNV-derived seed so we can
-  // re-derive the board later if the events pool changes.
+  // Build the card deterministically from cardId + cardType + matchId —
+  // same formula the active card page uses (via the pool-builder), so cells
+  // stored in DB match what the client renders for live fixtures. Retry a
+  // fresh server id on the (rare) 6-char Crockford collision.
   const supabase = createAdminClient()
-  const { data, error } = await supabase
-    .from('cards')
-    .insert({
-      id: cardId,
-      device_id: deviceId,
-      user_id: authedUserId,
-      match_id: matchId,
-      card_type: cardType,
-      board_seed: hashSeed(cardId, cardType),
-      cells: card.cells,
-      price_php: pricePhp,
-      score: 0,
-      won: false,
-    })
-    .select()
-    .single()
+  let data: Record<string, unknown> | null = null
+  let error: { code?: string; message: string } | null = null
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const card = generateCard(cardId, pricePhp, cardType, matchId)
+    const res = await supabase
+      .from('cards')
+      .insert({
+        id: cardId,
+        device_id: deviceId,
+        user_id: authedUserId,
+        match_id: matchId,
+        card_type: cardType,
+        board_seed: hashSeed(cardId, cardType),
+        cells: card.cells,
+        price_php: pricePhp,
+        score: 0,
+        won: false,
+      })
+      .select()
+      .single()
+    data = res.data
+    error = res.error
+    if (!error || error.code !== '23505') break
+    cardId = newCardId() // collision — roll a new id and retry
+  }
 
   if (error) {
     // If authed and we already debited, refund the balance so the user

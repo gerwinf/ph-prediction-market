@@ -155,7 +155,6 @@ export default function HitsEntry() {
       setBalance(result.newBalance)
     }
 
-    const cardId = newCardId()
     const newSession = {
       spend: session.spend + price,
       cards: session.cards + 1,
@@ -170,11 +169,14 @@ export default function HitsEntry() {
     const goLive = !opts.forceDemo && type === 'sports' && heroFixture !== null
     const matchId = goLive ? heroFixture!.id : undefined
 
+    // Server issues the card id (board choice must not be client-controlled).
+    // Fallback to a local id only if the API is unreachable — demo keeps working.
+    let cardId = newCardId()
     try {
       const res = await fetch('/api/cards', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cardId, cardType: type, pricePhp: price, matchId }),
+        body: JSON.stringify({ cardType: type, pricePhp: price, matchId }),
       })
       if (res.status === 402) {
         // Authed user, insufficient balance. Refresh from server so the
@@ -190,6 +192,7 @@ export default function HitsEntry() {
         if (!auth.profile) setBalance(credit(price))
         return
       }
+      if (j?.ok && typeof j.card?.id === 'string') cardId = j.card.id
       if (j?.ok && j.balance !== null && typeof j.balance === 'number') {
         // Authed: server is the source of truth. Refresh hook profile
         // so the chip + downstream pages see the new value.
