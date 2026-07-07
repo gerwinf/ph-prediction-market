@@ -67,6 +67,15 @@ export const FIXTURES: Fixture[] = [
     fallback: { home: 48, draw: 27, away: 25 },
   },
   {
+    id: 'wc-esp-bel',
+    home: T('Spain', 'es'),
+    away: T('Belgium', 'be'),
+    group: 'Quarter-final',
+    kickoffISO: '2026-07-10T19:00:00.000Z',
+    venue: 'SoFi Stadium, Los Angeles',
+    fallback: { home: 55, draw: 26, away: 19 },
+  },
+  {
     id: 'wc-nor-eng',
     home: T('Norway', 'no'),
     away: T('England', 'gb'),
