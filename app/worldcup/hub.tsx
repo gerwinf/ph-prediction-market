@@ -101,7 +101,7 @@ export default function WorldCupHub({
       )}
 
       <footer className="wc-foot">
-        21+ only · <strong>Play smart</strong> · Live odds via Polymarket · Pre-launch — no real bets yet
+        21+ only · <strong>Play smart</strong> · Live odds via Polymarket · Pre-launch — no real-money trades yet
       </footer>
     </main>
   )

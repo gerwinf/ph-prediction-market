@@ -102,7 +102,7 @@ export default function MarketDetail({ fixture }: { fixture: Fixture }) {
           <div><dt>Closes</dt><dd>{kickoffLabel(fixture.kickoffISO)}</dd></div>
           <div><dt>Source</dt><dd>{liveOdds ? 'Live odds via Polymarket' : 'Curated odds'}</dd></div>
         </dl>
-        <p className="wc-detail-disclaimer">21+ only · Pre-launch — no real bets yet</p>
+        <p className="wc-detail-disclaimer">21+ only · Pre-launch — no real-money trades yet</p>
       </section>
 
       {waitlistFor && <WaitlistModal context={waitlistFor} onClose={() => setWaitlistFor(null)} />}
