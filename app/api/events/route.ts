@@ -66,11 +66,26 @@ export async function GET(req: Request) {
     )
   }
 
+  // Real fixtures: concurrent lambda instances can race the feed sync's
+  // read-then-insert and duplicate an event_key (observed: corner-count-10
+  // ×4 on wc-por-esp). Cells dedupe client-side but the ticker repeats, so
+  // collapse to first occurrence here. Demo fixtures are EXCLUDED — they
+  // legitimately re-fire the same keys forever (seed-events top-up loop).
+  let events = data ?? []
+  if (!matchId.startsWith('demo-')) {
+    const seen = new Set<string>()
+    events = events.filter((e) => {
+      if (seen.has(e.event_key)) return false
+      seen.add(e.event_key)
+      return true
+    })
+  }
+
   // Explicit no-store. `dynamic = 'force-dynamic'` alone doesn't always
   // win against Vercel's edge cache for SSR'd API routes — we observed
   // stale event lists in /ops + player cards. Belt + suspenders.
   return NextResponse.json(
-    { ok: true, events: data ?? [] },
+    { ok: true, events },
     {
       headers: {
         'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
