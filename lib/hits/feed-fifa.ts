@@ -284,15 +284,16 @@ const CALENDAR_TTL_MS = 6 * 60 * 60 * 1000
 const lastSyncAt = new Map<string, number>()
 let calendarCache: { at: number; results: unknown[] } | null = null
 
-type FifaCalendarMatch = {
+export type FifaCalendarMatch = {
   IdMatch?: string
   IdStage?: string
   Date?: string
-  Home?: { IdCountry?: string; IdTeam?: string } | null
-  Away?: { IdCountry?: string; IdTeam?: string } | null
+  Home?: { IdCountry?: string; IdTeam?: string; TeamName?: Array<{ Locale?: string; Description?: string }> } | null
+  Away?: { IdCountry?: string; IdTeam?: string; TeamName?: Array<{ Locale?: string; Description?: string }> } | null
+  StageName?: Array<{ Locale?: string; Description?: string }>
 }
 
-async function fetchCalendar(): Promise<FifaCalendarMatch[]> {
+export async function fetchFifaCalendar(): Promise<FifaCalendarMatch[]> {
   if (calendarCache && Date.now() - calendarCache.at < CALENDAR_TTL_MS) {
     return calendarCache.results as FifaCalendarMatch[]
   }
@@ -333,7 +334,7 @@ export async function resolveFifaMatch(matchId: string): Promise<
   const [a, b] = teams
   const date = matchId.split('-').slice(3).join('-') // yyyy-mm-dd
 
-  const cal = await fetchCalendar()
+  const cal = await fetchFifaCalendar()
   for (const m of cal) {
     const h = m.Home?.IdCountry
     const w = m.Away?.IdCountry

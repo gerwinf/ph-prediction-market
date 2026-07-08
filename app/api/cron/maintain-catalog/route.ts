@@ -14,6 +14,7 @@
  */
 import { NextResponse } from 'next/server'
 import { sweepUnsettledFixtures } from '../../../../lib/hits/settle'
+import { ingestUpcomingWcFixtures } from '../../../../lib/hits/fixture-ingest'
 import { createAdminClient } from '../../../../lib/supabase/admin'
 import { ingestSignals, refreshApprovedPrices, retireEndedMarkets } from '../../../../lib/catalog/maintain'
 import { fetchPbaSchedule } from '../../../../lib/fixtures/fetch-pba'
@@ -52,6 +53,11 @@ export async function GET(req: Request) {
   // Settlement catch-up (CEO review 1A trigger #3): shadow-settle any
   // final fixture the lazy triggers missed; warns on settlement_lag >1h.
   await step('settlement_sweep', () => sweepUnsettledFixtures())
+
+  // /hits fixture auto-ingest: create match_fixtures rows for upcoming WC
+  // games with both squads registered — the pre-buy funnel (66% of card
+  // buys) must never run dry on a missing manual insert. Insert-only.
+  await step('wc_fixture_ingest', () => ingestUpcomingWcFixtures())
 
   return NextResponse.json(out)
 }
