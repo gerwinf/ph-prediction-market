@@ -29,7 +29,7 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '../../../../../lib/supabase/admin'
 import { createClient as createServerSupabase } from '../../../../../lib/supabase/server'
-import { bestPayout } from '../../../../../lib/hits/payouts'
+import { bestPayout, rareCellIndices } from '../../../../../lib/hits/payouts'
 import type { GameEvent } from '../../../../../lib/hits/types'
 
 export const dynamic = 'force-dynamic'
@@ -97,7 +97,9 @@ export async function POST(_req: Request, ctx: { params: Promise<{ id: string }>
     if (cell?.id && eventKeys.has(cell.id)) hitIndices.add(idx)
   })
 
-  const best = bestPayout(hitIndices, pricePhp)
+  // Rainbow bonus: a line completed through a rare cell pays double. Computed
+  // from the server-owned cells column so the browser can't fake it.
+  const best = bestPayout(hitIndices, pricePhp, rareCellIndices(cells))
   if (!best.pattern) {
     // No pattern completes from the server's view. Race with events poll
     // OR fishing attempt. Either way, no DB write. Client may retry.
@@ -158,6 +160,7 @@ export async function POST(_req: Request, ctx: { params: Promise<{ id: string }>
     pattern: best.pattern.kind,
     payoutPhp: best.payoutPhp,
     multiplier: best.multiplier,
+    rainbow: best.rainbow,
     balance: balanceAfter,
   })
 }

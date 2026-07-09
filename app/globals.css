@@ -3993,11 +3993,52 @@ button:focus {
   margin-top: 12px;
   text-align: center;
   font-family: var(--ff-mono);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.5;
   color: #f5c542;
   letter-spacing: 0.03em;
   padding: 0 12px;
+}
+/* Once the cascade ends the note lingers ~2.5s, fading out over the tail so
+ * it reads as "celebration settling" rather than a hard cut. Timing mirrors
+ * the JS linger timer in card-client. */
+.hula-v2 .hits-rip-rare-note[data-lingering] {
+  animation: hits-rare-note-linger 2500ms ease forwards;
+}
+@keyframes hits-rare-note-linger {
+  0%, 55% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Always-on rainbow primer under the board. Rainbow-gradient text on a muted
+ * chip — legible, matches the holo ring, and teaches the double-payout rule
+ * on every open (not just the reveal). */
+.hula-v2 .hits-rainbow-legend {
+  margin-top: 10px;
+  text-align: center;
+  font-family: var(--ff-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+  padding: 7px 12px;
+  border-radius: 10px;
+  background: var(--bg-2);
+  border: 1px solid var(--line-2);
+  background-image: linear-gradient(120deg, #f5c542, #e8724a, #7db8ff, #b06fe0, #f5c542);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Rainbow ×2 badge on the win modal's pattern line. */
+.hula-v2 .hits-win-rainbow {
+  margin-left: 8px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: #10231a;
+  background: linear-gradient(120deg, #f5c542, #e8724a, #7db8ff, #b06fe0, #f5c542);
 }
 
 /* Binder link in the card-meta strip (replaces the raw card id — testers

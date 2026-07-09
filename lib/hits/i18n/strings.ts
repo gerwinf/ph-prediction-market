@@ -166,6 +166,15 @@ export const STRINGS = {
   'card.winBadge': { en: 'You win!', tl: 'Panalo ka!' },
   'card.winFull': { en: '*Full card.*', tl: '*Full card.*' },
   'card.winMult': { en: '{mult}× your bet', tl: '{mult}× ng taya mo' },
+  // Always-on primer under the board when the card holds ≥1 rainbow cell. This
+  // is where the mechanic is taught — caught even by reveal-skippers and on the
+  // Nth card. Honest framing: harder to hit, and it pays double when it does.
+  'card.rainbowLegend': {
+    en: '🌈 Rainbow cell = rare — its line pays double',
+    tl: '🌈 Rainbow cell = bihira — doble ang bayad sa linya nito',
+  },
+  // Badge on the win modal when the winning line ran through a rainbow.
+  'card.winRainbow': { en: '🌈 Rainbow ×2', tl: '🌈 Rainbow ×2' },
   'card.youWin': { en: 'you win', tl: 'panalo mo' },
   'card.winClose': { en: 'Keep playing', tl: 'Tuloy laro' },
 
@@ -182,9 +191,11 @@ export const STRINGS = {
   'common.binder': { en: 'Binder', tl: 'Binder' },
   'rip.tap': { en: 'Tap to open', tl: 'Tap para buksan' },
   'rip.skip': { en: 'Tap to skip', tl: 'Tap para laktawan' },
+  // Celebratory beat during the reveal — the *what* now lives in the always-on
+  // legend (card.rainbowLegend), so this stays a short punchy "you pulled one".
   'rip.rareNote': {
-    en: '✨ {n} rare pull — rainbow cells are hard-to-hit events with bragging rights',
-    tl: '✨ {n} rare pull — ang rainbow cells ay bihirang events, pang-yabang pag tumama',
+    en: '✨ {n} rare rainbow pull!',
+    tl: '✨ {n} rare rainbow pull!',
   },
   'strip.q': { en: 'How was your pull?', tl: 'Kamusta ang pull mo?' },
   'strip.keep': { en: 'Play this card →', tl: 'Laruin ang card na ’to →' },
