@@ -3,7 +3,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { generateCard, isFreeCell, newCardId } from '../../../lib/hits/card-generator'
-import { bestPayout, detectWins, MULTIPLIERS } from '../../../lib/hits/payouts'
+import {
+  bestPayout,
+  detectWins,
+  effectiveMultiplier,
+  patternHasRainbow,
+  rareCellIndices,
+  MULTIPLIERS,
+} from '../../../lib/hits/payouts'
 import { CARD_TYPES, resolveCardType } from '../../../lib/hits/card-types'
 import type { WinPattern } from '../../../lib/hits/types'
 import { readBalance, credit, debit, STARTING_BALANCE } from '../../../lib/identity/token-balance'
@@ -164,6 +171,10 @@ function HitsCardView({ params }: PageProps) {
   // place and holds long enough to read.
   const [ripPhase, setRipPhase] = useState<'pack' | 'cascade' | null>(null)
   const ripping = ripPhase !== null
+  // The "✨ rainbow pull!" note is decoupled from ripPhase so it lingers a beat
+  // AFTER the cascade ends instead of vanishing with it — testers couldn't
+  // read it before. It fades out via CSS while lingering.
+  const [rareNoteVisible, setRareNoteVisible] = useState(false)
   const [postRip, setPostRip] = useState(false)
   const [session, setSession] = useState<HitsSession>({ day: '', spend: 0, cards: 0, limit: 0 })
   useEffect(() => {
@@ -191,11 +202,24 @@ function HitsCardView({ params }: PageProps) {
     return m
   }, [revealPlan])
   const rareCount = useMemo(() => revealPlan.filter((step) => step.rare).length, [revealPlan])
+  // Board indices of the rainbow cells — drives the double-payout bonus and
+  // the always-on legend. Same source the payout engine + win route use.
+  const rareIndices = useMemo(() => rareCellIndices(card.cells), [card.cells])
   useEffect(() => {
     if (ripPhase !== 'cascade') return
     const timer = setTimeout(() => setRipPhase(null), revealDurationMs(revealPlan))
     return () => clearTimeout(timer)
   }, [ripPhase, revealPlan])
+  // Show the rainbow note the moment the cascade starts; keep it up for ~2.5s
+  // past the end of the reveal (auto-finish OR tap-to-skip) so it's readable.
+  useEffect(() => {
+    if (ripPhase === 'cascade' && rareCount > 0) setRareNoteVisible(true)
+  }, [ripPhase, rareCount])
+  useEffect(() => {
+    if (ripPhase !== null || !rareNoteVisible) return
+    const timer = setTimeout(() => setRareNoteVisible(false), 2500)
+    return () => clearTimeout(timer)
+  }, [ripPhase, rareNoteVisible])
 
   useEffect(() => {
     setBalance(readBalance())
@@ -280,9 +304,11 @@ function HitsCardView({ params }: PageProps) {
         const next = new Set(prev)
         matchingIndices.forEach((i) => next.add(i))
         const wins = detectWins(next)
-        const newBest = wins.reduce((m, w) => Math.max(m, w.multiplier), 0)
+        // Rank by EFFECTIVE multiplier so a rainbow-doubled line is announced
+        // as the win when it out-pays a plain higher tier.
+        const newBest = wins.reduce((m, w) => Math.max(m, effectiveMultiplier(w, rareIndices)), 0)
         if (newBest > highestWinMult) {
-          const winningPattern = wins.find((w) => w.multiplier === newBest)
+          const winningPattern = wins.find((w) => effectiveMultiplier(w, rareIndices) === newBest)
           if (winningPattern) {
             setFlashPattern(new Set(winningPattern.cellIndices))
             setHighestWinMult(newBest)
@@ -295,8 +321,13 @@ function HitsCardView({ params }: PageProps) {
       setJustHitIdx(matchingIndices[0])
       setTimeout(() => setJustHitIdx(null), 600)
     },
-    [card.cells, highestWinMult]
+    [card.cells, highestWinMult, rareIndices]
   )
+
+  // Win figures use the EFFECTIVE (post-rainbow) multiplier so the modal and
+  // the analytics event match the doubled payout the server actually credits.
+  const winMult = winShown ? effectiveMultiplier(winShown, rareIndices) : 0
+  const winRainbow = winShown ? patternHasRainbow(winShown, rareIndices) : false
 
   // When a win pattern is shown, credit the balance + persist to DB.
   // Idempotent via wonPostedRef so re-renders don't double-credit.
@@ -307,11 +338,18 @@ function HitsCardView({ params }: PageProps) {
     if (!winShown || wonPostedRef.current) return
     wonPostedRef.current = true
 
-    // Optimistic UI: track the win event using the client-visible
-    // multiplier so analytics reflects what the user actually saw.
+    // Optimistic UI: track the win event using the client-visible EFFECTIVE
+    // multiplier (post-rainbow) so analytics reflects what the user saw. The
+    // `rainbow` flag lets us measure the double-payout trigger rate — the
+    // signal that feeds the real-money RTP re-tune.
     track(
       'win_shown',
-      { kind: winShown.kind, multiplier: winShown.multiplier, bet: card.pricePhp },
+      {
+        kind: winShown.kind,
+        multiplier: winMult,
+        rainbow: winRainbow,
+        bet: card.pricePhp,
+      },
       card_id
     )
 
@@ -367,7 +405,7 @@ function HitsCardView({ params }: PageProps) {
       }
     }
     claimWin()
-  }, [winShown, card.pricePhp, card_id])
+  }, [winShown, winMult, winRainbow, card.pricePhp, card_id])
 
   // Live wins ticker: poll /api/wins for other players' wins on this
   // match. Only in live mode. 5s cadence — wins are rarer than events.
@@ -571,7 +609,7 @@ function HitsCardView({ params }: PageProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [live, matchId, matchStatus])
 
-  const payout = bestPayout(hitIndices, card.pricePhp)
+  const payout = bestPayout(hitIndices, card.pricePhp, rareIndices)
   // Scoreboard: live cards read the fixture row (fed by the FIFA sync), demo
   // cards read the annotated sample timeline. Daily cards have no score.
   const score: [number, number] | null = live
@@ -882,13 +920,27 @@ function HitsCardView({ params }: PageProps) {
           })}
         </section>
 
-        {ripPhase === 'cascade' && (
+        {(rareNoteVisible || ripPhase === 'cascade') && (
           <section className="hits-rip-under" aria-live="polite">
-            {rareCount > 0 && (
-              <div className="hits-rip-rare-note">{t('rip.rareNote', { n: rareCount })}</div>
+            {rareNoteVisible && rareCount > 0 && (
+              <div
+                className="hits-rip-rare-note"
+                data-lingering={ripPhase === null || undefined}
+              >
+                {t('rip.rareNote', { n: rareCount })}
+              </div>
             )}
-            <div className="hits-rip-skip">{t('rip.skip')}</div>
+            {ripPhase === 'cascade' && <div className="hits-rip-skip">{t('rip.skip')}</div>}
           </section>
+        )}
+
+        {/* Always-on primer: teaches what a rainbow cell is + that it doubles,
+            so reveal-skippers and Nth-card players still learn it. Only shown
+            when the card actually holds a rainbow, and hidden during the rip so
+            the celebratory note owns that moment. Shows on shared views too —
+            it's informational, not an owner action. */}
+        {rareCount > 0 && !ripping && (
+          <div className="hits-rainbow-legend">{t('card.rainbowLegend')}</div>
         )}
 
         {!isShared && (postRip && canShuffle && !done && !ripping ? (
@@ -1057,11 +1109,12 @@ function HitsCardView({ params }: PageProps) {
               )}
             </h2>
             <div className="hits-win-pattern">
-              {t('card.winMult', { mult: winShown.multiplier })}
+              {t('card.winMult', { mult: winMult })}
+              {winRainbow && <span className="hits-win-rainbow">{t('card.winRainbow')}</span>}
             </div>
             <div className="hits-win-payout">
               <span className="hits-win-payout-amt">
-                ₱{(card.pricePhp * winShown.multiplier).toLocaleString()}
+                ₱{(card.pricePhp * winMult).toLocaleString()}
               </span>
               <span className="hits-win-payout-mult">{t('card.youWin')}</span>
             </div>
