@@ -100,6 +100,11 @@ function HitsCardView({ params }: PageProps) {
   // from /ops) instead of the canned sample timeline. ?match=X tells us
   // which match's events to poll.
   const live = search?.get('live') === '1'
+  // Shared view: the share URL always carries ?ref=<card_id> (the sharing
+  // card). Its presence means a recipient opened this via a share link, not
+  // the owner off the buy flow — so we strip the personal chrome + owner
+  // actions and present a watch-then-convert spectator view.
+  const isShared = !!search?.get('ref')
   const matchId =
     search?.get('match') || (cardType === 'sports' ? 'wc-por-esp-2026-07-06' : 'daily-2026-07-20')
 
@@ -323,6 +328,10 @@ function HitsCardView({ params }: PageProps) {
         track('contact_capture_shown', { trigger: 'win', kind: winShown.kind }, card_id)
       }, 1800)
     }
+
+    // Spectator (shared link): show + celebrate the win, but never claim it.
+    // The card isn't theirs — no /won POST, no balance credit.
+    if (isShared) return
 
     // POST the claim with an empty body. Server recomputes payout from
     // cells + events. On 409 (no_win_yet — events haven't propagated
@@ -700,7 +709,11 @@ function HitsCardView({ params }: PageProps) {
             <HitsBrand />
           </div>
           <div className="hits-header-right">
-            {auth.loading ? (
+            {isShared ? (
+              // Spectator: no personal balance or account menu — just a tag
+              // that this card was shared with the viewer.
+              <span className="hits-shared-tag">{t('card.sharedTag')}</span>
+            ) : auth.loading ? (
               // Placeholder until authed vs anon is known — prevents the
               // localStorage balance flashing before the profile balance.
               <span className="hits-token-chip hits-token-chip-loading" aria-hidden="true">
@@ -716,26 +729,28 @@ function HitsCardView({ params }: PageProps) {
                 {(auth.profile ? auth.profile.virtual_balance : balance).toLocaleString()}
               </span>
             )}
-            <HitsMenu
-              profile={
-                auth.profile
-                  ? { displayName: auth.profile.display_name, email: auth.profile.email }
-                  : null
-              }
-              onSignIn={() => {
-                setShowSignIn(true)
-                track('signin_opened', { from: '/hits/[card_id]' })
-              }}
-              onSignOut={() => auth.signOut()}
-              items={[
-                { key: 'new', label: t('menu.newCard'), onSelect: () => router.push('/hits') },
-                {
-                  key: 'binder',
-                  label: t('menu.binder'),
-                  onSelect: () => router.push('/hits/history'),
-                },
-              ]}
-            />
+            {!isShared && (
+              <HitsMenu
+                profile={
+                  auth.profile
+                    ? { displayName: auth.profile.display_name, email: auth.profile.email }
+                    : null
+                }
+                onSignIn={() => {
+                  setShowSignIn(true)
+                  track('signin_opened', { from: '/hits/[card_id]' })
+                }}
+                onSignOut={() => auth.signOut()}
+                items={[
+                  { key: 'new', label: t('menu.newCard'), onSelect: () => router.push('/hits') },
+                  {
+                    key: 'binder',
+                    label: t('menu.binder'),
+                    onSelect: () => router.push('/hits/history'),
+                  },
+                ]}
+              />
+            )}
           </div>
         </header>
 
@@ -815,13 +830,15 @@ function HitsCardView({ params }: PageProps) {
         )}
 
         <section className="hits-card-meta">
-          <button
-            type="button"
-            className="hits-card-meta-binder"
-            onClick={() => router.push('/hits/history')}
-          >
-            {t('menu.binder')} →
-          </button>
+          {!isShared && (
+            <button
+              type="button"
+              className="hits-card-meta-binder"
+              onClick={() => router.push('/hits/history')}
+            >
+              {t('menu.binder')} →
+            </button>
+          )}
           <span className="hits-card-meta-bet">{t('card.betSuffix', { amount: card.pricePhp })}</span>
           <span className="hits-card-meta-payout" data-zero={payout.payoutPhp === 0}>
             {payout.payoutPhp > 0 ? `+₱${payout.payoutPhp.toLocaleString()}` : '—'}
@@ -867,7 +884,7 @@ function HitsCardView({ params }: PageProps) {
           </section>
         )}
 
-        {postRip && canShuffle && !done && !ripping ? (
+        {!isShared && (postRip && canShuffle && !done && !ripping ? (
           <section className="hits-postrip-strip">
             <div className="hits-postrip-q">{t('strip.q')}</div>
             <button className="hits-postrip-keep" onClick={() => setPostRip(false)}>
@@ -905,7 +922,7 @@ function HitsCardView({ params }: PageProps) {
                 : t('card.shuffleDo', { cost: shuffleCost })}
             </button>
           </section>
-        ) : null}
+        ) : null)}
 
         <section className="private-payouts">
           <div className="private-payouts-title">
@@ -932,7 +949,23 @@ function HitsCardView({ params }: PageProps) {
           <div className="private-payouts-note">{t('card.payoutsNote')}</div>
         </section>
 
-        {done ? (
+        {isShared ? (
+          // Spectator conversion: watch-then-play. No owner CTAs (buy/shuffle
+          // spend the viewer's own tokens on someone else's card), and no
+          // re-share — re-sharing just re-propagates the OWNER's card, which
+          // does nothing for the viewer. Only a path to their own card.
+          <section className="hits-active-actions hits-spectator-actions">
+            <button
+              className="hits-replay-btn hits-complete-primary"
+              onClick={() => {
+                track('spectator_cta_clicked', { bet, type: cardType }, card_id)
+                router.push('/hits')
+              }}
+            >
+              {t('spectator.cta')}
+            </button>
+          </section>
+        ) : done ? (
           <section className="hits-active-actions hits-complete">
             <div className="hits-complete-note">
               {highestWinMult > 0 ? t('complete.noteWin') : t('complete.note')}

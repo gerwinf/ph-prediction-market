@@ -169,6 +169,10 @@ export const STRINGS = {
   'card.youWin': { en: 'you win', tl: 'panalo mo' },
   'card.winClose': { en: 'Keep playing', tl: 'Tuloy laro' },
 
+  // ── Shared view: someone opened a card via a share link ────────────
+  'card.sharedTag': { en: 'Shared with you', tl: 'Na-share sa’yo' },
+  'spectator.cta': { en: 'Get your own card →', tl: 'Kunin ang sarili mong card →' },
+
   // ── Gacha flow: pack rip, post-rip strip, card complete ────────────
   'common.binder': { en: 'Binder', tl: 'Binder' },
   'rip.tap': { en: 'Tap to open', tl: 'Tap para buksan' },
