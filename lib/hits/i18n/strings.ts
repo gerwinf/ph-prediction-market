@@ -171,7 +171,12 @@ export const STRINGS = {
 
   // ── Shared view: someone opened a card via a share link ────────────
   'card.sharedTag': { en: 'Shared with you', tl: 'Na-share sa’yo' },
+  'card.playMoneyLabel': { en: 'play money', tl: 'play money' },
   'spectator.cta': { en: 'Get your own card →', tl: 'Kunin ang sarili mong card →' },
+  'spectator.playMoney': {
+    en: 'Start with ₱{amount} free play money',
+    tl: 'Magsimula sa ₱{amount} na libreng play money',
+  },
 
   // ── Gacha flow: pack rip, post-rip strip, card complete ────────────
   'common.binder': { en: 'Binder', tl: 'Binder' },

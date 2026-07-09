@@ -244,19 +244,24 @@ export default function HitsEntry() {
           </Link>
           <div className="hits-header-right">
             {mounted && (
-              auth.loading ? (
-                // Don't show a number until we know authed vs anon — avoids
-                // flashing the localStorage balance then snapping to profile.
-                <span className="hits-token-chip hits-token-chip-loading" aria-hidden="true">
-                  <span className="hits-token-chip-coin">₱</span>
-                  •••
-                </span>
-              ) : (
-                <span className="hits-token-chip" data-low={displayBalance < 100}>
-                  <span className="hits-token-chip-coin">₱</span>
-                  {displayBalance.toLocaleString()}
-                </span>
-              )
+              // Balance chip + a "play money" caption so the ₱ number never
+              // reads as real cash before you buy in.
+              <span className="hits-balance-wrap">
+                {auth.loading ? (
+                  // Don't show a number until we know authed vs anon — avoids
+                  // flashing the localStorage balance then snapping to profile.
+                  <span className="hits-token-chip hits-token-chip-loading" aria-hidden="true">
+                    <span className="hits-token-chip-coin">₱</span>
+                    •••
+                  </span>
+                ) : (
+                  <span className="hits-token-chip" data-low={displayBalance < 100}>
+                    <span className="hits-token-chip-coin">₱</span>
+                    {displayBalance.toLocaleString()}
+                  </span>
+                )}
+                <span className="hits-play-label">{t('card.playMoneyLabel')}</span>
+              </span>
             )}
             <HitsMenu
               profile={

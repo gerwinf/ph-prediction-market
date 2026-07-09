@@ -6,7 +6,7 @@ import { generateCard, isFreeCell, newCardId } from '../../../lib/hits/card-gene
 import { bestPayout, detectWins, MULTIPLIERS } from '../../../lib/hits/payouts'
 import { CARD_TYPES, resolveCardType } from '../../../lib/hits/card-types'
 import type { WinPattern } from '../../../lib/hits/types'
-import { readBalance, credit, debit } from '../../../lib/identity/token-balance'
+import { readBalance, credit, debit, STARTING_BALANCE } from '../../../lib/identity/token-balance'
 import { track } from '../../../lib/analytics/track'
 import { ContactCaptureModal } from '../../../components/hits/ContactCaptureModal'
 import { useModalA11y } from '../../../lib/hooks/useModalA11y'
@@ -713,20 +713,27 @@ function HitsCardView({ params }: PageProps) {
               // Spectator: no personal balance or account menu — just a tag
               // that this card was shared with the viewer.
               <span className="hits-shared-tag">{t('card.sharedTag')}</span>
-            ) : auth.loading ? (
-              // Placeholder until authed vs anon is known — prevents the
-              // localStorage balance flashing before the profile balance.
-              <span className="hits-token-chip hits-token-chip-loading" aria-hidden="true">
-                <span className="hits-token-chip-coin">₱</span>
-                •••
-              </span>
             ) : (
-              <span
-                className="hits-token-chip"
-                data-low={(auth.profile ? auth.profile.virtual_balance : balance) < 100}
-              >
-                <span className="hits-token-chip-coin">₱</span>
-                {(auth.profile ? auth.profile.virtual_balance : balance).toLocaleString()}
+              // Balance chip + a "play money" caption so the ₱ number never
+              // reads as real cash.
+              <span className="hits-balance-wrap">
+                {auth.loading ? (
+                  // Placeholder until authed vs anon is known — prevents the
+                  // localStorage balance flashing before the profile balance.
+                  <span className="hits-token-chip hits-token-chip-loading" aria-hidden="true">
+                    <span className="hits-token-chip-coin">₱</span>
+                    •••
+                  </span>
+                ) : (
+                  <span
+                    className="hits-token-chip"
+                    data-low={(auth.profile ? auth.profile.virtual_balance : balance) < 100}
+                  >
+                    <span className="hits-token-chip-coin">₱</span>
+                    {(auth.profile ? auth.profile.virtual_balance : balance).toLocaleString()}
+                  </span>
+                )}
+                <span className="hits-play-label">{t('card.playMoneyLabel')}</span>
               </span>
             )}
             {!isShared && (
@@ -964,6 +971,11 @@ function HitsCardView({ params }: PageProps) {
             >
               {t('spectator.cta')}
             </button>
+            {/* No balance chip before you own a card — but make clear the
+                tokens are free play money so the CTA reads as risk-free. */}
+            <p className="hits-spectator-note">
+              {t('spectator.playMoney', { amount: STARTING_BALANCE.toLocaleString() })}
+            </p>
           </section>
         ) : done ? (
           <section className="hits-active-actions hits-complete">
