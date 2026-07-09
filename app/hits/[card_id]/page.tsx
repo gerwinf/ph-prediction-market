@@ -16,6 +16,7 @@ import { HitsMenu } from '../../../components/hits/HitsMenu'
 import { HitsBrand } from '../../../components/hits/HitsBrand'
 import { useLang } from '../../../lib/hits/i18n/LanguageProvider'
 import { wcCodesFromMatchId } from '../../../lib/hits/feed-fifa'
+import { WC_TEAMS } from '../../../lib/hits/players-wc'
 import { PackRipReveal } from '../../../components/hits/PackRipReveal'
 import { shouldShowRip } from '../../../lib/hits/reveal'
 import { readSession, writeSession, wouldExceedLimit, type HitsSession } from '../../../lib/hits/session'
@@ -550,6 +551,19 @@ function HitsCardView({ params }: PageProps) {
     matchId,
     fixtureInfo?.matchLabel ?? `${sample.home} vs ${sample.away}`
   )
+  // Label shown before the fixture fetch returns. Derived from the match id
+  // (available instantly) so a live card never flashes the demo sample's
+  // "Portugal vs Spain" while loading. Demo cards keep the sample label.
+  const matchLabelFallback = (() => {
+    if (!live) return `${sample.home} vs ${sample.away}`
+    const codes = wcCodesFromMatchId(matchId)
+    if (codes) {
+      const full = (c: string) =>
+        (WC_TEAMS as Record<string, { full: string }>)[c]?.full ?? c
+      return `${full(codes[0])} vs ${full(codes[1])}`
+    }
+    return `${homeCode} vs ${awayCode}`
+  })()
   // Share URL carries ?ref=<card_id> so the receiving /hits/[id] page
   // can attribute the visit back to the sharing card → device_id (via
   // the cards table). Cleanest path to a K-factor without exposing the
@@ -571,7 +585,7 @@ function HitsCardView({ params }: PageProps) {
     const shareText =
       cardType === 'daily'
         ? `Watch my Hula Hits card for ${meta.dateLabel}`
-        : `Watch my Hula Hits card for ${sample.home} vs ${sample.away}`
+        : `Watch my Hula Hits card for ${fixtureInfo?.matchLabel ?? matchLabelFallback}`
     if (typeof navigator !== 'undefined' && navigator.share) {
       navigator
         .share({
@@ -752,9 +766,7 @@ function HitsCardView({ params }: PageProps) {
           <div className="hits-score-event">
             {currentEvent
               ? currentEvent.desc
-              : live && fixtureInfo
-                ? fixtureInfo.matchLabel
-                : `${sample.home} vs ${sample.away}`}
+              : fixtureInfo?.matchLabel ?? matchLabelFallback}
           </div>
         </section>
 
@@ -917,7 +929,7 @@ function HitsCardView({ params }: PageProps) {
       {ripping && (
         <PackRipReveal
           cells={card.cells}
-          title={fixtureInfo?.matchLabel ?? `${sample.home} vs ${sample.away}`}
+          title={fixtureInfo?.matchLabel ?? matchLabelFallback}
           sublabel={meta.sublabel}
           onDone={() => setRipping(false)}
         />
