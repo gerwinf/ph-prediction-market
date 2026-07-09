@@ -1611,6 +1611,26 @@ button:focus {
 .hula-v2 .hits-header-right {
   display: inline-flex; align-items: center; gap: 8px;
 }
+/* Spectator view (shared link): a quiet, non-interactive tag — deliberately
+   unlike the gold token chip so it never reads as the viewer's own balance. */
+.hula-v2 .hits-shared-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--muted, #6b7280);
+  background: rgba(148, 163, 184, 0.12);
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+}
+.hula-v2.hits-dark .hits-shared-tag {
+  color: rgba(226, 232, 240, 0.72);
+  background: rgba(148, 163, 184, 0.14);
+  border-color: rgba(148, 163, 184, 0.24);
+}
 .hula-v2 .hits-wins-ticker {
   display: flex;
   gap: 6px;
