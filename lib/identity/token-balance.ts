@@ -14,7 +14,7 @@
  * so the daily-spend tracker and the balance reset on the same tick.
  */
 
-const STARTING_BALANCE = 10000
+export const STARTING_BALANCE = 10000
 
 const STORAGE = {
   day: 'hula-hits-day',
