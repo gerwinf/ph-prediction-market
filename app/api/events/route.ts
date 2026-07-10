@@ -19,6 +19,7 @@ import { createAdminClient } from '../../../lib/supabase/admin'
 import { syncFifaEvents } from '../../../lib/hits/feed-fifa'
 import { syncApiFootballEvents } from '../../../lib/hits/feed-apifootball'
 import { settleFixtureIfNeeded } from '../../../lib/hits/settle'
+import { settleCardsIfFinal } from '../../../lib/hits/settle-fixed'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -50,6 +51,11 @@ export async function GET(req: Request) {
   // a UNIQUE constraint + 30s TTL; never throws. Settlement must be
   // inevitable — this poll is the primary trigger.
   await settleFixtureIfNeeded(matchId)
+  // Same inevitability for the LIVE fixed-odds book: settle any unsettled
+  // cards of a final fixture (recompute win/hold, credit authed winners).
+  // Feed-finalized WC fixtures never hit the ops endpoint, so without this
+  // their cards would never settle. Idempotent + 30s TTL; never throws.
+  await settleCardsIfFinal(matchId)
 
   const admin = createAdminClient()
   // Filter to events whose stamp has reached "now". The demo fixture
