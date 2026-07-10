@@ -650,12 +650,27 @@ function HitsCardView({ params }: PageProps) {
     return `${window.location.origin}/hits/${card_id}?${params.toString()}`
   })()
 
-  function handleShare() {
-    track('share_clicked', { bet, type: cardType }, card_id)
-    const shareText =
-      cardType === 'daily'
-        ? `Watch my Hula Hits card for ${meta.dateLabel}`
-        : `Watch my Hula Hits card for ${fixtureInfo?.matchLabel ?? matchLabelFallback}`
+  // `source` distinguishes the peak-moment win share from the footer share so
+  // we can measure share-rate-ON-WINS (the metric the review flagged). A win
+  // share also brags the amount + carries win kind/multiplier for analytics.
+  function handleShare(
+    source: 'footer' | 'win' = 'footer',
+    winInfo?: { kind: string; mult: number }
+  ) {
+    const won = !!winInfo
+    const winAmt = winInfo ? card.pricePhp * winInfo.mult : 0
+    track(
+      'share_clicked',
+      won
+        ? { bet, type: cardType, source, won: true, win_kind: winInfo!.kind, win_mult: winInfo!.mult }
+        : { bet, type: cardType, source },
+      card_id
+    )
+    const matchLabel =
+      cardType === 'daily' ? meta.dateLabel : (fixtureInfo?.matchLabel ?? matchLabelFallback)
+    const shareText = won
+      ? `I won ₱${winAmt.toLocaleString()} on my Hula Hits card! ${matchLabel}`
+      : `Watch my Hula Hits card for ${matchLabel}`
     if (typeof navigator !== 'undefined' && navigator.share) {
       navigator
         .share({
@@ -663,11 +678,11 @@ function HitsCardView({ params }: PageProps) {
           text: shareText,
           url: shareUrl,
         })
-        .then(() => track('share_completed', { method: 'native' }, card_id))
+        .then(() => track('share_completed', { method: 'native', source, won }, card_id))
         .catch(() => {})
     } else if (typeof navigator !== 'undefined' && navigator.clipboard) {
       navigator.clipboard.writeText(shareUrl)
-      track('share_completed', { method: 'clipboard' }, card_id)
+      track('share_completed', { method: 'clipboard', source, won }, card_id)
     }
   }
 
@@ -1042,7 +1057,7 @@ function HitsCardView({ params }: PageProps) {
               {packBlocked ? t('complete.blocked') : t('complete.buy', { price: card.pricePhp })}
             </button>
             <div className="hits-complete-row">
-              <button className="hits-share-btn" onClick={handleShare}>
+              <button className="hits-share-btn" onClick={() => handleShare('footer')}>
                 {t('card.share')}
               </button>
               <button className="hits-share-btn" onClick={() => router.push('/hits/history')}>
@@ -1052,7 +1067,7 @@ function HitsCardView({ params }: PageProps) {
           </section>
         ) : (
           <section className="hits-active-actions">
-            <button className="hits-share-btn" onClick={handleShare}>
+            <button className="hits-share-btn" onClick={() => handleShare('footer')}>
               {t('card.share')}
             </button>
             <button
@@ -1118,9 +1133,21 @@ function HitsCardView({ params }: PageProps) {
               </span>
               <span className="hits-win-payout-mult">{t('card.youWin')}</span>
             </div>
-            <button className="hits-win-close" onClick={() => setWinShown(null)}>
-              {t('card.winClose')}
-            </button>
+            <div className="hits-win-actions">
+              {/* Peak moment → drive the share. Hidden for spectators: re-sharing
+                  someone else's card does nothing for the viewer. */}
+              {!isShared && (
+                <button
+                  className="hits-win-share"
+                  onClick={() => handleShare('win', { kind: winShown.kind, mult: winMult })}
+                >
+                  {t('card.winShare')}
+                </button>
+              )}
+              <button className="hits-win-close" onClick={() => setWinShown(null)}>
+                {t('card.winClose')}
+              </button>
+            </div>
           </div>
         </div>
       )}

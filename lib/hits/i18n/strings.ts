@@ -177,6 +177,7 @@ export const STRINGS = {
   'card.winRainbow': { en: '🌈 Rainbow ×2', tl: '🌈 Rainbow ×2' },
   'card.youWin': { en: 'you win', tl: 'panalo mo' },
   'card.winClose': { en: 'Keep playing', tl: 'Tuloy laro' },
+  'card.winShare': { en: 'Share your win →', tl: 'I-share ang panalo →' },
 
   // ── Shared view: someone opened a card via a share link ────────────
   'card.sharedTag': { en: 'Shared with you', tl: 'Na-share sa’yo' },
