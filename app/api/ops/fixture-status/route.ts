@@ -22,6 +22,7 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '../../../../lib/supabase/admin'
 import { settleFixtureIfNeeded } from '../../../../lib/hits/settle'
+import { settleCardsIfFinal } from '../../../../lib/hits/settle-fixed'
 
 export const dynamic = 'force-dynamic'
 
@@ -88,37 +89,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: 'not_found' }, { status: 404 })
   }
 
-  // GGR settlement: when a match ends, every card that didn't win is pure
-  // hold (house keeps the full wager). Settle them inline here rather than
-  // via a cron — settlement is event-triggered (match → final), not
-  // time-triggered, and Vercel Hobby caps cron at once-per-day anyway.
-  // Idempotent: only touches cards not already settled.
-  //
-  // hold_amount for a no-win card = its full wager (price_php), which varies
-  // per row, so we read the candidates then write each. Phase 0 volumes are
-  // small (tens–hundreds per match); if this grows, move to a Postgres
-  // function doing `set hold_amount = price_php` in one statement.
+  // GGR settlement: when a match ends, settle every unsettled card server-side
+  // — recomputing win/hold from cells∩events (pays unclaimed wins; the rest is
+  // pure hold) and crediting authed winners. Shared with the events-poll + cron
+  // triggers via settleCardsIfFinal so settlement is identical no matter what
+  // finalized the fixture. Event-triggered here (match → final), idempotent.
   let settledCount = 0
   if (status === 'final') {
-    const settledAt = new Date().toISOString()
-    const { data: candidates, error: readErr } = await admin
-      .from('cards')
-      .select('id, price_php')
-      .eq('match_id', fixtureId)
-      .eq('won', false)
-      .is('settled_at', null)
-    if (readErr) {
-      console.error('[fixture-status] no-win settle read failed:', readErr.message)
-    } else {
-      for (const c of candidates ?? []) {
-        const { error: rowErr } = await admin
-          .from('cards')
-          .update({ hold_amount: c.price_php, settled_at: settledAt })
-          .eq('id', c.id)
-          .is('settled_at', null) // race-safe: skip if won/settled meanwhile
-        if (!rowErr) settledCount++
-      }
-    }
+    const r = await settleCardsIfFinal(fixtureId, { force: true })
+    settledCount = r.settled
   }
 
   // Cancel refund: a canceled game voids every card bought against it. Pre-buy

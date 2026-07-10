@@ -1,5 +1,6 @@
 import type { GameEvent } from './types'
 import { allocate, toPoolCard, type Allocation } from './pool'
+import { settleCardsIfFinal } from './settle-fixed'
 
 /**
  * Fixture settlement — shadow phase.
@@ -156,6 +157,13 @@ export async function sweepUnsettledFixtures(): Promise<{ checked: number; settl
       }
       await settleFixtureIfNeeded(id, { force: true })
       count++
+    }
+    // Fixed-odds book: settle cards for EVERY final fixture (not just those
+    // missing a shadow row) — a fixture can be shadow-settled yet still have
+    // unsettled cards. Per-card `.is('settled_at', null)` keeps it idempotent.
+    for (const f of finals) {
+      const id = f.id as string
+      if (isSettleable(id)) await settleCardsIfFinal(id, { force: true })
     }
     return { checked: finals.length, settled: count }
   } catch (err) {
