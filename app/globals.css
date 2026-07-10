@@ -2394,6 +2394,37 @@ button:focus {
   color: var(--ink);
 }
 
+/* ── Live game row: red LIVE accent, distinct from orange "reserve" ─────── */
+.hula-v2 .hits-upcoming-row[data-live='true'] .hits-upcoming-when {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #dc2626;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.hula-v2 .hits-upcoming-row[data-live='true'] .hits-hero-pulse {
+  background: #dc2626;
+  box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7);
+  animation-name: hits-live-row-pulse;
+}
+@keyframes hits-live-row-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.6); }
+  70%  { box-shadow: 0 0 0 8px rgba(220, 38, 38, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+}
+.hula-v2 .hits-upcoming-row[data-live='true'] .hits-upcoming-cta {
+  color: #dc2626;
+}
+.hula-v2 .hits-upcoming-row[data-live='true'][data-active='true'] {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.22);
+}
+.hula-v2 .hits-upcoming-row[data-live='true'][data-active='true'] .hits-upcoming-cta {
+  color: #dc2626;
+}
+
 /* ── Secondary type-toggle link below buy CTA ──────────────────────────── */
 .hula-v2 .hits-secondary-link {
   display: block;
@@ -3846,6 +3877,12 @@ button:focus {
 }
 .hula-v2.hits-dark .hits-upcoming-row[data-active='true'] .hits-upcoming-cta {
   color: var(--accent);
+}
+.hula-v2.hits-dark .hits-upcoming-row[data-live='true'][data-active='true'] {
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.3);
+}
+.hula-v2.hits-dark .hits-upcoming-row[data-live='true'][data-active='true'] .hits-upcoming-cta {
+  color: #f87171;
 }
 
 /* ── Card page: grid + banners ── */

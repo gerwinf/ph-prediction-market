@@ -120,7 +120,12 @@ export default function HitsEntry() {
   const liveIsDemo = liveFixture?.id.startsWith('demo-') ?? false
   const realLive = liveFixture && !liveIsDemo ? liveFixture : null
   const demoFixture = liveFixture && liveIsDemo ? liveFixture : null
-  const explicitPick = upcomingFixtures.find((f) => f.id === selectedFixtureId) ?? null
+  // Selectable games, live first. The live game is a real row (not just the
+  // default hero) so tapping an upcoming game is never a one-way door — you
+  // can always tap back to live. explicitPick searches this whole list, so a
+  // tapped live game sticks instead of falling through to the upcoming default.
+  const selectableFixtures = realLive ? [realLive, ...upcomingFixtures] : upcomingFixtures
+  const explicitPick = selectableFixtures.find((f) => f.id === selectedFixtureId) ?? null
   const heroFixture =
     type === 'sports'
       ? explicitPick ?? realLive ?? upcomingFixtures[0] ?? demoFixture ?? null
@@ -128,8 +133,9 @@ export default function HitsEntry() {
   const heroIsDemo = heroFixture?.id.startsWith('demo-') ?? false
   const isLive = heroFixture !== null && heroFixture.status === 'live'
   const isUpcoming = heroFixture !== null && heroFixture.status === 'scheduled'
-  // The upcoming game highlighted in the list (the one the main Buy will reserve).
-  const activeUpcomingId = isUpcoming ? heroFixture!.id : null
+  // The game highlighted in the list (live or upcoming) — the one the main
+  // Buy targets. Excludes the demo filler, which isn't rendered as a row.
+  const activeFixtureId = heroFixture && !heroIsDemo ? heroFixture.id : null
 
   function handleBuy() {
     track('buy_clicked', {
@@ -381,13 +387,42 @@ export default function HitsEntry() {
 
         </section>
 
-        {/* Upcoming PBA games — pick one to reserve a card before tip-off. */}
-        {type === 'sports' && upcomingFixtures.length > 0 && (
+        {/* Games list — the live game (if any) sits on top as a selectable
+            row so it's always the default AND always re-selectable; upcoming
+            games below can be reserved before tip-off. */}
+        {type === 'sports' && (realLive !== null || upcomingFixtures.length > 0) && (
           <section className="hits-upcoming">
-            <div className="hits-upcoming-eyebrow">{t('entry.upcomingEyebrow')}</div>
+            <div className="hits-upcoming-eyebrow">
+              {realLive ? t('entry.gamesEyebrow') : t('entry.upcomingEyebrow')}
+            </div>
             <div className="hits-upcoming-list">
+              {realLive && (
+                <button
+                  key={realLive.id}
+                  type="button"
+                  className="hits-upcoming-row"
+                  data-live="true"
+                  data-active={realLive.id === activeFixtureId}
+                  aria-pressed={realLive.id === activeFixtureId}
+                  onClick={() => {
+                    setSelectedFixtureId(realLive.id)
+                    track('live_selected', { match_id: realLive.id })
+                  }}
+                >
+                  <span className="hits-upcoming-info">
+                    <span className="hits-upcoming-teams">{realLive.match_label}</span>
+                    <span className="hits-upcoming-when">
+                      <span className="hits-hero-pulse" /> {t('entry.heroLiveBadge')}
+                      {realLive.venue ? ` · ${realLive.venue}` : ''}
+                    </span>
+                  </span>
+                  <span className="hits-upcoming-cta">
+                    {realLive.id === activeFixtureId ? t('entry.liveActive') : t('entry.liveJoin')}
+                  </span>
+                </button>
+              )}
               {upcomingFixtures.map((f) => {
-                const active = f.id === activeUpcomingId
+                const active = f.id === activeFixtureId
                 return (
                   <button
                     key={f.id}

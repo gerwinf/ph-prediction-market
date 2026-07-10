@@ -102,8 +102,13 @@ export const STRINGS = {
   'entry.metaFallback': { en: 'Demo only · no real money yet', tl: 'Demo lang · walang tunay na pera pa' },
 
   'entry.upcomingEyebrow': { en: 'Upcoming games', tl: 'Mga susunod na laro' },
+  // Heading when a live game sits atop the list — "upcoming" no longer fits.
+  'entry.gamesEyebrow': { en: 'Games', tl: 'Mga laro' },
   'entry.reserveActive': { en: 'Selected ✓', tl: 'Selected ✓' },
   'entry.reserve': { en: 'Reserve', tl: 'Reserve' },
+  // Live-game row: CTA to join the in-progress game vs the "Selected ✓" state.
+  'entry.liveJoin': { en: 'Join', tl: 'Sumali' },
+  'entry.liveActive': { en: 'Playing ✓', tl: 'Playing ✓' },
 
   'entry.payoutsEyebrow': {
     en: 'What you can win on a ₱{price} card',
