@@ -20,7 +20,10 @@ import { refreshWcFixtures } from '../lib/worldcup/fixture-refresh'
 const env = fs.readFileSync('.env.local', 'utf-8')
 for (const line of env.split('\n')) {
   const m = line.match(/^([A-Z_]+)=(.+)$/)
-  if (m) process.env[m[1]] = m[2]
+  // Strip surrounding quotes + whitespace — a quoted value would otherwise be
+  // read literally (e.g. '"https://…"'), which supabase-js rejects as an
+  // "Invalid supabaseUrl". Tolerate both quoted and unquoted .env.local lines.
+  if (m) process.env[m[1]] = m[2].trim().replace(/^["']|["']$/g, '')
 }
 
 async function main() {
