@@ -15,6 +15,7 @@
 import { NextResponse } from 'next/server'
 import { sweepUnsettledFixtures } from '../../../../lib/hits/settle'
 import { ingestUpcomingWcFixtures } from '../../../../lib/hits/fixture-ingest'
+import { refreshWcFixtures } from '../../../../lib/worldcup/fixture-refresh'
 import { createAdminClient } from '../../../../lib/supabase/admin'
 import { ingestSignals, refreshApprovedPrices, retireEndedMarkets } from '../../../../lib/catalog/maintain'
 import { fetchPbaSchedule } from '../../../../lib/fixtures/fetch-pba'
@@ -58,6 +59,11 @@ export async function GET(req: Request) {
   // games with both squads registered — the pre-buy funnel (66% of card
   // buys) must never run dry on a missing manual insert. Insert-only.
   await step('wc_fixture_ingest', () => ingestUpcomingWcFixtures())
+
+  // /worldcup board auto-refresh: roll the FIFA-fed wc_fixture catalog rows
+  // forward (insert new + prune past), the same way /hits keeps match_fixtures
+  // current. Insert-only, so ops odds overrides in /ops/markets survive.
+  await step('wc_board_refresh', () => refreshWcFixtures())
 
   return NextResponse.json(out)
 }
