@@ -540,9 +540,10 @@ function Footer() {
             <h5>Markets</h5>
             <ul>
               <li><a href="#markets">Sports</a></li>
+              <li><a href="#markets">Esports</a></li>
               <li><a href="#markets">Showbiz</a></li>
-              <li><a href="#markets">Crypto</a></li>
-              <li><a href="#markets">Weather</a></li>
+              <li><a href="#markets">Finance</a></li>
+              <li><a href="#markets">Daily life</a></li>
               <li><a href="#markets">World</a></li>
             </ul>
           </div>
