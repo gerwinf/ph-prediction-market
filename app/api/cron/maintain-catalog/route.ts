@@ -13,7 +13,7 @@
  * automatically when CRON_SECRET is set).
  */
 import { NextResponse } from 'next/server'
-import { sweepUnsettledFixtures } from '../../../../lib/hits/settle'
+import { finalizeStaleLiveFixtures, sweepUnsettledFixtures } from '../../../../lib/hits/settle'
 import { ingestUpcomingWcFixtures } from '../../../../lib/hits/fixture-ingest'
 import { refreshWcFixtures } from '../../../../lib/worldcup/fixture-refresh'
 import { createAdminClient } from '../../../../lib/supabase/admin'
@@ -50,6 +50,12 @@ export async function GET(req: Request) {
   await step('reprice', () => refreshApprovedPrices(admin))
   await step('retire', () => retireEndedMarkets(admin, now))
   await step('pba', async () => ingestPbaFixtures(admin, await fetchPbaSchedule(), now))
+
+  // Finalize games stranded at status='live' (no live→final trigger fired —
+  // PBA is ops-only, WC's FIFA sync needs an open card page). Runs BEFORE the
+  // settlement sweep so the freshly-final rows settle in the same pass, and so
+  // /hits stops pinning its hero to a game that ended hours ago.
+  await step('finalize_stale_live', () => finalizeStaleLiveFixtures())
 
   // Settlement catch-up (CEO review 1A trigger #3): shadow-settle any
   // final fixture the lazy triggers missed; warns on settlement_lag >1h.
