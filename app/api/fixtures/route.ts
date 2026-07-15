@@ -15,6 +15,7 @@
 import { NextResponse } from 'next/server'
 import { unstable_noStore as noStore } from 'next/cache'
 import { createAdminClient } from '../../../lib/supabase/admin'
+import { isStaleLive } from '../../../lib/hits/fixture-window'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -55,9 +56,16 @@ export async function GET() {
   const live: typeof data = []
   const upcoming: typeof data = []
   const finished: typeof data = []
+  const nowMs = now.getTime()
   for (const row of data ?? []) {
-    if (row.status === 'live') live.push(row)
-    else if (row.status === 'scheduled') upcoming.push(row)
+    if (row.status === 'live') {
+      // Nothing reliably flips a fixture live→final (PBA is ops-only; WC relies
+      // on the lazy FIFA sync that only runs while a card page is open). A game
+      // whose viewers left before full-time stays live forever and would pin
+      // the /hits hero to a dead game. Drop clearly-over live rows so the
+      // picker falls through to the next real game. The demo filler is exempt.
+      if (!isStaleLive(row, nowMs)) live.push(row)
+    } else if (row.status === 'scheduled') upcoming.push(row)
     else if (row.status === 'final') finished.push(row)
   }
 

@@ -1,6 +1,7 @@
 import type { GameEvent } from './types'
 import { allocate, toPoolCard, type Allocation } from './pool'
 import { settleCardsIfFinal } from './settle-fixed'
+import { selectStaleLiveToFinalize, type LiveWindowFixture } from './fixture-window'
 
 /**
  * Fixture settlement — shadow phase.
@@ -125,6 +126,54 @@ export async function settleFixtureIfNeeded(
   } catch (err) {
     // Settlement must never break the calling poll/route.
     console.error('[hits/settle] error:', matchId, err)
+  }
+}
+
+/**
+ * Cron catch-up: force clearly-over `live` fixtures to `final` so they stop
+ * pinning the /hits hero as the live game AND their cards finally settle.
+ *
+ * Fixtures only leave `live` when explicitly finalized — PBA is ops-only, and
+ * the WC FIFA sync runs only while a card page is polling. A game whose viewers
+ * left before full-time (or that the feed never resolved) is stranded `live`
+ * indefinitely. This runs before sweepUnsettledFixtures in the daily cron, so
+ * the rows it flips get settled in the same pass. Idempotent (only touches
+ * still-`live` rows), never throws. Returns a summary for the cron log.
+ */
+export async function finalizeStaleLiveFixtures(): Promise<{ checked: number; finalized: number }> {
+  try {
+    const { createAdminClient } = await import('../supabase/admin')
+    const admin = createAdminClient()
+    const { data: liveRows } = await admin
+      .from('match_fixtures')
+      .select('id, status, starts_at, ends_at')
+      .eq('status', 'live')
+    if (!liveRows || liveRows.length === 0) return { checked: 0, finalized: 0 }
+
+    const staleIds = selectStaleLiveToFinalize(liveRows as LiveWindowFixture[], Date.now())
+    let finalized = 0
+    for (const id of staleIds) {
+      // Mirror ops finalization: stamp ends_at so settlement_lag warnings and
+      // the finished window have a real timestamp. Race-safe — only flips a row
+      // still `live`, so a concurrent ops/feed final wins and this no-ops.
+      const { error, count } = await admin
+        .from('match_fixtures')
+        .update({ status: 'final', ends_at: new Date().toISOString() }, { count: 'exact' })
+        .eq('id', id)
+        .eq('status', 'live')
+      if (error) {
+        console.error('[hits/settle] finalize stale-live failed:', id, error.message)
+        continue
+      }
+      if (count && count > 0) {
+        finalized++
+        console.info(`[hits/settle] finalized stale-live fixture ${id} (no live→final trigger fired)`)
+      }
+    }
+    return { checked: liveRows.length, finalized }
+  } catch (err) {
+    console.error('[hits/settle] finalize stale-live sweep error:', err)
+    return { checked: 0, finalized: 0 }
   }
 }
 
