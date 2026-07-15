@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { buildRevealPlan, revealDurationMs, shouldShowRip } from './reveal'
-import { deriveBinderStats, binderHitIndices } from './binder'
+import { deriveBinderStats, binderHitIndices, binderOpenParams } from './binder'
 import { generateCard } from './card-generator'
 
 const WC_MATCH = 'wc-por-esp-2026-07-06'
@@ -67,5 +67,31 @@ describe('binderHitIndices', () => {
       if (idx === 12) continue
       expect(card.cells[idx].id).toBe(someCell.id)
     }
+  })
+})
+
+describe('binderOpenParams', () => {
+  it('always opens against the pocket own match in event-driven mode', () => {
+    const p = binderOpenParams({
+      id: 'ABC123',
+      match_id: 'wc-arg-fra-2026-07-10',
+      card_type: 'sports',
+      price_php: 20,
+    })
+    expect(p.get('match')).toBe('wc-arg-fra-2026-07-10')
+    expect(p.get('live')).toBe('1')
+    expect(p.get('bet')).toBe('20')
+    expect(p.get('type')).toBe('sports')
+  })
+  it('never re-rips the pack (no new=1) so old games just replay', () => {
+    const p = binderOpenParams({
+      id: 'XYZ',
+      match_id: 'daily-2026-07-20',
+      card_type: 'daily',
+      price_php: 50,
+    })
+    expect(p.get('new')).toBeNull()
+    expect(p.get('match')).toBe('daily-2026-07-20')
+    expect(p.get('type')).toBe('daily')
   })
 })

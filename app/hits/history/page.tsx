@@ -7,7 +7,7 @@ import { useSession } from '../../../lib/auth/use-session'
 import { SignInModal } from '../../../components/auth/SignInModal'
 import { track } from '../../../lib/analytics/track'
 import { generateCard, isFreeCell } from '../../../lib/hits/card-generator'
-import { deriveBinderStats, binderHitIndices } from '../../../lib/hits/binder'
+import { deriveBinderStats, binderHitIndices, binderOpenParams } from '../../../lib/hits/binder'
 import { useLang } from '../../../lib/hits/i18n/LanguageProvider'
 import { HitsMenu } from '../../../components/hits/HitsMenu'
 import { HitsBrand } from '../../../components/hits/HitsBrand'
@@ -132,13 +132,12 @@ export default function BinderPage() {
 
   function openCard(c: HistoryCard) {
     track('binder_pocket_opened', { won: c.won }, c.id)
-    const params = new URLSearchParams({ bet: String(c.price_php), type: c.card_type })
-    // A pocket on a live fixture opens the live view; anything else opens the
-    // demo/replay view. Never ?new=1 — binder opens don't re-rip.
-    if (liveMatchIds.has(c.match_id)) {
-      params.set('live', '1')
-      params.set('match', c.match_id)
-    }
+    // Every pocket opens against its OWN match in event-driven mode: a live
+    // fixture keeps ticking, a finished one replays its real events and freezes
+    // at FINAL. (Previously only live fixtures passed the match, so old cards
+    // fell back to the canned Portugal–Spain demo timeline.) Never ?new=1 —
+    // binder opens don't re-rip.
+    const params = binderOpenParams(c)
     router.push(`/hits/${c.id}?${params.toString()}`)
   }
 
