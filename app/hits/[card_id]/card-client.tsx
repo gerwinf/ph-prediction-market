@@ -324,6 +324,50 @@ function HitsCardView({ params }: PageProps) {
     [card.cells, highestWinMult, rareIndices]
   )
 
+  // Silent catch-up: apply already-fired events in ONE batch with no per-cell
+  // pop, no staggered replay, and no win modal. Used when a player joins or
+  // refreshes a LIVE game mid-match — they should just see the cells that are
+  // already lit (e.g. 3 cells at the 45') and the game continues from there.
+  // The animated replay stays reserved for demo mode and the binder recap,
+  // where it reads as a highlight reel instead of a wall of firing cells.
+  const applyCatchUpSilently = useCallback(
+    (events: { eventKey: string; clock: string; desc: string }[]) => {
+      // Surface the latest event on the scoreboard so the clock/description
+      // reflect where the game actually is, not a stale kick-off.
+      const last = events[events.length - 1]
+      if (last) setCurrentEvent({ clock: last.clock, desc: last.desc })
+
+      const matchingIndices: number[] = []
+      events.forEach((ev) => {
+        card.cells.forEach((cell, idx) => {
+          if (cell.id === ev.eventKey) matchingIndices.push(idx)
+        })
+      })
+      if (matchingIndices.length === 0) return
+
+      // These cells lit in the original session — mark the funnel landmark as
+      // spent so a genuinely-new cell later doesn't re-fire 'first_cell_lit',
+      // but don't re-track it here (this join isn't the first-light moment).
+      firstHitFiredRef.current = true
+
+      setHitIndices((prev) => {
+        const next = new Set(prev)
+        matchingIndices.forEach((i) => next.add(i))
+        // Record any wins already achieved so a later, genuinely-new higher
+        // win still pops — but never flash or open the modal for a win that
+        // predates this page load.
+        const wins = detectWins(next)
+        const best = wins.reduce(
+          (m, w) => Math.max(m, effectiveMultiplier(w, rareIndices)),
+          0
+        )
+        setHighestWinMult((m) => Math.max(m, best))
+        return next
+      })
+    },
+    [card.cells, rareIndices]
+  )
+
   // Win figures use the EFFECTIVE (post-rainbow) multiplier so the modal and
   // the analytics event match the doubled payout the server actually credits.
   const winMult = winShown ? effectiveMultiplier(winShown, rareIndices) : 0
@@ -563,21 +607,24 @@ function HitsCardView({ params }: PageProps) {
 
         if (newEvents.length === 0) return
 
-        // First poll with multiple events = mid-game catch-up: stagger.
-        // Subsequent polls or single-event first poll = fire immediately.
+        // First poll with multiple events = mid-game join/refresh: the backlog
+        // already happened, so light those cells silently in one batch (no
+        // replay) and let live cadence animate only cells that fire from now on.
+        // Subsequent polls or a single-event first poll = fire immediately.
         const isCatchUp = !firstPollDoneRef.current && newEvents.length > 1
 
         if (isCatchUp) {
-          for (let i = 0; i < newEvents.length; i++) {
-            if (cancelled) return
-            const ev = newEvents[i]
+          newEvents.forEach((ev) => {
             seenIdsRef.current.add(ev.id)
             if (ev.id > sinceRef.current) sinceRef.current = ev.id
-            resolveEventByKey(ev.event_key, clockOf(ev), descOf(ev))
-            if (i < newEvents.length - 1) {
-              await new Promise((r) => setTimeout(r, 200))
-            }
-          }
+          })
+          applyCatchUpSilently(
+            newEvents.map((ev) => ({
+              eventKey: ev.event_key,
+              clock: clockOf(ev),
+              desc: descOf(ev),
+            }))
+          )
         } else {
           for (const ev of newEvents) {
             seenIdsRef.current.add(ev.id)
