@@ -108,11 +108,11 @@ export async function GET(req: Request) {
   )
 }
 
-// Default match ids when the caller hasn't picked a fixture yet. Phase 0
-// stopgap until the match-picker UI lands (Day 4). Both ids are seeded
-// in supabase/seed.sql.
+// Default match ids when the caller hasn't picked a fixture yet — i.e. a plain
+// demo buy off the entry page. The sports default is the always-live PBA demo
+// fixture (seeded in migration 006); daily is seeded in supabase/seed.sql.
 const DEFAULT_MATCH_BY_TYPE: Record<CardType, string> = {
-  sports: 'wc-por-esp-2026-07-06',
+  sports: 'demo-pba-perpetual',
   daily: 'daily-2026-07-20',
 }
 

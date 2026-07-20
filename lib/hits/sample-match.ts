@@ -1,38 +1,39 @@
 import type { Match } from './types'
 
-// 90-second simulated World Cup Round of 16 match (Portugal vs Spain). 90 match
-// minutes compressed. Used by /hits/[card_id] when not in ?live=1 mode. Events
-// fire at atMs offsets from page mount.
+// 90-second simulated PBA game (Ginebra vs Rain or Shine). A full game
+// compressed. Used by /hits/[card_id] when not in ?live=1 mode. Events fire
+// at atMs offsets from page mount.
 //
 // INVARIANT: every eventId below must exist in the pool that
-// buildPoolForMatch('wc-por-esp-2026-07-06') returns — otherwise the ticker
-// fires an event that lights no cell. Enforced by lib/hits/pool-builder.test.ts.
+// buildPoolForMatch('demo-pba-perpetual') returns (the static PBA
+// CANDIDATE_EVENTS pool) — otherwise the ticker fires an event that lights no
+// cell. Enforced by lib/hits/pool-builder.test.ts.
 
 export const SAMPLE_MATCH: Match = {
-  id: 'wc-por-esp-r16',
-  league: 'FIFA World Cup 2026 · Round of 16',
-  home: 'Portugal',
-  homeColor: '#006600',
-  away: 'Spain',
-  awayColor: '#c60b1e',
-  tipoff: 'Tonight · 3:00 AM PHT',
+  id: 'demo-pba-gin-ros',
+  league: "PBA · Commissioner's Cup",
+  home: 'Ginebra',
+  homeColor: '#c8102e',
+  away: 'Rain or Shine',
+  awayColor: '#fbbf24',
+  tipoff: 'Tonight · 7:30 PM PHT',
   durationMs: 90_000,
-  // `score` = running [home, away] after the event — drives the demo
+  // `score` = running [home, away] points after the event — drives the demo
   // scoreboard the same way home_score/away_score on the fixture row does
   // for a live game.
   timeline: [
-    { atMs:  4_000, gameClock: "6'",     eventId: 'yamal-sot',        description: 'Yamal forces an early save', score: [0, 0] },
-    { atMs: 10_000, gameClock: "12'",    eventId: 'first-goal-15',    description: 'Spain break the deadlock early', score: [0, 1] },
-    { atMs: 16_000, gameClock: "23'",    eventId: 'esp-first',        description: 'Spain score first' },
-    { atMs: 22_000, gameClock: "34'",    eventId: 'bruno-card',       description: 'Bruno Fernandes booked' },
-    { atMs: 30_000, gameClock: 'HT',     eventId: 'esp-half-lead',    description: 'Spain lead at the break' },
-    { atMs: 38_000, gameClock: "52'",    eventId: 'leao-goal',        description: 'Leão equalizes for Portugal', score: [1, 1] },
-    { atMs: 46_000, gameClock: "61'",    eventId: 'both-teams-score', description: 'Both teams have scored' },
-    { atMs: 54_000, gameClock: "68'",    eventId: 'var-review',       description: 'VAR checks a penalty shout' },
-    { atMs: 60_000, gameClock: "70'",    eventId: 'penalty-given',    description: 'Penalty to Spain' },
-    { atMs: 66_000, gameClock: "71'",    eventId: 'yamal-goal',       description: 'Yamal converts from the spot', score: [1, 2] },
-    { atMs: 74_000, gameClock: "84'",    eventId: 'yellow-card',      description: 'Late booking as it gets tense' },
-    { atMs: 82_000, gameClock: "90+3'",  eventId: 'injury-time-goal', description: 'Portugal push in stoppage time' },
-    { atMs: 88_000, gameClock: 'FT',     eventId: 'esp-win',          description: 'Spain edge it · Spain 2, Portugal 1' },
+    { atMs:  4_000, gameClock: 'Q1',       eventId: 'tiongson-3ball',  description: 'Tiongson splashes an early triple', score: [0, 3] },
+    { atMs: 10_000, gameClock: 'Q1',       eventId: 'thompson-steal',  description: 'Thompson steals it, coast-to-coast', score: [4, 3] },
+    { atMs: 16_000, gameClock: 'End Q1',   eventId: 'ros-q1',          description: 'Rain or Shine grab the first', score: [18, 22] },
+    { atMs: 22_000, gameClock: 'Q2',       eventId: 'brownlee-dunk',   description: 'Brownlee flushes it home', score: [28, 30] },
+    { atMs: 30_000, gameClock: 'Halftime', eventId: 'ros-halftime',    description: 'Rain or Shine lead at the break', score: [44, 49] },
+    { atMs: 38_000, gameClock: 'Q3',       eventId: 'thompson-20',     description: 'Thompson hits 20, Ginebra surging', score: [57, 58] },
+    { atMs: 46_000, gameClock: 'Q3',       eventId: 'ros-import-20',   description: 'RoS import answers with 20', score: [63, 66] },
+    { atMs: 54_000, gameClock: 'End Q3',   eventId: 'run-10-0',        description: '10-0 Ginebra run flips it', score: [73, 66] },
+    { atMs: 60_000, gameClock: 'Q4',       eventId: 'lead-changes-5',  description: 'Fifth lead change of the night', score: [78, 79] },
+    { atMs: 66_000, gameClock: 'Q4',       eventId: 'brownlee-25',     description: 'Brownlee crosses 25', score: [85, 82] },
+    { atMs: 74_000, gameClock: 'Q4',       eventId: 'nambatac-15',     description: 'Nambatac keeps RoS alive', score: [87, 88] },
+    { atMs: 82_000, gameClock: "Q4 0:20",  eventId: 'clutch-ft-make',  description: 'Ginebra splash clutch free throws', score: [92, 90] },
+    { atMs: 88_000, gameClock: 'Final',    eventId: 'ginebra-q4',      description: 'Ginebra steal the fourth · Ginebra 96, RoS 91', score: [96, 91] },
   ],
 }
