@@ -135,7 +135,7 @@ export default function BinderPage() {
     // Every pocket opens against its OWN match in event-driven mode: a live
     // fixture keeps ticking, a finished one replays its real events and freezes
     // at FINAL. (Previously only live fixtures passed the match, so old cards
-    // fell back to the canned Portugal–Spain demo timeline.) Never ?new=1 —
+    // fell back to the canned PBA demo timeline.) Never ?new=1 —
     // binder opens don't re-rip.
     const params = binderOpenParams(c)
     router.push(`/hits/${c.id}?${params.toString()}`)

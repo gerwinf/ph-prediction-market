@@ -46,8 +46,8 @@ export type BinderPocket = {
  * event-driven ("live") mode against that match. A finished fixture replays
  * its real events and freezes at FINAL; a still-live one keeps ticking. This
  * is what lets the binder show the ACTUAL old game — without `match`+`live`,
- * card-client falls back to the canned Portugal–Spain demo timeline for every
- * pocket. Never `new=1` — a binder open must not re-rip the pack.
+ * card-client falls back to the canned PBA demo timeline for every pocket.
+ * Never `new=1` — a binder open must not re-rip the pack.
  */
 export function binderOpenParams(card: BinderPocket): URLSearchParams {
   return new URLSearchParams({

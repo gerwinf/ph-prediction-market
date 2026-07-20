@@ -113,7 +113,7 @@ function HitsCardView({ params }: PageProps) {
   // actions and present a watch-then-convert spectator view.
   const isShared = !!search?.get('ref')
   const matchId =
-    search?.get('match') || (cardType === 'sports' ? 'wc-por-esp-2026-07-06' : 'daily-2026-07-20')
+    search?.get('match') || (cardType === 'sports' ? 'demo-pba-perpetual' : 'daily-2026-07-20')
 
   // Pass matchId so the client-side generator picks the same
   // match-aware pool the server used when /api/cards stored the row.
@@ -670,7 +670,7 @@ function HitsCardView({ params }: PageProps) {
   )
   // Label shown before the fixture fetch returns. Derived from the match id
   // (available instantly) so a live card never flashes the demo sample's
-  // "Portugal vs Spain" while loading. Demo cards keep the sample label.
+  // "Ginebra vs Rain or Shine" while loading. Demo cards keep the sample label.
   const matchLabelFallback = (() => {
     if (!live) return `${sample.home} vs ${sample.away}`
     const codes = wcCodesFromMatchId(matchId)

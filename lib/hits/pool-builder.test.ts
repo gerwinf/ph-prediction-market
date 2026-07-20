@@ -4,9 +4,14 @@ import { SAMPLE_MATCH } from './sample-match'
 import { generateCard } from './card-generator'
 import { teamsFromWcMatchId } from './players-wc'
 
-// The default sports match id used by both the client (app/hits/[card_id]) and
-// the server (app/api/cards). Keep in sync with DEFAULT_MATCH_BY_TYPE.
+// A World Cup fixture id — exercises the football pool path (still live for
+// real wc- fixtures).
 const WC_MATCH = 'wc-por-esp-2026-07-06'
+// The default sports match id used by both the client (app/hits/[card_id]) and
+// the server (app/api/cards) for a plain demo buy. Keep in sync with
+// DEFAULT_MATCH_BY_TYPE — the demo card's SAMPLE_MATCH timeline draws from this
+// pool (the static PBA CANDIDATE_EVENTS).
+const DEMO_MATCH = 'demo-pba-perpetual'
 
 describe('teamsFromWcMatchId', () => {
   it('parses a wc- fixture id to team codes', () => {
@@ -42,7 +47,7 @@ describe('buildPoolForMatch — World Cup fixture', () => {
 // LOAD-BEARING: every event the demo timeline fires must exist in the demo
 // card's pool, or the ticker announces events that light no cell.
 describe('SAMPLE_MATCH timeline is covered by the demo pool', () => {
-  const ids = new Set(buildPoolForMatch(WC_MATCH).map((e) => e.id))
+  const ids = new Set(buildPoolForMatch(DEMO_MATCH).map((e) => e.id))
   for (const ev of SAMPLE_MATCH.timeline) {
     it(`pool contains '${ev.eventId}' (${ev.gameClock})`, () => {
       expect(ids.has(ev.eventId)).toBe(true)

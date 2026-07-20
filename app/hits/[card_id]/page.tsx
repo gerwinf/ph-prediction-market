@@ -25,7 +25,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   const type = first(searchParams.type) === 'daily' ? 'daily' : 'sports'
   // Same default the client + /api/cards use when no match is pinned.
   const matchId =
-    first(searchParams.match) || (type === 'sports' ? 'wc-por-esp-2026-07-06' : 'daily-2026-07-20')
+    first(searchParams.match) || (type === 'sports' ? 'demo-pba-perpetual' : 'daily-2026-07-20')
 
   // Best-effort match label — a scraper must always get valid tags, so any
   // DB hiccup degrades to the generic label rather than erroring the page.
