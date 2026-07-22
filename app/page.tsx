@@ -49,7 +49,7 @@ function liveSlugs(markets: Record<CategoryKey, MarketRow[]>): string[] {
       [
         ...TICKER_DATA.map((t) => t.slug),
         ...Object.values(markets).flat().map((m) => m.slug),
-        'wc-argentina', // FeaturedCard
+        'crypto-btc-120k', // FeaturedCard
       ].filter(Boolean) as string[],
     ),
   )
@@ -69,16 +69,12 @@ type FeaturedEventConfig = {
   meta: string       // small mono note under the CTA
 }
 
-const FEATURED_EVENT: FeaturedEventConfig | null = {
-  tag: 'Featured event',
-  title: 'World Cup',
-  titleEm: '2026',
-  blurb:
-    'Every match and every contender, priced live and settled in pesos — all the way to the final.',
-  href: '/worldcup',
-  cta: 'Enter the hub →',
-  meta: 'Live odds via Polymarket',
-}
+// World Cup 2026 wrapped on 2026-07-19 (Spain champions), so no event holds the
+// live marquee right now — null cleanly drops the spotlight band, nav pill, and
+// hero "is live" eyebrow (all guard on this). The /worldcup recap still lives at
+// its URL. Point this at the next big event (elections, a PBA Finals run, the
+// Olympics) to feature it: rewrite the copy and set `href` at its hub.
+const FEATURED_EVENT: FeaturedEventConfig | null = null
 
 function LogoMono() {
   return <span className="logo-mono">H</span>
@@ -189,19 +185,19 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
 }
 
 function FeaturedCard({ prices }: { prices: PricesMap }) {
-  // Fallback tracks the last-seen live price (Round of 16, Jul 2026) so a
-  // failed fetch doesn't show a wildly different number than the live overlay.
-  const yes = livePct(prices, 'wc-argentina', 17)
+  // Now the World Cup has wrapped, the hero card holds a still-open live market.
+  // Fallback tracks the last-seen price so a failed fetch stays near the overlay.
+  const yes = livePct(prices, 'crypto-btc-120k', 11)
   const no = 100 - yes
   return (
     <div className="featured">
       <div className="featured-head">
-        <span className="featured-tag">Featured · World Cup 2026</span>
-        {prices['wc-argentina'] && !prices['wc-argentina'].is_stale && (
+        <span className="featured-tag">Featured · Crypto 2026</span>
+        {prices['crypto-btc-120k'] && !prices['crypto-btc-120k'].is_stale && (
           <span className="featured-vol">Live via Polymarket</span>
         )}
       </div>
-      <h3 className="featured-q">Will Argentina win the 2026 FIFA World Cup?</h3>
+      <h3 className="featured-q">Will Bitcoin top $120,000 in 2026?</h3>
       <div className="featured-bar">
         <i className="yes" style={{ width: yes + '%' }} />
         <i className="no" style={{ width: no + '%' }} />

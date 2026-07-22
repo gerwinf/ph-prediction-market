@@ -13,13 +13,13 @@
 export type TickerItem = { mkt: string; pct: number; slug?: string }
 
 export const TICKER_DATA: TickerItem[] = [
-  { mkt: 'Argentina win WC 2026',                pct: 9,  slug: 'wc-argentina' },
+  { mkt: 'GTA VI launches in 2026',              pct: 81 },
   { mkt: 'Blacklist win MPL Philippines',        pct: 34 },
   { mkt: 'BTC tops $120k in 2026',               pct: 11, slug: 'crypto-btc-120k' },
   { mkt: 'Ginebra win the PBA Philippine Cup',   pct: 29 },
   { mkt: 'USD/PHP above 60 in 2026',             pct: 27 },
   { mkt: 'Bea top-5 at Miss Universe 2026',      pct: 48 },
-  { mkt: 'Spain win WC 2026',                    pct: 17, slug: 'wc-spain' },
+  { mkt: 'PSEi crosses 8,000 in 2026',           pct: 41 },
   { mkt: 'SB19 play Lollapalooza 2026',          pct: 92 },
   { mkt: 'ETH tops $5,500 in 2026',              pct: 8,  slug: 'crypto-eth-5500' },
 ]
@@ -50,7 +50,7 @@ export const MARKETS: Record<CategoryKey, MarketRow[]> = {
     { cat: 'MLBB',      q: 'AP Bren defend their MLBB world title in 2026',        pct: 28, d: +3,  vol: '₱3.4M' },
     { cat: 'Forex',     q: 'USD/PHP trades above 60 at any point in 2026',         pct: 27, d: +5,  vol: '₱2.3M' },
     { cat: 'Pageant',   q: 'The Philippines makes the Miss Universe 2026 top-3',   pct: 39, d: +4,  vol: '₱1.6M' },
-    { cat: 'World Cup', q: 'Argentina win the 2026 FIFA World Cup',                pct: 9,  d: +2,  vol: '₱6.1M', slug: 'wc-argentina' },
+    { cat: 'Movies',    q: 'Spider-Man: Brand New Day is the biggest PH opening of 2026', pct: 63, d: +9, vol: '₱934K' },
     { cat: 'BTC',       q: 'Bitcoin tops $120,000 by Dec 31, 2026',                pct: 11, d: +6,  vol: '₱5.4M', slug: 'crypto-btc-120k' },
   ],
   sports: [
@@ -60,8 +60,8 @@ export const MARKETS: Record<CategoryKey, MarketRow[]> = {
     { cat: 'NBA',       q: 'Luka Dončić is named 2026-27 NBA MVP',                pct: 18, d: +1,  vol: '₱2.2M' },
     { cat: 'PVL',       q: 'Creamline win the 2026 PVL All-Filipino Conference',   pct: 44, d: +2,  vol: '₱1.1M' },
     { cat: 'Boxing',    q: 'Manny Pacquiao announces a return bout in 2026',       pct: 17, d: +1,  vol: '₱2.7M' },
-    { cat: 'World Cup', q: 'Argentina win the 2026 FIFA World Cup',               pct: 9,  d: +2,  vol: '₱6.1M', slug: 'wc-argentina' },
-    { cat: 'World Cup', q: 'Spain win the 2026 FIFA World Cup',                   pct: 17, d: +3,  vol: '₱1.9M', slug: 'wc-spain' },
+    { cat: 'Gilas',     q: 'Gilas Pilipinas reach the 2027 FIBA Asia Cup semi-finals', pct: 33, d: +2, vol: '₱1.2M' },
+    { cat: 'Football',  q: 'The Azkals qualify for the 2027 AFC Asian Cup',        pct: 24, d: +1,  vol: '₱760K' },
   ],
   esports: [
     { cat: 'MLBB',     q: 'Blacklist International win MPL Philippines this season',    pct: 34, d: +5, vol: '₱2.9M' },
