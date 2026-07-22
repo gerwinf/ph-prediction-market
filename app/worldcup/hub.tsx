@@ -291,8 +291,8 @@ function MatchGrid({
 function CtaStrip() {
   return (
     <section className="wc-cta">
-      <h2 className="wc-cta-title">Trade the World Cup. <em>Settled in pesos.</em></h2>
-      <p className="wc-cta-sub">Get in before the final — founding members trade zero-fee for life.</p>
+      <h2 className="wc-cta-title">Spain lift the Cup. <em>The next one's on Hula.</em></h2>
+      <p className="wc-cta-sub">Reserve your handle now — founding members trade zero-fee for life.</p>
       <button className="wc-cta-btn" onClick={() => {
         const el = document.getElementById('wc-waitlist-anchor')
         el?.scrollIntoView({ behavior: 'smooth' })
