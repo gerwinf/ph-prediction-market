@@ -201,6 +201,44 @@ shadow-run against the remaining WC knockout fixtures for real-data parity.
 the five UI deltas + estimate endpoint + i18n (P2 — trigger: real-money date) ·
 seeding automation + "About the pool" disclosure (P2 — bundled with UI phase).
 
+## Parimutuel flip checklist (added 2026-07-07 post-shadow-launch)
+
+### Phase A — pre-flip, running now (→ Jul 19)
+- [x] Shadow settlement per finished fixture (automatic since #50; settle-on-read + ops + cron sweep)
+- [x] Reserve seeded ₱500,000 (free-play simulation of the launch seed; double-seed guarded)
+- [ ] Decide the consolation floor from accumulated shadow rows (spec-as-written 1×/lit-cell
+      vs ≥3-cell floor) → `claimWeightCentavos` + spec amendment. Baseline: POR–ESP 39/39
+      winners, u=0.179 unseeded.
+- [ ] Validate seed burn rate: Σ `reserve_drawn` across shadow rows vs ₱500k + ₱200k/mo budget.
+      (Shadow never depletes the ledger — burn is computed, not applied.)
+
+### Trigger: operator deal sets a real-money date
+
+### Phase B — engine (phase 3)
+- [ ] `settle_parimutuel_credit` Postgres RPC — one transaction (contract in migration 013)
+- [ ] `settle.ts` parimutuel path calls RPC + ledger write-back (payout_draw / rollover_in)
+- [ ] `/api/cards/[id]/won` stops crediting → claim record + `{ pending, estPhp }`
+- [ ] `GET /api/hits/pool?match=` estimate endpoint (allocate over current winners)
+- [ ] Anon localStorage credit moves to settlement-poll time
+- [ ] Seed top-up automation (config: monthly amount + sunset; rides maintain-catalog)
+- [ ] `settlement_mode='parimutuel'` default for NEW fixtures only (purchase-time mode is frozen)
+
+### Phase C — copy + UI (one PR; every string via the i18n dictionary, EN+TL)
+- [ ] `card.payoutsNote`: "credit instantly" → "pays at the final whistle"
+- [ ] Payout tables: "hanggang/up to ₱X" + consolation row + "Jackpot pool: ₱X" line
+- [ ] Landing hero jackpot figure (reserve + current game pool)
+- [ ] Win modal → live estimate ("≈₱X (est.) · settles at final whistle", polls pool endpoint)
+- [ ] Pending-winnings state (header + amber binder chip → green ribbon at settlement)
+- [ ] Rollover banner from `pool_settlements` ("₱X rolled over → next game — jackpot ₱Y")
+- [ ] "About the pool" screen (mechanics, caps, seed budget + sunset, non-refundable)
+
+### Phase D — verify before flipping the default
+- [ ] Shadow-vs-credited parity on one staging fixture
+- [ ] Conservation property on real data (centavo-exact)
+- [ ] Rollback drill: new fixtures back to 'fixed'; in-flight parimutuel fixtures unaffected
+
+Consciously NOT in the flip: real deposits (PIGO gateway surface), order book, on-chain.
+
 ## GSTACK REVIEW REPORT
 
 | Review | Trigger | Why | Runs | Status | Findings |
