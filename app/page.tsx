@@ -415,7 +415,7 @@ function HowItWorks() {
 // Single source of truth for the visible FAQ *and* the FAQPage JSON-LD below.
 // Answers are written as self-contained, quotable sentences — the format answer
 // engines (ChatGPT, Perplexity, Google AI Overviews) lift and cite. Regulatory
-// wording mirrors the compliance copy in <Compliance/> (pre-launch, PAGCOR oversight)
+// wording mirrors the compliance copy in <Compliance/> (pre-launch, licensed offshore exchange)
 // — REVIEW the legality answer before any change to real-money/licensing status.
 const FAQ_ITEMS: { q: string; a: string }[] = [
   {
@@ -435,8 +435,8 @@ const FAQ_ITEMS: { q: string; a: string }[] = [
     a: 'Unlike a fixed-odds sportsbook, Hula is a market: prices move with supply and demand, you trade against other users rather than the house, and you can buy or sell your position anytime before an event settles.',
   },
   {
-    q: 'Is Hula legal and regulated in the Philippines?',
-    a: 'Hula is pre-launch and will operate under PAGCOR oversight. Markets will be open only to Philippine residents aged 21 and above; government employees, AFP/PNP personnel, and persons in the NDRP will not be eligible.',
+    q: 'Is Hula legal and regulated?',
+    a: 'Hula is pre-launch. Real-money markets will run on a licensed offshore exchange that holds client funds and clears trades, rather than under a domestic Philippine licence. Markets will be open only to eligible users aged 21 and above.',
   },
   {
     q: 'How do I get paid out?',
@@ -497,8 +497,8 @@ function Compliance() {
       <div className="compliance">
         <span className="badge">21+</span>
         <div>
-          <strong>Hula will operate under PAGCOR oversight.</strong>{' '}
-          Markets will be open only to Philippine residents 21 years and above. Government employees, AFP/PNP personnel, and persons in the NDRP will not be eligible. Magdiwang nang responsable — when the fun stops, stop.
+          <strong>Real-money markets will run on a licensed offshore exchange.</strong>{' '}
+          Markets will be open only to eligible users 21 years and above, with licensed partners holding client funds. Magdiwang nang responsable — when the fun stops, stop.
         </div>
       </div>
     </section>

@@ -33,10 +33,10 @@ export default function TermsPage() {
 
       <h2>Eligibility</h2>
       <p>
-        Hula is intended for Philippine residents aged 21 and above. At launch,
-        real-money markets will operate under PAGCOR oversight and exclude
-        government employees, AFP/PNP personnel, and persons in the national
-        database of restricted persons.
+        Hula is intended for eligible users aged 21 and above. At launch,
+        real-money markets will operate on a licensed offshore exchange that
+        holds client funds and runs KYC, subject to that venue&apos;s eligibility
+        rules.
       </p>
 
       <h2>Changes</h2>

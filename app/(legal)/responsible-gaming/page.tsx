@@ -24,11 +24,10 @@ export default function ResponsibleGamingPage() {
 
       <h2>At launch</h2>
       <ul>
-        <li>Markets will operate under PAGCOR oversight.</li>
-        <li>Open only to Philippine residents aged 21 and above.</li>
+        <li>Real-money markets will operate on a licensed offshore exchange.</li>
+        <li>Open only to eligible users aged 21 and above.</li>
         <li>
-          Government employees, AFP/PNP personnel, and persons in the national
-          database of restricted persons will not be eligible.
+          Licensed partners hold client funds, clear trades, and run KYC.
         </li>
         <li>
           Deposit limits, cool-offs, and self-exclusion will be available from
