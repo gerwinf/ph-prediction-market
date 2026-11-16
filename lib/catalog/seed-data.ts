@@ -17,6 +17,8 @@ export const TICKER_DATA: TickerItem[] = [
   { mkt: 'Blacklist win MPL Philippines',        pct: 34 },
   { mkt: 'BTC tops $120k in 2026',               pct: 11, slug: 'crypto-btc-120k' },
   { mkt: 'Ginebra win the PBA Philippine Cup',   pct: 29 },
+  { mkt: 'Senator files for president by Oct 2027', pct: 58 },
+  { mkt: '6+ run for PH president in 2028',       pct: 44 },
   { mkt: 'USD/PHP above 60 in 2026',             pct: 27 },
   { mkt: 'Bea top-5 at Miss Universe 2026',      pct: 48 },
   { mkt: 'PSEi crosses 8,000 in 2026',           pct: 41 },
@@ -28,6 +30,7 @@ export const TICKER_DATA: TickerItem[] = [
 // (seed grid or catalog merge) — never hardcode an inventory number here.
 export const CATEGORIES = [
   { key: 'trending', label: 'Trending' },
+  { key: 'politics', label: 'Halalan' },
   { key: 'sports',   label: 'Sports' },
   { key: 'esports',  label: 'Esports' },
   { key: 'showbiz',  label: 'Showbiz' },
@@ -51,7 +54,19 @@ export const MARKETS: Record<CategoryKey, MarketRow[]> = {
     { cat: 'Forex',     q: 'USD/PHP trades above 60 at any point in 2026',         pct: 27, d: +5,  vol: '₱2.3M' },
     { cat: 'Pageant',   q: 'The Philippines makes the Miss Universe 2026 top-3',   pct: 39, d: +4,  vol: '₱1.6M' },
     { cat: 'Movies',    q: 'Spider-Man: Brand New Day is the biggest PH opening of 2026', pct: 63, d: +9, vol: '₱934K' },
+    { cat: 'Halalan',   q: 'A sitting senator files for president before the Oct 2027 deadline', pct: 58, d: +5,  vol: '₱3.3M' },
     { cat: 'BTC',       q: 'Bitcoin tops $120,000 by Dec 31, 2026',                pct: 11, d: +6,  vol: '₱5.4M', slug: 'crypto-btc-120k' },
+  ],
+  // "Nobody prices a Philippine Senate race" — the markets Kalshi and the US
+  // exchanges don't carry, and the core of the Bilyonaryo diaspora play.
+  // Public-event / election markets only: no death, violence, disasters or minors.
+  politics: [
+    { cat: 'Halalan',  q: 'A sitting senator files for president before the Oct 2027 deadline', pct: 58, d: +5,  vol: '₱3.3M' },
+    { cat: 'Halalan',  q: 'The 2028 presidential race draws 6 or more official candidates',     pct: 44, d: +2,  vol: '₱2.8M' },
+    { cat: 'Senado',   q: 'A first-time candidate tops the 2028 Philippine Senate race',        pct: 22, d: +3,  vol: '₱3.9M' },
+    { cat: 'Survey',   q: 'One bet leads the Q1 2028 presidential surveys by 10+ points',       pct: 37, d: -4,  vol: '₱2.1M' },
+    { cat: 'Diaspora', q: 'Overseas voter registration tops 1.2M for the 2028 elections',       pct: 41, d: +6,  vol: '₱1.4M' },
+    { cat: 'Turnout',  q: 'Voter turnout tops 80% in the May 2028 national elections',          pct: 53, d: +1,  vol: '₱980K' },
   ],
   sports: [
     { cat: 'PBA',       q: 'Barangay Ginebra win the 2026 PBA Philippine Cup',    pct: 29, d: +4,  vol: '₱4.8M' },

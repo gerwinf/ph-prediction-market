@@ -616,7 +616,7 @@ button:focus {
   letter-spacing: 0.04em; flex-wrap: wrap; gap: 12px;
 }
 
-/* PAGCOR responsible-gaming card */
+/* Offshore-exchange responsible-gaming card */
 .hula-v2 .compliance {
   border: 1px solid var(--line);
   background: var(--paper);
@@ -869,7 +869,7 @@ button:focus {
   margin-right: 2px;
 }
 
-/* Trust chips below hero — PAGCOR / peso / GCash / 21+ */
+/* Trust chips below hero — offshore exchange / peso / GCash / 21+ */
 .hula-v2 .picks-trust-chips {
   display: flex; gap: 8px; flex-wrap: wrap;
   margin-top: 18px;
