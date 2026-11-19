@@ -50,12 +50,14 @@ Edit `lib/bilyonaryo/content.json` to refresh the edition, headlines, links,
 standfirsts, probabilities, and resolution rules. Chips, ticker, widget,
 sheet, and market pages share these two market records.
 
-The Politiko article URL and all six business links were verified on
-19 November 2026. Abante blocks automated access to its article/search
-pages; its story currently links to a publisher search for the supplied
-headline. Replace that link with the canonical article URL when confirmed.
-Only the two supplied headlines and our own standfirsts are displayed;
-no publisher body copy or photographs are reproduced.
+Both featured stories and all six business headlines link directly to
+Bilyonaryo. The featured impeachment and Eala stories were published on
+10 November 2026 and are credited to Reuters. Their canonical URLs were
+verified on 19 November 2026. Feed and article dates come from each story's
+record. The Eala standfirst explicitly introduces the Australian Open
+question as Hula's forward-looking prediction, rather than suggesting the
+source article is an Australian Open preview. Only headlines and our own
+standfirsts are displayed; no publisher body copy or photographs are reproduced.
 
 ## Reservations
 

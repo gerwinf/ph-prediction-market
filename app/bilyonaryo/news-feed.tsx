@@ -13,7 +13,7 @@ function OddsChip({ story }: { story: Story }) {
 function FeaturedStory({ story, lead }: { story: Story; lead?: boolean }) {
   return <article className={lead ? 'by-lead' : 'by-sports-story'}>
     <Link href={`/bilyonaryo/story/${story.id}`} className="by-story-link">
-      <div className="by-story-eyebrow"><span className="by-section-label">{story.section}</span><span className="by-source">{story.source} <span>·</span> 19 NOV</span></div>
+      <div className="by-story-eyebrow"><span className="by-section-label">{story.section}</span><span className="by-source">{story.source} <span>·</span> <time dateTime={story.dateISO}>{story.dateShort}</time></span></div>
       <h2>{story.headline}</h2>
       <p>{story.standfirst}</p>
       <div className="by-story-bottom"><OddsChip story={story} /><span className="by-mono by-predict-hint">MAKE YOUR CALL</span></div>

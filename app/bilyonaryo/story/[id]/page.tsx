@@ -28,11 +28,11 @@ export default function StoryPage({ params }: { params: { id: string } }) {
         <div className="by-story-eyebrow"><span className="by-section-label">{story.section}</span><span className="by-source">{story.source}</span></div>
         <h1>{story.headline}</h1>
         <p className="by-standfirst">{story.standfirst}</p>
-        <div className="by-article-byline"><span>Reporting by <strong>{story.source}</strong></span><time dateTime="2026-11-19">{story.date}</time></div>
+        <div className="by-article-byline"><span>Reporting by <strong>{story.credit}</strong> via <strong>{story.source}</strong></span><time dateTime={story.dateISO}>{story.date}</time></div>
         <a className="by-original-link" href={story.url} target="_blank" rel="noopener noreferrer">{story.url.includes('?s=') ? 'Find the full story' : 'Read the full story'} on {story.source}<Arrow diagonal /></a>
         <div className="by-article-divider"><span>WHAT HAPPENS NEXT?</span></div>
         <PredictionWidget market={market} />
-        <p className="by-editorial-note">The journalism is {story.source}’s. The prediction is yours.<br />Markets and resolution are handled by Hula.</p>
+        <p className="by-editorial-note">The story is on {story.source}. The prediction is yours.<br />Markets and resolution are handled by Hula.</p>
       </main>
       <PreviewFooter />
     </div>
