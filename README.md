@@ -42,6 +42,7 @@ Scripts:
 | `/hits` | Masa-facing live-event **bingo card** product (the Phase 0 demand test). Card detail at `/hits/[card_id]`, history at `/hits/history` |
 | `/picks` | PrizePicks-style **player-props** prototype — closed validation tool, not linked from `/` |
 | `/app` | Phone-frame product simulator (internal UI prototype) |
+| `/bilyonaryo` | Unlisted Bilyonaryo × Hula editorial concept; two story previews, play-point predictions, and `/m/[slug]` market handoffs. [Setup and domain notes](docs/bilyonaryo-preview.md) |
 | `/ops` | Manual live-ops dashboard (resolve events, toggle fixture status) |
 | `/ops/ggr` | Gross Gaming Revenue dashboard |
 | `/private/[gameId]/[playerSlug]` | Private prediction games |

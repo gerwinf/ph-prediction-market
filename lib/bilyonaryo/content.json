@@ -1,0 +1,85 @@
+{
+  "edition": "Thursday, 19 November 2026",
+  "stories": [
+    {
+      "id": "sara-duterte-senate-verdict",
+      "section": "Politics",
+      "source": "Politiko",
+      "url": "https://politiko.com.ph/mahina-ebidensya-sara-dutertes-defense-effectively-dead-prosecution/",
+      "headline": "Mahina ebidensya: Sara Duterte’s defense effectively dead – prosecution",
+      "standfirst": "The impeachment proceedings put the Senate in the spotlight. As both sides make their case, the question turns to how senators will decide.",
+      "date": "19 November 2026",
+      "marketId": "sara-duterte-senate-verdict"
+    },
+    {
+      "id": "alex-eala-australian-open",
+      "section": "Sports",
+      "source": "Abante",
+      "url": "https://www.abante.com.ph/?s=Alex+mas+mabangis",
+      "headline": "Ibang klaseng halimaw! Alex mas mabangis kapag Top 5 katapat",
+      "standfirst": "Alex Eala’s performances against the world’s best have Filipino tennis fans looking ahead. Next on the horizon: a new Grand Slam season, beginning in Melbourne.",
+      "date": "19 November 2026",
+      "marketId": "alex-eala-australian-open"
+    }
+  ],
+  "markets": [
+    {
+      "id": "sara-duterte-senate-verdict",
+      "slug": "sara-duterte-senate-verdict-2026",
+      "section": "Politics",
+      "question": "Will the Senate convict VP Sara Duterte by 31 Dec 2026?",
+      "shortQuestion": "Senate conviction by year-end?",
+      "chip": "say convict",
+      "yes": 45,
+      "resolves": "31 Dec 2026",
+      "rules": "Resolves Yes if the Philippine Senate officially votes to convict Vice President Sara Duterte in an impeachment trial on or before 31 December 2026, 11:59 p.m. Philippine time. Otherwise resolves No, including acquittal, dismissal, or no conviction by the deadline. Only an official Senate verdict counts; statements, allegations, and predictions do not.",
+      "resolutionSource": "Senate of the Philippines · official verdict and records",
+      "resolutionUrl": "https://senate.gov.ph/"
+    },
+    {
+      "id": "alex-eala-australian-open",
+      "slug": "alex-eala-australian-open-2027-quarterfinals",
+      "section": "Sports",
+      "question": "Will Alex Eala reach the Australian Open 2027 quarterfinals?",
+      "shortQuestion": "Eala to the Australian Open QF?",
+      "chip": "say quarterfinals",
+      "yes": 30,
+      "resolves": "31 Jan 2027",
+      "rules": "Resolves Yes if Alex Eala officially reaches the women’s singles quarterfinal round of the 2027 Australian Open, including advancement by walkover. Otherwise resolves No, including withdrawal or elimination before the quarterfinals. If the event is cancelled or the relevant results are unavailable by 31 January 2027, 11:59 p.m. Philippine time, this preview market is void and points are returned.",
+      "resolutionSource": "Australian Open · official women’s singles draw and results",
+      "resolutionUrl": "https://ausopen.com/draws"
+    }
+  ],
+  "business": [
+    {
+      "headline": "Semirara Mining approves new round of layoffs amid Acacia mine woes",
+      "url": "https://bilyonaryo.com/semirara-mining-approves-new-round-of-layoffs-amid-acacia-mine-woes/",
+      "date": "19 Nov"
+    },
+    {
+      "headline": "Dollar at 19-month high as policymakers, data cement December rate hike bets",
+      "url": "https://bilyonaryo.com/dollar-at-19-month-high-as-policymakers-data-cement-december-rate-hike-bets/",
+      "date": "18 Nov"
+    },
+    {
+      "headline": "Two-hour drive, no more? CALAX, CCLink target December opening",
+      "url": "https://bilyonaryo.com/two-hour-drive-no-more-calax-cclink-target-december-opening/",
+      "date": "19 Nov"
+    },
+    {
+      "headline": "Marks & Spencer makes Philippine comeback with Glorietta reopening",
+      "url": "https://bilyonaryo.com/marks-spencer-makes-philippine-comeback-with-glorietta-reopening/",
+      "date": "19 Nov"
+    },
+    {
+      "headline": "Fitch warns BSP capital easing could fuel risky credit card, salary lending",
+      "url": "https://bilyonaryo.com/fitch-warns-bsp-capital-easing-could-fuel-risky-credit-card-salary-lending/",
+      "date": "19 Nov"
+    },
+    {
+      "headline": "Cebu Pacific Takes Delivery of Sixth Aircraft of 2026",
+      "url": "https://bilyonaryo.com/cebu-pacific-takes-delivery-of-sixth-aircraft-of-2026/",
+      "date": "19 Nov"
+    }
+  ]
+}

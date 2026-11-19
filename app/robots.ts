@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: '*',
       allow: '/',
       // Internal / non-public surfaces — keep them out of the index.
-      disallow: ['/ops', '/dev', '/private', '/api', '/app'],
+      disallow: ['/ops', '/dev', '/private', '/api', '/app', '/bilyonaryo', '/m/'],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,
     host: SITE_URL,

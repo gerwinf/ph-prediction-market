@@ -1,0 +1,11 @@
+.context/
+.conductor/
+.git/
+.vercel/
+.next/
+node_modules/
+.env*
+!.env.example
+.DS_Store
+*.tsbuildinfo
+*.log
